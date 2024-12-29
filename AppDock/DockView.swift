@@ -179,7 +179,7 @@ struct DockView: View {
                         // Get the app details
                         let (appName, bundleId, appIcon) = paddedApps[appIndex]
                         
-                        VStack {
+                        VStack(spacing: 3) {
                             
                             // Create button view for the app
                             ButtonView(appName: appName,
@@ -188,13 +188,17 @@ struct DockView: View {
                                        buttonWidth: buttonWidth,
                                        buttonHeight: buttonHeight)
                             
-                            // Create a Text label for the app name
-                            Text(appName)
-                                .font(.system(size: 8))
-                                .lineLimit(1)
-                                .foregroundColor(.white)
-                                .background(Color.black.opacity(0.75))
-                                .cornerRadius(3)
+                            // Create a Text label for the app name if the app is there
+                            if !appName.isEmpty {
+                                Text(appName)
+                                    .font(.system(size: 8))
+                                    .lineLimit(1)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 5)
+                                    .padding(.vertical, 2)
+                                    .background(Color.black.opacity(0.25))
+                                    .cornerRadius(3)
+                            }
                         }
                     }
                 }
@@ -204,7 +208,7 @@ struct DockView: View {
                     Divider()
                         .frame(width: dividerWidth)
                         .background(Color.blue)
-                        .padding(.vertical, 3)
+                        .padding(.vertical, 5)
                 }
             }
         }

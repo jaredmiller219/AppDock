@@ -36,7 +36,7 @@ class MenuController: NSObject {
         
         // Configure the size of the menu window
         // Set width to 200 and height to 300
-        topView.view.frame.size = CGSize(width: 200, height: 300)
+        topView.view.frame.size = CGSize(width: 200, height: 340)
         
         // Create a menu item to hold our dock view
         // This will be the main content area of our menu
