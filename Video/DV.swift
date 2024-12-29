@@ -122,6 +122,8 @@
                         // Get the app details
                         
                         // Create button view for the app
+
+                        // Create a Text label for the app name
                 
                 // Add divider between rows (except last row)
         
