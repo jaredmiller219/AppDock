@@ -141,11 +141,11 @@ struct DockView: View {
     // Number of rows in the grid
     let numberOfRows: Int = 4
     
-    // Width of each button
-    let buttonWidth: CGFloat = 42
+    // Width of each button = 50
+    let buttonWidth: CGFloat = 50
     
-    // Height of each button
-    let buttonHeight: CGFloat = 42
+    // Height of each button = 50
+    let buttonHeight: CGFloat = 50
     
     // Extra spacing for the divider
     let extraSpace: CGFloat = 15
@@ -213,8 +213,8 @@ struct DockView: View {
     }
 }
 
-// Preview provider for SwiftUI canvas
-#Preview {
-    // Initialize DockView with empty app state
-    DockView(appState: .init())
-}
+//// Preview provider for SwiftUI canvas
+//#Preview {
+//    // Initialize DockView with empty app state
+//    DockView(appState: .init())
+//}
