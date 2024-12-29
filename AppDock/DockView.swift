@@ -116,29 +116,18 @@ struct IconView: View {
     
     // The main view body
     var body: some View {
-        // Display the app icon image
-        Image(nsImage: appIcon)
-            // Make the image resizable
-            .resizable()
-            // Scale to fit the frame
-            .scaledToFit()
-            // Set the frame dimensions
-            .frame(width: width, height: height)
-            // Add corner radius
-            .cornerRadius(8)
-            // Add app name overlay
-            .overlay(
-                Text(appName)
-                    .font(.system(size: 8))
-                    .lineLimit(1)
-                    .foregroundColor(.white)
-                    .padding(2)
-                    .background(Color.black.opacity(0.6))
-                    .cornerRadius(3)
-                    .padding(.bottom, 2),
-                alignment: .bottom
-            )
+            // Display the app icon image
+            Image(nsImage: appIcon)
+                // Make the image resizable
+                .resizable()
+                // Scale to fit the frame
+                .scaledToFit()
+                // Set the frame dimensions
+                .frame(width: width, height: height)
+                // Add corner radius
+                .cornerRadius(8)
     }
+    
 }
 
 // Main DockView that displays the grid of apps
@@ -168,6 +157,7 @@ struct DockView: View {
         
         // Create vertical stack for rows
         VStack {
+            
             // Calculate total number of slots
             let totalSlots = numberOfColumns * numberOfRows
             
@@ -189,12 +179,23 @@ struct DockView: View {
                         // Get the app details
                         let (appName, bundleId, appIcon) = paddedApps[appIndex]
                         
-                        // Create button view for the app
-                        ButtonView(appName: appName,
-                                    bundleId: bundleId,
-                                    appIcon: appIcon,
-                                    buttonWidth: buttonWidth,
-                                    buttonHeight: buttonHeight)
+                        VStack {
+                            
+                            // Create button view for the app
+                            ButtonView(appName: appName,
+                                       bundleId: bundleId,
+                                       appIcon: appIcon,
+                                       buttonWidth: buttonWidth,
+                                       buttonHeight: buttonHeight)
+                            
+                            // Create a Text label for the app name
+                            Text(appName)
+                                .font(.system(size: 8))
+                                .lineLimit(1)
+                                .foregroundColor(.white)
+                                .background(Color.black.opacity(0.75))
+                                .cornerRadius(3)
+                        }
                     }
                 }
                 

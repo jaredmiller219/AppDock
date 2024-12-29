@@ -58,7 +58,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Called when the application finishes launching
     func applicationDidFinishLaunching(_ notification: Notification) {
         
-        // Set up the singleton instance
+        // Set the instance to itself
         AppDelegate.instance = self
         
         // Configure the status bar icon
