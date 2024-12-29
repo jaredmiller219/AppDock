@@ -28,20 +28,61 @@ struct ButtonView: View {
     // The height of the button
     let buttonHeight: CGFloat
     
+    // Whether or not the mouse is hovering over an app
+    @State private var isHovering = false
+    
     // The main view body
     var body: some View {
         // Create a button with action and label
         Button {
-            // Check if the bundle ID is not empty
-            if !bundleId.isEmpty {
-                // Get the shared workspace
-                let workspace = NSWorkspace.shared
+            if let event = NSApp.currentEvent {
+                handleClick(with: event)
+            }
+        } label: {
+            // If the app name is empty, show empty slot view
+            if appName.isEmpty {
+                EmptySlot(width: buttonWidth, height: buttonHeight)
+            } else {
+                // Otherwise show the app icon view
+                IconView(appName: appName, appIcon: appIcon, width: buttonWidth, height: buttonHeight)
+                    // Add a border when hovering
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(isHovering ? Color.blue : Color.clear, lineWidth: 2)
+                    )
+            }
+        }
+        // Set the button style to plain
+        .buttonStyle(PlainButtonStyle())
+        
+        // Disable the button if bundle ID is empty
+        .disabled(bundleId.isEmpty)
+        
+        .onHover { hovering in
+            isHovering = hovering
+        }
+    }
+    
+    private func handleClick(with event: NSEvent) {
+        // Check if the bundle ID is not empty
+        if !bundleId.isEmpty {
+            // Get the shared workspace
+            let workspace = NSWorkspace.shared
+            
+            // Check if command key is pressed
+            let flags = NSEvent.modifierFlags
+            if flags.contains(.command) {
+                // Quit the app
+                if let runningApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == bundleId }) {
+                    runningApp.terminate()
+                }
+            } else {
                 
                 // Try to get the URL for the application using bundle identifier
                 if let appURL = workspace.urlForApplication(withBundleIdentifier: bundleId) {
                     // Open the application with the specified URL
                     workspace.openApplication(at: appURL,
-                                           configuration: NSWorkspace.OpenConfiguration()) { app, error in
+                                              configuration: NSWorkspace.OpenConfiguration()) { app, error in
                         // Handle potential errors
                         if let error = error {
                             print("BundleID Mismastch - Expected: (\(bundleId)), Actual: (\(app?.bundleIdentifier ?? ""))")
@@ -56,20 +97,9 @@ struct ButtonView: View {
                     }
                 }
             }
-        } label: {
-            // If the app name is empty, show empty slot view
-            if appName.isEmpty {
-                EmptySlot(width: buttonWidth, height: buttonHeight)
-            } else {
-                // Otherwise show the app icon view
-                IconView(appName: appName, appIcon: appIcon, width: buttonWidth, height: buttonHeight)
-            }
         }
-        // Set the button style to plain
-        .buttonStyle(PlainButtonStyle())
-        // Disable the button if bundle ID is empty
-        .disabled(bundleId.isEmpty)
     }
+    
 }
 
 // Create a separate view for empty slots
