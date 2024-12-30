@@ -69,34 +69,40 @@ struct ButtonView: View {
             // Get the shared workspace
             let workspace = NSWorkspace.shared
             
-            // Check if command key is pressed
-            let flags = NSEvent.modifierFlags
-            if flags.contains(.command) {
-                // Quit the app
-                if let runningApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == bundleId }) {
-                    runningApp.terminate()
-                }
-            } else {
+            // If command (cmd) key is pressed, quit the app
+            if event.modifierFlags.contains(.command) {
+                print("\(bundleId)")
+                return
+            }
+            
                 
-                // Try to get the URL for the application using bundle identifier
-                if let appURL = workspace.urlForApplication(withBundleIdentifier: bundleId) {
-                    // Open the application with the specified URL
-                    workspace.openApplication(at: appURL,
-                                              configuration: NSWorkspace.OpenConfiguration()) { app, error in
-                        // Handle potential errors
-                        if let error = error {
-                            print("BundleID Mismastch - Expected: (\(bundleId)), Actual: (\(app?.bundleIdentifier ?? ""))")
-                            print("Trying to open \(appName), but got error: \(error)")
-                        } else {
-                            // Print success message
-                            // print("Opened \(appName)")
-                            
-                            // Skip this block
-                            ()
-                        }
+            // Try to get the URL for the application using bundle identifier
+            if let appURL = workspace.urlForApplication(withBundleIdentifier: bundleId) {
+                // Open the application with the specified URL
+                workspace.openApplication(at: appURL, configuration: NSWorkspace.OpenConfiguration()) { app, error in
+                    // Handle potential errors
+                    if let error = error {
+                        print("BundleID Mismastch - Expected: (\(bundleId)), Actual: (\(app?.bundleIdentifier ?? ""))")
+                        print("Trying to open \(appName), but got error: \(error)")
+                    } else {
+                        ()
                     }
                 }
             }
+        }
+    }
+    
+    // Add function to quit the app
+    private func quitApp() {
+        if let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleId).first {
+            runningApps.terminate()
+        }
+    }
+    
+    // Add function to hide the app
+    private func hideApp() {
+        if let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleId).first {
+            runningApps.hide()
         }
     }
     
