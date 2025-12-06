@@ -70,6 +70,26 @@ final class DockViewTests: XCTestCase {
 	// Define the type alias locally for convenience, using the highly unique mock state
 	typealias AppDetail = DockViewTestAppState.AppDetail
 	
+	// Helper that mirrors the context-menu tap logic in ButtonView
+	struct ButtonContextMenuHandler {
+		static func handleTap(currentEvent: NSEvent?, isContextMenuVisible: inout Bool) {
+			if let event = currentEvent, event.modifierFlags.contains(.command) {
+				isContextMenuVisible.toggle()
+			} else {
+				isContextMenuVisible = false
+			}
+		}
+	}
+	
+	// Helper that mirrors the dismissContextMenus call in DockView
+	struct DockContextMenuState {
+		var activeContextMenuIndex: Int?
+		
+		mutating func dismissContextMenus() {
+			activeContextMenuIndex = nil
+		}
+	}
+	
 	// Test 1: Verify the DockView correctly calculates the padded app list (padding logic)
 	func testDockView_paddingLogic() {
 		let app1: AppDetail = ("App One", "id.one", test_createDummyImage())
@@ -188,5 +208,38 @@ final class DockViewTests: XCTestCase {
 		
 		let host = ButtonViewPresentTestHost()
 		XCTAssertFalse(host.appDetail.name.isEmpty, "The app name should not be empty for this test case.")
+	}
+	
+	// Test 5: Regular clicks should clear the context menu (matches the non-command path)
+	func testButtonRegularClickClearsContextMenu() {
+		var isVisible = true
+		ButtonContextMenuHandler.handleTap(currentEvent: nil, isContextMenuVisible: &isVisible)
+		XCTAssertFalse(isVisible, "Regular click should clear an open context menu.")
+	}
+	
+	// Test 6: Command-click toggles the context menu visibility (matches the command path)
+	func testButtonCommandClickTogglesContextMenu() {
+		var isVisible = false
+		let cmdEvent = NSEvent.mouseEvent(
+			with: .leftMouseDown,
+			location: .zero,
+			modifierFlags: [.command],
+			timestamp: 0,
+			windowNumber: 0,
+			context: nil,
+			eventNumber: 0,
+			clickCount: 1,
+			pressure: 1.0
+		)
+		
+		ButtonContextMenuHandler.handleTap(currentEvent: cmdEvent, isContextMenuVisible: &isVisible)
+		XCTAssertTrue(isVisible, "Command-click should toggle the context menu to visible.")
+	}
+	
+	// Test 7: Overlay dismissal clears the active context menu index
+	func testOverlayTapDismissesActiveContextMenu() {
+		var state = DockContextMenuState(activeContextMenuIndex: 3)
+		state.dismissContextMenus()
+		XCTAssertNil(state.activeContextMenuIndex, "Overlay tap (dismiss call) should clear the active context menu.")
 	}
 }

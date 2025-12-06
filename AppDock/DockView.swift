@@ -33,20 +33,22 @@ struct ButtonView: View {
 	var body: some View {
 		ZStack(alignment: .topLeading) {
 			Group {
-				if appName.isEmpty {
-					EmptySlot(width: buttonWidth, height: buttonHeight)
-				} else {
-					Button {
-						if let event = NSApp.currentEvent,
-						   event.modifierFlags.contains(.command) {
-							// Command-click: toggle this button's context menu
-							isContextMenuVisible.toggle()
+						if appName.isEmpty {
+							EmptySlot(width: buttonWidth, height: buttonHeight)
 						} else {
-							// Regular click: activate the app
-							if !bundleId.isEmpty,
-							   let targetApp = NSRunningApplication
-								.runningApplications(withBundleIdentifier: bundleId)
-								.first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
+							Button {
+								if let event = NSApp.currentEvent,
+								   event.modifierFlags.contains(.command) {
+									// Command-click: toggle this button's context menu
+									isContextMenuVisible.toggle()
+								} else {
+									// Any regular click closes all context menus first
+									isContextMenuVisible = false
+									// Regular click: activate the app
+									if !bundleId.isEmpty,
+									   let targetApp = NSRunningApplication
+										.runningApplications(withBundleIdentifier: bundleId)
+										.first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
 								targetApp.activate()
 							}
 						}
@@ -265,6 +267,12 @@ struct DockView: View {
 	
 	// Tracks which app index currently has its context menu open
 	@State private var activeContextMenuIndex: Int? = nil
+	@State private var mouseMonitor: Any?
+	@State private var localMouseMonitor: Any?
+	
+	private func dismissContextMenus() {
+		activeContextMenuIndex = nil
+	}
 	
 	let numberOfColumns: Int = 3
 	let numberOfRows: Int = 4
@@ -340,6 +348,44 @@ struct DockView: View {
 			}
 		}
 		.padding()
+		// When a context menu is open, capture any tap inside the dock to dismiss it
+		.overlay(
+			Color.clear
+				.contentShape(Rectangle())
+				.allowsHitTesting(activeContextMenuIndex != nil)
+				.onTapGesture { dismissContextMenus() }
+		)
+		.onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { _ in
+			dismissContextMenus()
+		}
+		.onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didActivateApplicationNotification)) { notification in
+			if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+			   app.bundleIdentifier != Bundle.main.bundleIdentifier {
+				dismissContextMenus()
+			}
+		}
+		.onAppear {
+			// Local monitor fires for clicks inside the app/menu
+			localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { event in
+				dismissContextMenus()
+				return event
+			}
+
+			// Global monitor fires for clicks outside the app
+			mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { _ in
+				dismissContextMenus()
+			}
+		}
+		.onDisappear {
+			if let monitor = localMouseMonitor {
+				NSEvent.removeMonitor(monitor)
+				localMouseMonitor = nil
+			}
+			if let monitor = mouseMonitor {
+				NSEvent.removeMonitor(monitor)
+				mouseMonitor = nil
+			}
+		}
 	}
 }
 
