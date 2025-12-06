@@ -58,14 +58,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Create the popover that will host our dock view
     lazy var popover: NSPopover = {
         let popover = NSPopover()
-        popover.behavior = .semitransient
+        popover.behavior = .transient
         popover.animates = true
-        popover.contentSize = NSSize(width: 220, height: 380)
+        popover.contentSize = NSSize(width: 260, height: 460)
         return popover
     }()
     
-    // Monitor clicks outside the popover to close it
-    var popoverEventMonitor: Any?
+    // Monitor keyboard events to close the popover
+    var keyEventMonitor: Any?
     
     // Called when the application finishes launching
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -90,9 +90,52 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             aboutAction: { [weak self] in self?.about() },
             quitAction: { [weak self] in self?.quit() }
         )
+
+        // Build the main app menu so Settings/About/Quit are available from the menu bar
+        setupMainMenu()
         
         // Fetch the list of recent applications
         getRecentApplications()
+    }
+
+    private func setupMainMenu() {
+        let mainMenu = NSMenu()
+
+        // Top-level app menu item
+        let appMenuItem = NSMenuItem()
+        mainMenu.addItem(appMenuItem)
+        let appMenu = NSMenu()
+        appMenuItem.submenu = appMenu
+
+        let aboutItem = NSMenuItem(
+            title: "About AppDock",
+            action: #selector(about),
+            keyEquivalent: ""
+        )
+        aboutItem.target = self
+        appMenu.addItem(aboutItem)
+
+        appMenu.addItem(NSMenuItem.separator())
+
+        let settingsItem = NSMenuItem(
+            title: "Settings…",
+            action: #selector(openSettings),
+            keyEquivalent: ","
+        )
+        settingsItem.target = self
+        appMenu.addItem(settingsItem)
+
+        appMenu.addItem(NSMenuItem.separator())
+
+        let quitItem = NSMenuItem(
+            title: "Quit AppDock",
+            action: #selector(quit),
+            keyEquivalent: "q"
+        )
+        quitItem.target = self
+        appMenu.addItem(quitItem)
+
+        NSApp.mainMenu = mainMenu
     }
     
     @objc func togglePopover(_ sender: Any?) {
@@ -105,6 +148,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func showPopover(_ sender: Any?) {
         guard let button = statusBarItem.button else { return }
+        
+        // Bring the app/popup to the front immediately on open
+        NSApp.activate(ignoringOtherApps: true)
         
         // Position the popover near the center of the visible screen instead of tethered to the status item
         let screenFrame = button.window?.screen?.visibleFrame ?? NSScreen.main?.visibleFrame
@@ -124,6 +170,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 of: button.window?.contentView ?? button,
                 preferredEdge: .minY
             )
+            if let popWindow = popover.contentViewController?.view.window {
+                popWindow.makeKeyAndOrderFront(nil)
+                popWindow.isMovableByWindowBackground = false
+                popWindow.ignoresMouseEvents = false
+            }
         } else {
             // Fallback: anchor to the button if screen info is unavailable
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
@@ -138,17 +189,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func startPopoverMonitor() {
-        guard popoverEventMonitor == nil else { return }
+        guard keyEventMonitor == nil else { return }
         
-        popoverEventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            self?.closePopover(nil)
+        // Close on Escape without interfering with mouse clicks inside the popover
+        keyEventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            if event.keyCode == 53 { // Escape
+                self?.closePopover(nil)
+                return nil
+            }
+            return event
         }
     }
     
     private func stopPopoverMonitor() {
-        if let monitor = popoverEventMonitor {
+        if let monitor = keyEventMonitor {
             NSEvent.removeMonitor(monitor)
-            popoverEventMonitor = nil
+            keyEventMonitor = nil
         }
     }
     
@@ -163,7 +219,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Filter out applications that aren't user-facing or don't have bundle IDs
         let userApps = recentApps.filter { app in
-            app.activationPolicy == .regular && app.bundleIdentifier != nil
+            app.activationPolicy == .regular &&
+            app.bundleIdentifier != nil &&
+            app.launchDate != nil
         }
 
         // Sort the applications by launch date, most recent first
@@ -199,13 +257,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // Handler for the "About" action
-    func about() {
+    @objc func about() {
         NSApp.orderFrontStandardAboutPanel()
         closePopover(nil)
     }
     
     // Handler for "Settings" action (opens System Settings)
-    func openSettings() {
+    @objc func openSettings() {
         if let settingsURL = URL(string: "x-apple.systempreferences:") {
             NSWorkspace.shared.open(settingsURL)
         }
@@ -213,7 +271,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // Handler for the "Quit" action
-    func quit() {
+    @objc func quit() {
         NSApp.terminate(self)
     }
 }

@@ -29,7 +29,7 @@ class MenuController: NSObject {
             quitAction: quitAction
         )
         let hostingController = NSHostingController(rootView: contentView)
-        hostingController.view.frame.size = CGSize(width: 220, height: 380)
+        hostingController.view.frame.size = CGSize(width: 260, height: 460)
         return hostingController
     }
 }
@@ -41,25 +41,55 @@ struct PopoverContentView: View {
     let quitAction: () -> Void
     
     var body: some View {
-        VStack(spacing: 10) {
-            DockView(appState: appState)
-                .padding(.top, 6)
-            
-            Spacer(minLength: 0)
+        VStack(spacing: 0) {
+            ScrollView(showsIndicators: false) {
+                DockView(appState: appState)
+                    .padding(.horizontal, 8)
+                    .padding(.top, 6)
+                    .padding(.bottom, 10)
+            }
             
             Divider()
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
             
-            HStack {
-                Button("Settings") { settingsAction() }
-                Spacer()
-                Button("About") { aboutAction() }
-                Spacer()
-                Button("Quit") { quitAction() }
+            VStack(spacing: 0) {
+                MenuRow(title: "Settings", action: settingsAction)
+                Divider()
+                MenuRow(title: "About", action: aboutAction)
+                Divider()
+                MenuRow(title: "Quit AppDock", action: quitAction)
             }
-            .padding(.horizontal, 8)
             .padding(.bottom, 6)
         }
-        .padding(.horizontal, 8)
-        .frame(width: 220, height: 380, alignment: .top)
+        .frame(width: 260, height: 460, alignment: .top)
+    }
+}
+
+private struct MenuRow: View {
+    let title: String
+    let action: () -> Void
+    @State private var isHovering = false
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Text(title)
+                    .foregroundColor(.primary)
+                Spacer()
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(isHovering ? Color.primary.opacity(0.08) : Color.clear)
+            )
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+        .contentShape(RoundedRectangle(cornerRadius: 6))
+        .onHover { hovering in
+            isHovering = hovering
+        }
     }
 }

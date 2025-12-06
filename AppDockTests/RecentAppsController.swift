@@ -110,7 +110,9 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
 
         let userApps = recentApps.filter { app in
             // Filter out apps that are not .regular and don't have bundle IDs
-            app.activationPolicy == .regular && app.bundleIdentifier != nil
+            app.activationPolicy == .regular &&
+            app.bundleIdentifier != nil &&
+            app.launchDate != nil
         }
 
         let sortedApps = userApps.sorted { app1, app2 in
@@ -255,5 +257,25 @@ final class AppDelegateLogicTests: XCTestCase {
         // State should now contain the app, proving getRecentApplications was called
         XCTAssertEqual(sut.appState.recentApps.count, 1, "AppDelegate should call getRecentApplications during launch.")
         XCTAssertEqual(sut.appState.recentApps.first?.name, "App X")
+    }
+    
+    // Test 5: Verify empty workspace yields empty state
+    func testGetRecentApplications_handlesEmptyWorkspace() {
+        mockWorkspace.appsToReturn = []
+        sut.getRecentApplications()
+        XCTAssertTrue(sut.appState.recentApps.isEmpty, "No apps should be returned when workspace is empty.")
+    }
+    
+    // Test 6: Verify apps missing launchDate are skipped in sort logic (guard returns false)
+    func testGetRecentApplications_skipsAppsMissingLaunchDate() {
+        let now = Date()
+        let validApp = MockRunningApplication(name: "Valid", id: "com.valid", urlPath: "/valid.app", policy: .regular, launchDate: now)
+        let missingDate = MockRunningApplication(name: "NoDate", id: "com.nodate", urlPath: "/nodate.app", policy: .regular, launchDate: nil)
+        
+        mockWorkspace.appsToReturn = [validApp, missingDate]
+        sut.getRecentApplications()
+        
+        XCTAssertEqual(sut.appState.recentApps.count, 1, "Apps missing launchDate should not survive sorting.")
+        XCTAssertEqual(sut.appState.recentApps.first?.name, "Valid")
     }
 }

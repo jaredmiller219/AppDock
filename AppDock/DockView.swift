@@ -270,8 +270,6 @@ struct DockView: View {
 	
 	// Tracks which app index currently has its context menu open
 	@State private var activeContextMenuIndex: Int? = nil
-	@State private var mouseMonitor: Any?
-	@State private var localMouseMonitor: Any?
 	
 	private func dismissContextMenus() {
 		activeContextMenuIndex = nil
@@ -281,10 +279,13 @@ struct DockView: View {
 	let numberOfRows: Int = 4
 	let buttonWidth: CGFloat = 50
 	let buttonHeight: CGFloat = 50
+	let columnSpacing: CGFloat = 16
 	let extraSpace: CGFloat = 15
 	
 	var body: some View {
-		let dividerWidth: CGFloat = (CGFloat(numberOfColumns) * buttonWidth) + extraSpace
+		let dividerWidth: CGFloat = (CGFloat(numberOfColumns) * buttonWidth)
+			+ (CGFloat(numberOfColumns - 1) * columnSpacing)
+			+ extraSpace
 		let totalSlots = numberOfColumns * numberOfRows
 		let recentApps = appState.recentApps
 		let paddedApps = recentApps + Array(
@@ -294,7 +295,7 @@ struct DockView: View {
 		
 		VStack {
 			ForEach(0..<numberOfRows, id: \.self) { rowIndex in
-				HStack(alignment: .center) {
+				HStack(alignment: .center, spacing: columnSpacing) {
 					ForEach(0..<numberOfColumns, id: \.self) { columnIndex in
 						let appIndex = (rowIndex * numberOfColumns) + columnIndex
 						let (appName, bundleId, appIcon) = paddedApps[appIndex]
@@ -350,6 +351,12 @@ struct DockView: View {
 			}
 		}
 		.padding()
+		// Dismiss on any tap in the dock when a context menu is open (without blocking buttons)
+		.simultaneousGesture(TapGesture().onEnded {
+			if activeContextMenuIndex != nil {
+				dismissContextMenus()
+			}
+		})
 		// Centered context menu overlay for the currently active app
 		.overlay(alignment: .center) {
 			if let active = activeContextMenuIndex,
@@ -379,15 +386,6 @@ struct DockView: View {
 				}
 			}
 		}
-		// When a context menu is open, catch clicks anywhere else to dismiss it
-		.overlay {
-			if activeContextMenuIndex != nil {
-				Color.clear
-					.contentShape(Rectangle())
-					.onTapGesture { dismissContextMenus() }
-					.zIndex(1)
-			}
-		}
 		.onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { _ in
 			dismissContextMenus()
 		}
@@ -395,31 +393,6 @@ struct DockView: View {
 			if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
 			   app.bundleIdentifier != Bundle.main.bundleIdentifier {
 				dismissContextMenus()
-			}
-		}
-		.onAppear {
-			// Local monitor fires for clicks inside the app/menu
-			localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { event in
-				// If a context menu is open, let the click pass through so buttons work
-				if activeContextMenuIndex == nil {
-					dismissContextMenus()
-				}
-				return event
-			}
-
-			// Global monitor fires for clicks outside the app
-			mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { _ in
-				dismissContextMenus()
-			}
-		}
-		.onDisappear {
-			if let monitor = localMouseMonitor {
-				NSEvent.removeMonitor(monitor)
-				localMouseMonitor = nil
-			}
-			if let monitor = mouseMonitor {
-				NSEvent.removeMonitor(monitor)
-				mouseMonitor = nil
 			}
 		}
 	}

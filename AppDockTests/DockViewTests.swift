@@ -236,10 +236,40 @@ final class DockViewTests: XCTestCase {
 		XCTAssertTrue(isVisible, "Command-click should toggle the context menu to visible.")
 	}
 	
+	// Test 6b: Command-click when already visible should toggle it off
+	func testButtonCommandClickTogglesContextMenuOff() {
+		var isVisible = true
+		let cmdEvent = NSEvent.mouseEvent(
+			with: .leftMouseDown,
+			location: .zero,
+			modifierFlags: [.command],
+			timestamp: 0,
+			windowNumber: 0,
+			context: nil,
+			eventNumber: 0,
+			clickCount: 1,
+			pressure: 1.0
+		)
+		
+		ButtonContextMenuHandler.handleTap(currentEvent: cmdEvent, isContextMenuVisible: &isVisible)
+		XCTAssertFalse(isVisible, "Command-click should toggle the context menu off if it was visible.")
+	}
+	
 	// Test 7: Overlay dismissal clears the active context menu index
 	func testOverlayTapDismissesActiveContextMenu() {
 		var state = DockContextMenuState(activeContextMenuIndex: 3)
 		state.dismissContextMenus()
 		XCTAssertNil(state.activeContextMenuIndex, "Overlay tap (dismiss call) should clear the active context menu.")
+	}
+	
+	// Test 8: Padding logic with zero apps still fills all slots
+	func testDockView_paddingLogic_whenEmpty() {
+		let appState = DockViewTestAppState(apps: [])
+		let dockView = DockView(appState: appState as AppState)
+		let totalSlots = dockView.numberOfColumns * dockView.numberOfRows
+		
+		XCTAssertEqual(totalSlots, 12, "Total slots should remain constant even when no apps exist.")
+		let expectedPadding = totalSlots - appState.recentApps.count
+		XCTAssertEqual(expectedPadding, 12, "All slots should be padding when there are no apps.")
 	}
 }
