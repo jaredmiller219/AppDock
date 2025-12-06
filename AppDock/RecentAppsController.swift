@@ -52,8 +52,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Create the status bar item with variable length
     lazy var statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     
-    // Initialize the app menu
+    // Initialize the popover controller
     let menu = MenuController()
+    
+    // Create the popover that will host our dock view
+    lazy var popover: NSPopover = {
+        let popover = NSPopover()
+        popover.behavior = .semitransient
+        popover.animates = true
+        popover.contentSize = NSSize(width: 220, height: 380)
+        return popover
+    }()
+    
+    // Monitor clicks outside the popover to close it
+    var popoverEventMonitor: Any?
     
     // Called when the application finishes launching
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -67,11 +79,77 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Set the image position in the status bar
         statusBarItem.button?.imagePosition = .imageLeading
         
-        // Attach the menu to the status bar item
-        statusBarItem.menu = menu.createMenu()
+        // Attach popover toggle to the status bar button
+        statusBarItem.button?.target = self
+        statusBarItem.button?.action = #selector(togglePopover(_:))
+        
+        // Prepare popover content
+        popover.contentViewController = menu.makePopoverController(
+            appState: appState,
+            settingsAction: { [weak self] in self?.openSettings() },
+            aboutAction: { [weak self] in self?.about() },
+            quitAction: { [weak self] in self?.quit() }
+        )
         
         // Fetch the list of recent applications
         getRecentApplications()
+    }
+    
+    @objc func togglePopover(_ sender: Any?) {
+        if popover.isShown {
+            closePopover(sender)
+        } else {
+            showPopover(sender)
+        }
+    }
+    
+    private func showPopover(_ sender: Any?) {
+        guard let button = statusBarItem.button else { return }
+        
+        // Position the popover near the center of the visible screen instead of tethered to the status item
+        let screenFrame = button.window?.screen?.visibleFrame ?? NSScreen.main?.visibleFrame
+        if let screenFrame {
+            let centerPointOnScreen = NSPoint(
+                x: screenFrame.midX,
+                y: screenFrame.midY
+            )
+            
+            // Convert screen center into the status bar window's coordinates
+            let centerInWindow = button.window?.convertPoint(fromScreen: centerPointOnScreen) ?? .zero
+            let positioningRect = NSRect(origin: centerInWindow, size: .zero)
+            
+            // Prefer an upward arrow so it sits above the anchor point
+            popover.show(
+                relativeTo: positioningRect,
+                of: button.window?.contentView ?? button,
+                preferredEdge: .minY
+            )
+        } else {
+            // Fallback: anchor to the button if screen info is unavailable
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
+        }
+        
+        startPopoverMonitor()
+    }
+    
+    private func closePopover(_ sender: Any?) {
+        popover.performClose(sender)
+        stopPopoverMonitor()
+    }
+    
+    private func startPopoverMonitor() {
+        guard popoverEventMonitor == nil else { return }
+        
+        popoverEventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+            self?.closePopover(nil)
+        }
+    }
+    
+    private func stopPopoverMonitor() {
+        if let monitor = popoverEventMonitor {
+            NSEvent.removeMonitor(monitor)
+            popoverEventMonitor = nil
+        }
     }
     
     // Function to retrieve and process recently used applications
@@ -118,5 +196,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Update the shared state with the new app information
             AppDelegate.instance.appState.recentApps = appDetails
         }
+    }
+    
+    // Handler for the "About" action
+    func about() {
+        NSApp.orderFrontStandardAboutPanel()
+        closePopover(nil)
+    }
+    
+    // Handler for "Settings" action (opens System Settings)
+    func openSettings() {
+        if let settingsURL = URL(string: "x-apple.systempreferences:") {
+            NSWorkspace.shared.open(settingsURL)
+        }
+        closePopover(nil)
+    }
+    
+    // Handler for the "Quit" action
+    func quit() {
+        NSApp.terminate(self)
     }
 }

@@ -8,6 +8,26 @@
 import SwiftUI
 import AppKit
 
+// Simple NSVisualEffectView wrapper to add a blur behind context menus
+struct VisualEffectBlur: NSViewRepresentable {
+	let material: NSVisualEffectView.Material
+	let blendingMode: NSVisualEffectView.BlendingMode
+	
+	func makeNSView(context: Context) -> NSVisualEffectView {
+		let view = NSVisualEffectView()
+		view.material = material
+		view.blendingMode = blendingMode
+		view.state = .active
+		return view
+	}
+	
+	func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+		nsView.material = material
+		nsView.blendingMode = blendingMode
+		nsView.state = .active
+	}
+}
+
 // MARK: - ButtonView
 
 struct ButtonView: View {
@@ -79,23 +99,6 @@ struct ButtonView: View {
 				}
 				.buttonStyle(.plain)
 				.padding(2)
-			}
-		}
-		// Context menu overlay above the icon
-		.overlay(alignment: .top) {
-			if isContextMenuVisible && !appName.isEmpty {
-				ContextMenuView(
-					onDismiss: { isContextMenuVisible = false },
-					bundleId: bundleId
-				)
-				.padding(4)
-				.background(
-					RoundedRectangle(cornerRadius: 8)
-						.fill(Color(NSColor.windowBackgroundColor))
-						.shadow(radius: 6)
-				)
-				.offset(y: -buttonHeight / 2 - 8)
-				.zIndex(1)
 			}
 		}
 		// Attach hover to the whole cell (icon + X), so moving onto the X doesn't "leave"
@@ -282,15 +285,14 @@ struct DockView: View {
 	
 	var body: some View {
 		let dividerWidth: CGFloat = (CGFloat(numberOfColumns) * buttonWidth) + extraSpace
+		let totalSlots = numberOfColumns * numberOfRows
+		let recentApps = appState.recentApps
+		let paddedApps = recentApps + Array(
+			repeating: ("", "", NSImage()),
+			count: max(0, totalSlots - recentApps.count)
+		)
 		
 		VStack {
-			let totalSlots = numberOfColumns * numberOfRows
-			let recentApps = appState.recentApps
-			let paddedApps = recentApps + Array(
-				repeating: ("", "", NSImage()),
-				count: max(0, totalSlots - recentApps.count)
-			)
-			
 			ForEach(0..<numberOfRows, id: \.self) { rowIndex in
 				HStack(alignment: .center) {
 					ForEach(0..<numberOfColumns, id: \.self) { columnIndex in
@@ -348,13 +350,44 @@ struct DockView: View {
 			}
 		}
 		.padding()
-		// When a context menu is open, capture any tap inside the dock to dismiss it
-		.overlay(
-			Color.clear
-				.contentShape(Rectangle())
-				.allowsHitTesting(activeContextMenuIndex != nil)
-				.onTapGesture { dismissContextMenus() }
-		)
+		// Centered context menu overlay for the currently active app
+		.overlay(alignment: .center) {
+			if let active = activeContextMenuIndex,
+			   active < paddedApps.count {
+				let (_, bundleId, _) = paddedApps[active]
+				
+				if !bundleId.isEmpty {
+					ZStack {
+						VisualEffectBlur(material: .hudWindow, blendingMode: .withinWindow)
+							.frame(width: 160, height: 100)
+							.clipShape(RoundedRectangle(cornerRadius: 10))
+							.shadow(radius: 6)
+							.allowsHitTesting(false)
+						
+						RoundedRectangle(cornerRadius: 10)
+							.stroke(Color.white.opacity(0.08), lineWidth: 1)
+							.frame(width: 160, height: 100)
+							.allowsHitTesting(false)
+						
+						ContextMenuView(
+							onDismiss: { activeContextMenuIndex = nil },
+							bundleId: bundleId
+						)
+						.padding(6)
+					}
+					.zIndex(3)
+				}
+			}
+		}
+		// When a context menu is open, catch clicks anywhere else to dismiss it
+		.overlay {
+			if activeContextMenuIndex != nil {
+				Color.clear
+					.contentShape(Rectangle())
+					.onTapGesture { dismissContextMenus() }
+					.zIndex(1)
+			}
+		}
 		.onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { _ in
 			dismissContextMenus()
 		}
@@ -367,7 +400,10 @@ struct DockView: View {
 		.onAppear {
 			// Local monitor fires for clicks inside the app/menu
 			localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { event in
-				dismissContextMenus()
+				// If a context menu is open, let the click pass through so buttons work
+				if activeContextMenuIndex == nil {
+					dismissContextMenus()
+				}
 				return event
 			}
 
