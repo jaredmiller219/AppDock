@@ -26,7 +26,10 @@ struct ButtonView: View {
 	@State private var isHovering = false
 	@State private var showRemoveButton = false
 	@State private var removeButtonWorkItem: DispatchWorkItem?
-	
+	@State private var isCommandHeld = false
+	@State private var modifierFlagsMonitor: Any?
+	@State private var globalModifierFlagsMonitor: Any?
+
 	var body: some View {
 		ZStack(alignment: .topLeading) {
 			Group {
@@ -98,9 +101,10 @@ struct ButtonView: View {
 			isHovering = hovering
 			
 			if hovering {
+				let commandIsDown = isCommandHeld || (NSApp.currentEvent?.modifierFlags.contains(.command) ?? false)
+
 				// Only schedule the "X" if Command is held
-				if let event = NSApp.currentEvent,
-				   event.modifierFlags.contains(.command) {
+				if commandIsDown {
 					scheduleRemoveButton()
 				} else {
 					cancelRemoveButton()
@@ -110,11 +114,60 @@ struct ButtonView: View {
 				cancelRemoveButton()
 			}
 		}
+		.onAppear {
+			startMonitoringModifierFlags()
+		}
+		.onDisappear {
+			stopMonitoringModifierFlags()
+		}
 		.disabled(bundleId.isEmpty)
 	}
-	
+
+	// MARK: - Modifier key monitoring
+
+	private func startMonitoringModifierFlags() {
+		if modifierFlagsMonitor != nil { return }
+
+		isCommandHeld = NSEvent.modifierFlags.contains(.command)
+
+		modifierFlagsMonitor = NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+			handleModifierFlagsChange(event)
+			return event
+		}
+
+		// Also listen globally so Command presses register even if the window isn't key yet
+		globalModifierFlagsMonitor = NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged) { event in
+			handleModifierFlagsChange(event)
+		}
+	}
+
+	private func stopMonitoringModifierFlags() {
+		if let monitor = modifierFlagsMonitor {
+			NSEvent.removeMonitor(monitor)
+			modifierFlagsMonitor = nil
+		}
+
+		if let globalMonitor = globalModifierFlagsMonitor {
+			NSEvent.removeMonitor(globalMonitor)
+			globalModifierFlagsMonitor = nil
+		}
+	}
+
+	private func handleModifierFlagsChange(_ event: NSEvent) {
+		let commandIsDown = event.modifierFlags.contains(.command)
+		isCommandHeld = commandIsDown
+
+		if commandIsDown {
+			if isHovering {
+				scheduleRemoveButton()
+			}
+		} else {
+			cancelRemoveButton()
+		}
+	}
+
 	// MARK: - Remove button timing
-	
+
 	private func scheduleRemoveButton() {
 		removeButtonWorkItem?.cancel()
 		
