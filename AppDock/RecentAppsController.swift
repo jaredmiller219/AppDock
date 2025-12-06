@@ -24,7 +24,7 @@ struct RecentAppsController: App {
     var body: some Scene {
         // Use Settings scene type with an empty view since we're making a menu bar app
         Settings {
-            EmptyView()
+            SettingsView()
         }
     }
 }
@@ -54,6 +54,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // Initialize the popover controller
     let menu = MenuController()
+
+    // Keep a reference to the Settings window so we reuse it
+    var settingsWindowController: NSWindowController?
     
     // Create the popover that will host our dock view
     lazy var popover: NSPopover = {
@@ -264,9 +267,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // Handler for "Settings" action (opens System Settings)
     @objc func openSettings() {
-        if let settingsURL = URL(string: "x-apple.systempreferences:") {
-            NSWorkspace.shared.open(settingsURL)
+        if settingsWindowController == nil {
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 360, height: 320),
+                styleMask: [.titled, .closable, .miniaturizable],
+                backing: .buffered,
+                defer: false
+            )
+            window.title = "AppDock Settings"
+            window.isReleasedWhenClosed = false
+            window.center()
+            window.contentView = NSHostingView(rootView: SettingsView())
+            settingsWindowController = NSWindowController(window: window)
         }
+
+        settingsWindowController?.showWindow(nil)
+        settingsWindowController?.window?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
         closePopover(nil)
     }
     

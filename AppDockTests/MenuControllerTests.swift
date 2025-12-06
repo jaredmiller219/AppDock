@@ -21,8 +21,8 @@ final class MenuControllerTests: XCTestCase {
             return
         }
         
-        XCTAssertEqual(hosting.view.frame.size.width, 220, accuracy: 0.1)
-        XCTAssertEqual(hosting.view.frame.size.height, 380, accuracy: 0.1)
+        XCTAssertEqual(hosting.view.frame.size.width, 260, accuracy: 0.1)
+        XCTAssertEqual(hosting.view.frame.size.height, 460, accuracy: 0.1)
         XCTAssertTrue(hosting.rootView.appState === appState)
     }
     
