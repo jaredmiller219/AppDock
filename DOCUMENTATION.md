@@ -15,6 +15,7 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Added a Filter & Sort menu button for running-only and name-based ordering.
 - Moved shared filter/sort enums into `AppDock/AppDockTypes.swift`.
 - Added a SettingsView narration outline in the Video folder.
+- Expanded Settings with persistent layout, behavior, and accessibility preferences.
 
 ## Feature Highlights
 
@@ -24,6 +25,7 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Lightweight menu bar UI with a centered popover.
 - App list is derived from `NSWorkspace` running apps and sorted by launch time.
 - Built-in filter and sort menu for list customization.
+- Settings panel includes grid sizing, labels, and behavior toggles stored in `UserDefaults`.
 
 ## Glossary
 
@@ -50,11 +52,14 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Clicking a listed app that is no longer running relaunches it.
 - Clicking a minimized app should restore its windows (OS behavior may vary).
 - Use the Filter & Sort menu button to switch between running-only and all apps, or reorder by name.
+- Use Settings to configure the default filter/sort, grid size, and behavior toggles.
 
 ### Settings
 
 - Open the menu bar app menu, then choose `Settings…`.
-- The settings window is a simple SwiftUI view and can be expanded with new controls.
+- Settings persist in `UserDefaults` via `@AppStorage` keys defined in `SettingsDefaults`.
+- Layout options include grid columns/rows, icon size, and label size.
+- Behavior options include label visibility, hover remove, and quit confirmations.
 
 ### Tests
 
@@ -156,6 +161,7 @@ DockOverlayView(title: "Now Playing")
 - If minimized windows do not restore, this may require Accessibility APIs.
 - Menu bar apps can log to Console.app; filter by “AppDock”.
 - If filtering appears incorrect, verify the current selection in the Filter & Sort menu and re-open the popover.
+- If settings look off, use Restore Defaults in Settings to reset stored values.
 
 ### Common Development Tasks
 
@@ -164,6 +170,7 @@ DockOverlayView(title: "Now Playing")
 - **Add menu actions**: Update `PopoverContentView` in `AppDock/MenuController.swift` and wire new actions in `AppDelegate`.
 - **Modify app filtering**: Edit `getRecentApplications()` in `AppDock/RecentAppsController.swift`.
 - **Keep apps after quit**: Launch updates are handled in `handleLaunchedApp`; termination does not remove items.
+- **Update settings defaults**: Edit `SettingsDefaults` in `AppDock/SettingsView.swift`.
 
 ### Entitlements and Permissions
 
@@ -199,6 +206,7 @@ DockOverlayView(title: "Now Playing")
 - New launches insert at index 0 and dedupe existing bundle identifiers.
 - App quits do not remove entries (this preserves the “recent” history).
 - The Filter & Sort menu can further constrain or reorder the visible list.
+- Settings can change the default filter/sort choice used at startup.
 
 ### App Activation and Relaunch
 
@@ -227,6 +235,7 @@ DockOverlayView(title: "Now Playing")
 - Icons are sized to 64x64 before being stored in state to keep rendering consistent.
 - `AppState.filterOption`: Selected `AppFilterOption` for filtering.
 - `AppState.sortOption`: Selected `AppSortOption` for sorting.
+- `SettingsDefaults`: Centralized `UserDefaults` keys and default values for Settings.
 
 ## Runtime Flow
 
@@ -256,6 +265,7 @@ DockOverlayView(title: "Now Playing")
 - Launch insertion and de-duplication in `handleLaunchedApp(_:)`.
 - Dock padding math and removal index adjustment.
 - Command-click context menu state toggling.
+- Settings default values and UserDefaults restore behavior.
 
 ### UI Tests (Launch)
 
@@ -335,6 +345,7 @@ DockOverlayView(title: "Now Playing")
 - `AppDockTests/DockViewTests.swift`: DockView layout and interaction logic tests using stubs.
 - `AppDockTests/MenuControllerTests.swift`: Popover controller creation and action wiring tests.
 - `AppDockTests/RecentAppsController.swift`: AppDelegate logic tests with mock workspace and running apps.
+- `AppDockTests/SettingsDefaultsTests.swift`: Settings default values and restore behavior tests.
 - `AppDockUITests/AppDockUITests.swift`: UI test scaffolding.
 - `AppDockUITests/AppDockUITestsLaunchTests.swift`: Launch screenshot baseline.
 

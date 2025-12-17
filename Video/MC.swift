@@ -38,7 +38,7 @@
             // Make the button stretch full width
             // Add padding around the button
 
-            // Add a divider below FilterBar
+            // Add a divider below the menu button
 
             // Add a scroll view containing DockView
             // Apply padding to DockView for layout

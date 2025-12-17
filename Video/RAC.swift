@@ -37,6 +37,7 @@
     // recentApps: list of (name, bundleid, icon)
     // filterOption: AppFilterOption
     // sortOption: AppSortOption
+    // SettingsDefaults: UserDefaults keys and defaults used by SettingsView
 
 // MARK: - App Delegate
 
