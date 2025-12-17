@@ -12,15 +12,15 @@ import AppKit
 
 // MARK: - MOCK DEPENDENCIES
 
-// Helper function to create a dummy NSImage for testing purposes.
+/// Helper function to create a dummy NSImage for testing purposes.
 func createDummyImage() -> NSImage {
     // A minimal, transparent 1x1 image is enough to verify size is set later
     let image = NSImage(size: NSSize(width: 1, height: 1))
     return image
 }
 
-// 1. Mock NSRunningApplication to control test data.
-// Provides configurable properties for filtering and sorting tests.
+/// Mock NSRunningApplication to control test data.
+/// Provides configurable properties for filtering and sorting tests.
 class MockRunningApplication: NSRunningApplication, @unchecked Sendable {
     // We must use 'override' and provide storage for the properties
     private let _localizedName: String?
@@ -47,14 +47,14 @@ class MockRunningApplication: NSRunningApplication, @unchecked Sendable {
     }
 }
 
-// 2. Mock NSWorkspace to return controlled application data.
+/// Mock NSWorkspace to return controlled application data.
 // We define a protocol to allow substitution for NSWorkspace.shared
 protocol TestableWorkspace {
     func runningApplications() -> [NSRunningApplication]
     func icon(forFile fullPath: String) -> NSImage
 }
 
-// Mock implementation of the workspace.
+/// Mock implementation of the workspace.
 class MockWorkspace: TestableWorkspace {
     var appsToReturn: [NSRunningApplication] = []
 
@@ -68,19 +68,19 @@ class MockWorkspace: TestableWorkspace {
     }
 }
 
-// 3. Mock MenuController (from the previous file, simplified here).
+/// Mock MenuController (from the previous file, simplified here).
 class MockMenuController: NSObject {
     func createMenu() -> NSMenu {
         return NSMenu() // Return an empty menu for testing setup
     }
 }
 
-// 4. Testable AppState (to access the results).
+/// Testable AppState (to access the results).
 class TestableAppState: ObservableObject {
     @Published var recentApps: [(name: String, bundleid: String, icon: NSImage)] = []
 }
 
-// 5. Testable AppDelegate, modified to accept a mock workspace.
+/// Testable AppDelegate, modified to accept a mock workspace.
 // NOTE: This testable class must replicate the logic of the original AppDelegate
 class TestableAppDelegate: NSObject, NSApplicationDelegate {
     
@@ -93,6 +93,9 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
     // Injection points for testing
     var workspace: TestableWorkspace
     var menuController: MockMenuController
+
+    /// Convenience alias matching production app state tuples.
+    typealias AppDetail = (name: String, bundleid: String, icon: NSImage)
     
     // NSStatusBar setup is complex to mock, we'll focus on testing that
     // the core logic (getRecentApplications) is called and functions correctly.
@@ -104,7 +107,7 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
         TestableAppDelegate.instance = self // Set the singleton pointer for the test
     }
     
-    // Replication of the original method, but using injected dependencies.
+    /// Replication of the original method, but using injected dependencies.
     func getRecentApplications() {
         
         let recentApps = self.workspace.runningApplications()
@@ -123,25 +126,38 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
             return date1 > date2
         }
 
-        let appDetails = sortedApps.compactMap { app -> (String, String, NSImage)? in
-            guard let appName = app.localizedName,
-                  let bundleid = app.bundleIdentifier,
-                  let appPath = app.bundleURL?.path else { return nil }
-            
-            // Use the injected workspace for icon
-            let appIcon = self.workspace.icon(forFile: appPath)
-            
-            // Icon resizing logic
-            appIcon.size = NSSize(width: 64, height: 64)
-            
-            return (appName, bundleid, appIcon)
+        let appDetails = sortedApps.compactMap { app -> AppDetail? in
+            makeAppEntry(from: app)
         }
 
-        // Update the state of this test instance (skipping DispatchQueue.main.async for sync testing)
+        // Update the state of this test instance (skipping DispatchQueue.main.async for sync testing).
         self.appState.recentApps = appDetails
     }
+
+    /// Replicates the production behavior for newly launched apps (front insert, de-dupe).
+    func handleLaunchedApp(_ app: NSRunningApplication) {
+        guard app.bundleIdentifier != Bundle.main.bundleIdentifier else { return }
+        guard let appEntry = makeAppEntry(from: app) else { return }
+
+        var updated = self.appState.recentApps
+        updated.removeAll { $0.bundleid == appEntry.bundleid }
+        updated.insert(appEntry, at: 0)
+        self.appState.recentApps = updated
+    }
+
+    /// Converts a running app into a tuple matching the production `AppState`.
+    private func makeAppEntry(from app: NSRunningApplication) -> AppDetail? {
+        guard let appName = app.localizedName,
+              let bundleid = app.bundleIdentifier,
+              let appPath = app.bundleURL?.path else { return nil }
+
+        // Use the injected workspace for icon
+        let appIcon = self.workspace.icon(forFile: appPath)
+        appIcon.size = NSSize(width: 64, height: 64)
+        return (name: appName, bundleid: bundleid, icon: appIcon)
+    }
     
-    // Mimic the original method to check if getRecentApplications is called.
+    /// Mimic the original method to check if getRecentApplications is called.
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Set the instance (already done in init for testing)
         // In a real app, NSStatusBar/Menu setup happens here, but we skip it.
@@ -279,5 +295,35 @@ final class AppDelegateLogicTests: XCTestCase {
         
         XCTAssertEqual(sut.appState.recentApps.count, 1, "Apps missing launchDate should not survive sorting.")
         XCTAssertEqual(sut.appState.recentApps.first?.name, "Valid")
+    }
+
+    // Test 7: Newly launched apps should be inserted at the front and de-duplicated.
+    func testHandleLaunchedApp_insertsAndDedupes() {
+        let now = Date()
+        let app1 = MockRunningApplication(name: "App One", id: "com.app.one", urlPath: "/one.app", policy: .regular, launchDate: now)
+        let app2 = MockRunningApplication(name: "App Two", id: "com.app.two", urlPath: "/two.app", policy: .regular, launchDate: now)
+
+        sut.appState.recentApps = [
+            ("App One", "com.app.one", createDummyImage()),
+            ("App Two", "com.app.two", createDummyImage())
+        ]
+
+        sut.handleLaunchedApp(app2)
+
+        XCTAssertEqual(sut.appState.recentApps.count, 2)
+        XCTAssertEqual(sut.appState.recentApps.first?.bundleid, "com.app.two")
+        XCTAssertEqual(sut.appState.recentApps.last?.bundleid, "com.app.one")
+    }
+
+    // Test 8: Newly launched apps should be added when the list is empty.
+    func testHandleLaunchedApp_insertsWhenEmpty() {
+        let now = Date()
+        let app = MockRunningApplication(name: "Fresh App", id: "com.app.fresh", urlPath: "/fresh.app", policy: .regular, launchDate: now)
+
+        sut.appState.recentApps = []
+        sut.handleLaunchedApp(app)
+
+        XCTAssertEqual(sut.appState.recentApps.count, 1)
+        XCTAssertEqual(sut.appState.recentApps.first?.bundleid, "com.app.fresh")
     }
 }

@@ -29,7 +29,10 @@ final class AppDockUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        // Verify the app is running (menu bar apps may be foreground or background).
+        let running = app.wait(for: .runningForeground, timeout: 2)
+            || app.wait(for: .runningBackground, timeout: 2)
+        XCTAssertTrue(running)
     }
 
     @MainActor

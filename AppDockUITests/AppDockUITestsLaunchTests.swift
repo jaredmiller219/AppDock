@@ -25,6 +25,9 @@ final class AppDockUITestsLaunchTests: XCTestCase {
 
         // Insert steps here to perform after app launch but before taking a screenshot,
         // such as logging into a test account or navigating somewhere in the app
+        let running = app.wait(for: .runningForeground, timeout: 2)
+            || app.wait(for: .runningBackground, timeout: 2)
+        XCTAssertTrue(running)
 
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Launch Screen"
