@@ -4,6 +4,30 @@
 
 AppDock is a macOS menu bar app that presents a dock-style grid of running apps. The app runs as a status item with a popover UI, and it exposes quick actions (hide, quit) via a command-click context menu.
 
+## Recent Changes
+
+- Dock updates in real time when new apps launch (launch events insert at the front).
+- Quitting apps does not remove them from the dock list by design.
+- Context menu dismisses when clicking outside and re-animates when switching apps.
+- Status bar icon now uses a system symbol with a fallback image.
+- Relaunch uses `NSWorkspace.OpenConfiguration` and `openApplication(at:)` APIs.
+- Minimized apps are restored via `unhide()` + `activateAllWindows` and a relaunch event.
+
+## Feature Highlights
+
+- Fixed-size grid with padding slots for a consistent layout.
+- Command-click context menu with Hide/Quit actions.
+- Command-hover remove affordance for manual list cleanup.
+- Lightweight menu bar UI with a centered popover.
+- App list is derived from `NSWorkspace` running apps and sorted by launch time.
+
+## Glossary
+
+- **Dock Grid**: The 3x4 grid of app icons rendered in the popover.
+- **Popover**: The floating menu bar window that hosts the dock UI.
+- **Context Menu**: The overlay with Hide/Quit actions for a single app.
+- **App Entry**: Tuple containing `(name, bundleid, icon)` stored in `AppState`.
+
 ## Instructions
 
 ### Build and Run
@@ -19,6 +43,8 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Command-click an icon to open the context menu (Hide/Quit).
 - Command-hover an icon to reveal the remove “X” button.
 - Apps stay listed after they quit (by design).
+- Clicking a listed app that is no longer running relaunches it.
+- Clicking a minimized app should restore its windows (OS behavior may vary).
 
 ### Settings
 
@@ -119,9 +145,11 @@ DockOverlayView(title: "Now Playing")
 
 ### Debugging Tips
 
-- Use `print` statements in `getRecentApplications()` or `handleLaunchedApp(_:)` to trace app updates.
+- Use `NSLog` or unified logging if output is not visible in Xcode's console.
 - If the popover isn’t visible, check `popover.contentSize` and the status item configuration in `AppDock/RecentAppsController.swift`.
 - If icons are missing, verify the bundle URL and icon retrieval in `makeAppEntry(from:workspace:)`.
+- If minimized windows do not restore, this may require Accessibility APIs.
+- Menu bar apps can log to Console.app; filter by “AppDock”.
 
 ### Common Development Tasks
 
@@ -143,6 +171,40 @@ DockOverlayView(title: "Now Playing")
 - When an app quits, it remains in the list (the dock is not pruned on termination).
 - Command-clicking an icon opens a context menu for Hide/Quit; command-hover reveals the remove control.
 
+## Detailed Interaction Behavior
+
+### Status Bar Icon
+
+- The status bar icon is created at launch and uses a system symbol.
+- The image is marked as template for automatic light/dark rendering.
+- The size is normalized to fit the menu bar.
+
+### Context Menu Lifecycle
+
+- Command-click toggles a per-item context menu state.
+- The menu animates in with a scale+fade transition.
+- Clicking outside the dock area posts a dismiss notification and closes the menu.
+- When switching to another app, the menu is re-instantiated to replay the animation.
+
+### Dock Update Rules
+
+- On launch, the list is populated from `NSWorkspace.shared.runningApplications`.
+- Apps are filtered to `.regular` with a bundle identifier and launch date.
+- New launches insert at index 0 and dedupe existing bundle identifiers.
+- App quits do not remove entries (this preserves the “recent” history).
+
+### App Activation and Relaunch
+
+- Running apps are unhidden and activated with `activateAllWindows`.
+- If an app is not running, it is relaunched using `openApplication(at:)`.
+- Relaunch uses `NSWorkspace.OpenConfiguration` with `activates = true`.
+
+### Minimized vs Hidden
+
+- `unhide()` targets hidden apps; minimized windows should restore on activation.
+- Some apps may not restore minimized windows without Accessibility APIs.
+- If a specific app does not restore, consider enabling an AX-based restore flow.
+
 ## Architecture Overview
 
 - **SwiftUI App + AppDelegate**: `RecentAppsController` is the SwiftUI entry point while `AppDelegate` owns the status bar item and popover.
@@ -163,10 +225,75 @@ DockOverlayView(title: "Now Playing")
 4. `NSWorkspace.didLaunchApplicationNotification` inserts new apps at the front of the list.
 5. `DockView` renders the grid and handles interactions (activation, context menu, remove).
 
+## Notifications and Observers
+
+- `NSWorkspace.didLaunchApplicationNotification` inserts new apps at the front.
+- `NSApplication.didResignActiveNotification` dismisses context menus.
+- A local notification is used to dismiss context menus when tapping outside.
+
 ## Testing Strategy
 
 - **AppDockTests** covers logic-level behaviors with local stubs and mocks.
 - **AppDockUITests** provides the Xcode template UI test scaffolding and a launch screenshot baseline.
+
+## Testing Matrix
+
+### Unit Tests (Logic)
+
+- Sorting, filtering, and icon sizing in `getRecentApplications()`.
+- Launch insertion and de-duplication in `handleLaunchedApp(_:)`.
+- Dock padding math and removal index adjustment.
+- Command-click context menu state toggling.
+
+### UI Tests (Launch)
+
+- App launches and is running (foreground or background).
+- Launch screenshot captured after startup.
+
+### Integration Test Ideas
+
+- Launch app, open popover, verify dock grid exists.
+- Trigger command-click with simulated input (if possible) to open context menu.
+- Open and close the popover repeatedly to check animations and dismissal.
+- Open a test app, ensure it appears at the top of the dock list.
+
+## Edge Case Checklist
+
+- Running app missing bundle identifier or launch date is filtered out.
+- Running app missing localized name or bundle URL is ignored.
+- App is the same bundle as AppDock itself (ignored in launch handler).
+- Duplicate bundle identifier launches are de-duplicated.
+- Empty list is padded to a fixed 3x4 grid.
+- Removing an item adjusts the active context menu index correctly.
+
+## Troubleshooting
+
+### Menu Bar Icon Not Showing
+
+- Ensure `makeStatusBarImage()` returns a valid image.
+- Verify `statusBarItem.button?.image` is set in `applicationDidFinishLaunching`.
+
+### Popover Does Not Appear
+
+- Verify `statusBarItem.button` is non-nil.
+- Check `popover.contentSize` and `popover.show(...)` positioning.
+
+### App Does Not Reactivate
+
+- Confirm the bundle identifier is valid and app URL is found.
+- Some apps may ignore activation when sandboxed or in special states.
+
+### Minimized Windows Not Restoring
+
+- Some apps require Accessibility APIs to explicitly unminimize.
+- Consider adding an AX-based restore path if this is a requirement.
+
+## Future Enhancements
+
+- Optional removal of quit apps after a timeout or on next launch.
+- Accessibility-based window unminimize for consistent restoration.
+- User-configurable grid sizing and sorting.
+- Theming for icons, labels, and context menu appearance.
 
 ## File Reference
 
