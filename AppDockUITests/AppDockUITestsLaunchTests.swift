@@ -7,6 +7,7 @@
 
 import XCTest
 
+/// Launch screenshot baseline for UI testing.
 final class AppDockUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {

@@ -8,7 +8,7 @@
 import SwiftUI
 import AppKit
 
-// Simple NSVisualEffectView wrapper to add a blur behind context menus
+/// Simple NSVisualEffectView wrapper to add a blur behind context menus.
 struct VisualEffectBlur: NSViewRepresentable {
 	let material: NSVisualEffectView.Material
 	let blendingMode: NSVisualEffectView.BlendingMode
@@ -30,6 +30,9 @@ struct VisualEffectBlur: NSViewRepresentable {
 
 // MARK: - ButtonView
 
+/// Renders a single app icon slot and handles interactions.
+///
+/// Supports command-click context menus, hover removal, and activation.
 struct ButtonView: View {
 	let appName: String
 	let bundleId: String
@@ -37,10 +40,10 @@ struct ButtonView: View {
 	let buttonWidth: CGFloat
 	let buttonHeight: CGFloat
 	
-	// Controls whether THIS button's context menu is visible
+	// Controls whether THIS button's context menu is visible.
 	@Binding var isContextMenuVisible: Bool
 	
-	// Called when the user taps the "X" remove button
+	// Called when the user taps the "X" remove button.
 	let onRemove: () -> Void
 	
 	@State private var isHovering = false
@@ -130,6 +133,7 @@ struct ButtonView: View {
 
 	// MARK: - Modifier key monitoring
 
+	/// Begins tracking Command key state for the delayed remove button.
 	private func startMonitoringModifierFlags() {
 		if modifierFlagsMonitor != nil { return }
 
@@ -140,12 +144,13 @@ struct ButtonView: View {
 			return event
 		}
 
-		// Also listen globally so Command presses register even if the window isn't key yet
+		// Also listen globally so Command presses register even if the window isn't key yet.
 		globalModifierFlagsMonitor = NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged) { event in
 			handleModifierFlagsChange(event)
 		}
 	}
 
+	/// Removes modifier monitors to avoid leaks.
 	private func stopMonitoringModifierFlags() {
 		if let monitor = modifierFlagsMonitor {
 			NSEvent.removeMonitor(monitor)
@@ -158,6 +163,7 @@ struct ButtonView: View {
 		}
 	}
 
+	/// Updates local state when modifier flags change.
 	private func handleModifierFlagsChange(_ event: NSEvent) {
 		let commandIsDown = event.modifierFlags.contains(.command)
 		isCommandHeld = commandIsDown
@@ -173,6 +179,7 @@ struct ButtonView: View {
 
 	// MARK: - Remove button timing
 
+	/// Shows the remove button after a brief hover delay.
 	private func scheduleRemoveButton() {
 		removeButtonWorkItem?.cancel()
 		
@@ -185,6 +192,7 @@ struct ButtonView: View {
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
 	}
 	
+	/// Cancels any pending remove button display and hides it.
 	private func cancelRemoveButton() {
 		removeButtonWorkItem?.cancel()
 		removeButtonWorkItem = nil
@@ -194,6 +202,7 @@ struct ButtonView: View {
 
 // MARK: - ContextMenuView
 
+/// Context menu shown when a slot is command-clicked.
 struct ContextMenuView: View {
 	var onDismiss: () -> Void
 	let bundleId: String
@@ -233,6 +242,7 @@ struct ContextMenuView: View {
 
 // MARK: - EmptySlot
 
+/// Placeholder slot shown when there are fewer apps than grid cells.
 struct EmptySlot: View {
 	let width: CGFloat
 	let height: CGFloat
@@ -254,6 +264,7 @@ struct EmptySlot: View {
 
 // MARK: - IconView
 
+/// Visual icon for an app with consistent sizing.
 struct IconView: View {
 	let appName: String
 	let appIcon: NSImage
@@ -271,16 +282,19 @@ struct IconView: View {
 
 // MARK: - DockView
 
+/// Main grid view that renders the dock layout and context menus.
 struct DockView: View {
 	@ObservedObject var appState: AppState
 	
-	// Tracks which app index currently has its context menu open
+	// Tracks which app index currently has its context menu open.
 	@State private var activeContextMenuIndex: Int? = nil
 	
+	/// Clears any open context menu.
 	private func dismissContextMenus() {
 		activeContextMenuIndex = nil
 	}
 	
+	// Layout constants for the grid.
 	let numberOfColumns: Int = 3
 	let numberOfRows: Int = 4
 	let buttonWidth: CGFloat = 50
@@ -289,9 +303,11 @@ struct DockView: View {
 	let extraSpace: CGFloat = 15
 	
 	var body: some View {
+		// Compute the overall divider width for row separators.
 		let dividerWidth: CGFloat = (CGFloat(numberOfColumns) * buttonWidth)
 			+ (CGFloat(numberOfColumns - 1) * columnSpacing)
 			+ extraSpace
+		// Pad the app list so the grid stays a fixed size.
 		let totalSlots = numberOfColumns * numberOfRows
 		let recentApps = appState.recentApps
 		let paddedApps = recentApps + Array(
@@ -357,19 +373,20 @@ struct DockView: View {
 			}
 		}
 		.padding()
-		// Dismiss on any tap in the dock when a context menu is open (without blocking buttons)
+		// Dismiss on any tap in the dock when a context menu is open (without blocking buttons).
 		.simultaneousGesture(TapGesture().onEnded {
 			if activeContextMenuIndex != nil {
 				dismissContextMenus()
 			}
 		})
-		// Centered context menu overlay for the currently active app
+		// Centered context menu overlay for the currently active app.
 		.overlay(alignment: .center) {
 			if let active = activeContextMenuIndex,
 			   active < paddedApps.count {
 				let (_, bundleId, _) = paddedApps[active]
 				
 				if !bundleId.isEmpty {
+					// Match the menu frame in both blur and stroke layers.
 					let menuWidth: CGFloat = 200
 					let menuHeight: CGFloat = 130
 					

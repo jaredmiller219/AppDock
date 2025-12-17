@@ -3,6 +3,8 @@
 //  AppDock
 //
 
+// Documentation-only outline used for video/script narration.
+
 // Import the SwiftUI framework for user interface components
 
 // Import Foundation framework for basic functionality

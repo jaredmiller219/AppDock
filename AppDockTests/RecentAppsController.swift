@@ -12,14 +12,15 @@ import AppKit
 
 // MARK: - MOCK DEPENDENCIES
 
-// Helper function to create a dummy NSImage for testing purposes
+// Helper function to create a dummy NSImage for testing purposes.
 func createDummyImage() -> NSImage {
     // A minimal, transparent 1x1 image is enough to verify size is set later
     let image = NSImage(size: NSSize(width: 1, height: 1))
     return image
 }
 
-// 1. Mock NSRunningApplication to control test data
+// 1. Mock NSRunningApplication to control test data.
+// Provides configurable properties for filtering and sorting tests.
 class MockRunningApplication: NSRunningApplication, @unchecked Sendable {
     // We must use 'override' and provide storage for the properties
     private let _localizedName: String?
@@ -46,14 +47,14 @@ class MockRunningApplication: NSRunningApplication, @unchecked Sendable {
     }
 }
 
-// 2. Mock NSWorkspace to return controlled application data
+// 2. Mock NSWorkspace to return controlled application data.
 // We define a protocol to allow substitution for NSWorkspace.shared
 protocol TestableWorkspace {
     func runningApplications() -> [NSRunningApplication]
     func icon(forFile fullPath: String) -> NSImage
 }
 
-// Mock implementation of the workspace
+// Mock implementation of the workspace.
 class MockWorkspace: TestableWorkspace {
     var appsToReturn: [NSRunningApplication] = []
 
@@ -67,19 +68,19 @@ class MockWorkspace: TestableWorkspace {
     }
 }
 
-// 3. Mock MenuController (from the previous file, simplified here)
+// 3. Mock MenuController (from the previous file, simplified here).
 class MockMenuController: NSObject {
     func createMenu() -> NSMenu {
         return NSMenu() // Return an empty menu for testing setup
     }
 }
 
-// 4. Testable AppState (to access the results)
+// 4. Testable AppState (to access the results).
 class TestableAppState: ObservableObject {
     @Published var recentApps: [(name: String, bundleid: String, icon: NSImage)] = []
 }
 
-// 5. Testable AppDelegate, modified to accept a mock workspace
+// 5. Testable AppDelegate, modified to accept a mock workspace.
 // NOTE: This testable class must replicate the logic of the original AppDelegate
 class TestableAppDelegate: NSObject, NSApplicationDelegate {
     
@@ -103,7 +104,7 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
         TestableAppDelegate.instance = self // Set the singleton pointer for the test
     }
     
-    // Replication of the original method, but using injected dependencies
+    // Replication of the original method, but using injected dependencies.
     func getRecentApplications() {
         
         let recentApps = self.workspace.runningApplications()
@@ -140,7 +141,7 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
         self.appState.recentApps = appDetails
     }
     
-    // Mimic the original method to check if getRecentApplications is called
+    // Mimic the original method to check if getRecentApplications is called.
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Set the instance (already done in init for testing)
         // In a real app, NSStatusBar/Menu setup happens here, but we skip it.
@@ -152,6 +153,7 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
 
 // MARK: - UNIT TESTS
 
+/// Tests for the recent-apps filtering, sorting, and icon sizing logic.
 final class AppDelegateLogicTests: XCTestCase {
 
     var mockWorkspace: MockWorkspace!

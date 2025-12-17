@@ -7,6 +7,7 @@
 
 import XCTest
 
+/// Basic UI test scaffold for AppDock.
 final class AppDockUITests: XCTestCase {
 
     override func setUpWithError() throws {

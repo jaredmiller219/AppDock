@@ -5,6 +5,7 @@
 
 import SwiftUI
 
+/// Simple settings surface for the menu bar app.
 struct SettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

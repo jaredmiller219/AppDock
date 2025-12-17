@@ -5,17 +5,20 @@
 //  Created by Jared Miller on 12/17/24.
 //
 
-// Import the SwiftUI framework for user interface components
+// Import the SwiftUI framework for user interface components.
 import SwiftUI
 
-// Import Foundation framework for basic functionality
+// Import Foundation framework for basic functionality.
 import Foundation
 
-// Define the AppMenu class that manages the status bar menu
-// Inherits from NSObject to work with Objective-C runtime
+// MARK: - Menu Controller
+
+/// Hosts the SwiftUI popover content inside an AppKit view controller.
+///
+/// This wrapper keeps AppKit/SwiftUI interop isolated from the rest of the app.
 class MenuController: NSObject {
     
-    // Create a hosting controller for the popover content
+    /// Creates a popover controller for the dock and menu actions.
     func makePopoverController(
         appState: AppState,
         settingsAction: @escaping () -> Void,
@@ -34,6 +37,7 @@ class MenuController: NSObject {
     }
 }
 
+/// Popover content for the menu bar window.
 struct PopoverContentView: View {
     @ObservedObject var appState: AppState
     let settingsAction: () -> Void
@@ -66,6 +70,7 @@ struct PopoverContentView: View {
     }
 }
 
+/// Single menu row with hover feedback.
 private struct MenuRow: View {
     let title: String
     let action: () -> Void

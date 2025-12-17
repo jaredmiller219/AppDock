@@ -2,6 +2,7 @@ import XCTest
 import SwiftUI
 @testable import AppDock
 
+/// Tests for the popover host wiring and action closures.
 final class MenuControllerTests: XCTestCase {
     
     // Verify the hosting controller is created with the expected size and root view

@@ -3,15 +3,19 @@ import SwiftUI
 import AppKit
 import Combine
 
+// This file uses lightweight stubs so view logic can be tested without
+// pulling in the full SwiftUI hierarchy.
+
 // MARK: - MOCK DEPENDENCIES
 
-// Helper function to create a dummy NSImage for testing purposes
+// Helper function to create a dummy NSImage for testing purposes.
 func test_createDummyImage() -> NSImage {
 	// Creating a 64x64 transparent image to match the expected icon size
 	return NSImage(size: NSSize(width: 64, height: 64))
 }
 
 // 2. Minimal Stub for the original AppState class (The base type)
+// Provides an ObservableObject type to match the production API.
 class AppState: ObservableObject {
 	// We only need the ObservableObject conformance for the cast to work in Test 1
 	// And an init() for inheritance.
@@ -20,6 +24,7 @@ class AppState: ObservableObject {
 
 // 1. Mock AppState for test data control (unique name)
 // FIX: Inherit from AppState to make the cast work in Test 1.
+// Holds a mutable recentApps list for test setup.
 class DockViewTestAppState: AppState {
 	// Match the tuple structure used by the original AppState
 	typealias AppDetail = (name: String, bundleid: String, icon: NSImage)
@@ -39,6 +44,7 @@ class DockViewTestAppState: AppState {
 }
 
 // 3. Minimal Stub for DockView (Required to resolve "Cannot find DockView in scope")
+// Provides the grid constants used by the tests.
 struct DockView: View {
 	// Must match the original DockView's properties used in the test logic
 	@ObservedObject var appState: AppState // Uses the stubbed AppState
@@ -49,6 +55,7 @@ struct DockView: View {
 }
 
 // 4. Minimal Stub for ButtonView (Required to resolve "Cannot find ButtonView in scope")
+// Mimics the production initializer signature for test helpers.
 struct ButtonView: View {
 	// Must match all required initializers/properties from the original ButtonView
 	let appName: String
@@ -65,6 +72,7 @@ struct ButtonView: View {
 
 // MARK: - DockView Tests
 
+/// Tests for DockView layout logic and button state behaviors.
 final class DockViewTests: XCTestCase {
 	
 	// Define the type alias locally for convenience, using the highly unique mock state

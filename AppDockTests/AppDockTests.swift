@@ -8,6 +8,7 @@
 import Testing
 @testable import AppDock
 
+/// Placeholder test suite for future AppDock unit tests.
 struct AppDockTests {
 
     @Test func example() async throws {
