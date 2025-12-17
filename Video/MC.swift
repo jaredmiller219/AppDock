@@ -34,8 +34,9 @@
 
         // Create a vertical stack
 
-            // Add FilterBar at the top
-            // Add padding around FilterBar
+            // Add the Filter & Sort menu button at the top
+            // Make the button stretch full width
+            // Add padding around the button
 
             // Add a divider below FilterBar
 
@@ -52,25 +53,20 @@
         // Set the popover frame size to fixed width/height
         // Add a tap gesture to dismiss context menus
 
-// Define FilterBar (filtering and sorting controls)
+// Define FilterMenuButton (filtering and sorting controls in a dropdown)
 
     // Observe AppState
 
     // The main view body
 
-        // Create a vertical stack aligned to leading
+        // Create a Menu with two pickers
+            // Filter picker: AppFilterOption
+            // Divider between filter and sort
+            // Sort picker: AppSortOption
 
-            // Add a small "Filter & Sort" label
-
-            // Row for filter selection
-                // Left label: "Show"
-                // Right picker: AppFilterOption
-                // Picker style: menu
-
-            // Row for sort selection
-                // Left label: "Sort"
-                // Right picker: AppSortOption
-                // Picker style: menu
+        // Menu label is a full-width bar
+            // "Filter & Sort" label + icon aligned left
+            // Spacer to fill the row
 
 // Define MenuRow (single menu entry)
 
