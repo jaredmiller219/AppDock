@@ -46,6 +46,14 @@ struct PopoverContentView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            FilterBar(appState: appState)
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+                .padding(.bottom, 6)
+
+            Divider()
+                .padding(.horizontal, 8)
+
             ScrollView(showsIndicators: false) {
                 DockView(appState: appState)
                     .padding(.horizontal, 8)
@@ -70,6 +78,46 @@ struct PopoverContentView: View {
         .simultaneousGesture(TapGesture().onEnded {
             NotificationCenter.default.post(name: .appDockDismissContextMenu, object: nil)
         })
+    }
+}
+
+private struct FilterBar: View {
+    @ObservedObject var appState: AppState
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Filter & Sort")
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+            HStack {
+                Text("Show")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Picker("Show", selection: $appState.filterOption) {
+                    ForEach(AppFilterOption.allCases) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+            }
+
+            HStack {
+                Text("Sort")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Picker("Sort", selection: $appState.sortOption) {
+                    ForEach(AppSortOption.allCases) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+            }
+        }
     }
 }
 

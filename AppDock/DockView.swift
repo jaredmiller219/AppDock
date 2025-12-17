@@ -345,12 +345,33 @@ struct DockView: View {
 		let dividerWidth: CGFloat = (CGFloat(numberOfColumns) * buttonWidth)
 			+ (CGFloat(numberOfColumns - 1) * columnSpacing)
 			+ extraSpace
-		// Pad the app list so the grid stays a fixed size.
+		// Apply filter and sort before padding the grid.
 		let totalSlots = numberOfColumns * numberOfRows
-		let recentApps = appState.recentApps
-		let paddedApps = recentApps + Array(
+		let filteredApps: [(name: String, bundleid: String, icon: NSImage)] = appState.recentApps.filter { app in
+			switch appState.filterOption {
+			case .all:
+				return true
+			case .runningOnly:
+				guard !app.bundleid.isEmpty else { return false }
+				return !NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleid).isEmpty
+			}
+		}
+		let sortedApps: [(name: String, bundleid: String, icon: NSImage)]
+		switch appState.sortOption {
+		case .recent:
+			sortedApps = filteredApps
+		case .nameAscending:
+			sortedApps = filteredApps.sorted {
+				$0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+			}
+		case .nameDescending:
+			sortedApps = filteredApps.sorted {
+				$0.name.localizedCaseInsensitiveCompare($1.name) == .orderedDescending
+			}
+		}
+		let paddedApps = sortedApps + Array(
 			repeating: ("", "", NSImage()),
-			count: max(0, totalSlots - recentApps.count)
+			count: max(0, totalSlots - sortedApps.count)
 		)
 		
 		VStack {

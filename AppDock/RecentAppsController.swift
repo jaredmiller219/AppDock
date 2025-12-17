@@ -37,6 +37,43 @@ struct RecentAppsController: App {
 
 // MARK: - Shared State
 
+/// Filter options for the dock list.
+enum AppFilterOption: String, CaseIterable, Identifiable {
+    case all
+    case runningOnly
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .all:
+            return "All Apps"
+        case .runningOnly:
+            return "Running Only"
+        }
+    }
+}
+
+/// Sorting options for the dock list.
+enum AppSortOption: String, CaseIterable, Identifiable {
+    case recent
+    case nameAscending
+    case nameDescending
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .recent:
+            return "Recently Opened"
+        case .nameAscending:
+            return "Name A-Z"
+        case .nameDescending:
+            return "Name Z-A"
+        }
+    }
+}
+
 /// Shared state for the UI, published for SwiftUI bindings.
 class AppState: ObservableObject {
     
@@ -47,6 +84,12 @@ class AppState: ObservableObject {
     /// - bundleid: The bundle identifier
     /// - icon: A pre-sized application icon
     @Published var recentApps: [(name: String, bundleid: String, icon: NSImage)] = []
+
+    /// Selected filter for the dock list.
+    @Published var filterOption: AppFilterOption = .all
+
+    /// Selected sorting option for the dock list.
+    @Published var sortOption: AppSortOption = .recent
 }
 
 // MARK: - App Delegate

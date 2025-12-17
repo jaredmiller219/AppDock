@@ -12,6 +12,7 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Status bar icon now uses a system symbol with a fallback image.
 - Relaunch uses `NSWorkspace.OpenConfiguration` and `openApplication(at:)` APIs.
 - Minimized apps are restored via `unhide()` + `activateAllWindows` and a relaunch event.
+- Added Filter & Sort controls for running-only and name-based ordering.
 
 ## Feature Highlights
 
@@ -45,6 +46,7 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Apps stay listed after they quit (by design).
 - Clicking a listed app that is no longer running relaunches it.
 - Clicking a minimized app should restore its windows (OS behavior may vary).
+- Use the Filter & Sort controls to switch between running-only and all apps, or reorder by name.
 
 ### Settings
 
