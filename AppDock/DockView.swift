@@ -8,6 +8,10 @@
 import SwiftUI
 import AppKit
 
+extension Notification.Name {
+	static let appDockDismissContextMenu = Notification.Name("AppDockDismissContextMenu")
+}
+
 /// Simple NSVisualEffectView wrapper to add a blur behind context menus.
 struct VisualEffectBlur: NSViewRepresentable {
 	let material: NSVisualEffectView.Material
@@ -288,10 +292,24 @@ struct DockView: View {
 	
 	// Tracks which app index currently has its context menu open.
 	@State private var activeContextMenuIndex: Int? = nil
+	@State private var contextMenuToken = UUID()
+
+	private let contextMenuAnimation = Animation.spring(response: 0.25, dampingFraction: 0.8)
 	
 	/// Clears any open context menu.
 	private func dismissContextMenus() {
-		activeContextMenuIndex = nil
+		withAnimation(contextMenuAnimation) {
+			activeContextMenuIndex = nil
+		}
+	}
+
+	private func setActiveContextMenuIndex(_ index: Int?) {
+		withAnimation(contextMenuAnimation) {
+			activeContextMenuIndex = index
+			if index != nil {
+				contextMenuToken = UUID()
+			}
+		}
 	}
 	
 	// Layout constants for the grid.
@@ -332,7 +350,7 @@ struct DockView: View {
 								isContextMenuVisible: Binding(
 									get: { activeContextMenuIndex == appIndex },
 									set: { isVisible in
-										activeContextMenuIndex = isVisible ? appIndex : nil
+										setActiveContextMenuIndex(isVisible ? appIndex : nil)
 									}
 								),
 								onRemove: {
@@ -342,7 +360,7 @@ struct DockView: View {
 									}
 									// Clear or adjust active context menu index
 									if activeContextMenuIndex == appIndex {
-										activeContextMenuIndex = nil
+										dismissContextMenus()
 									} else if let active = activeContextMenuIndex, active > appIndex {
 										activeContextMenuIndex = active - 1
 									}
@@ -403,16 +421,21 @@ struct DockView: View {
 							.allowsHitTesting(false)
 						
 						ContextMenuView(
-							onDismiss: { activeContextMenuIndex = nil },
+							onDismiss: { dismissContextMenus() },
 							bundleId: bundleId
 						)
 						.padding(6)
 					}
+					.id(contextMenuToken)
+					.transition(.scale(scale: 0.96).combined(with: .opacity))
 					.zIndex(3)
 				}
 			}
 		}
 		.onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { _ in
+			dismissContextMenus()
+		}
+		.onReceive(NotificationCenter.default.publisher(for: .appDockDismissContextMenu)) { _ in
 			dismissContextMenus()
 		}
 		.onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didActivateApplicationNotification)) { notification in

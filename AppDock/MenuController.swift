@@ -67,6 +67,9 @@ struct PopoverContentView: View {
             .padding(.bottom, 6)
         }
         .frame(width: 260, height: 460, alignment: .top)
+        .simultaneousGesture(TapGesture().onEnded {
+            NotificationCenter.default.post(name: .appDockDismissContextMenu, object: nil)
+        })
     }
 }
 
