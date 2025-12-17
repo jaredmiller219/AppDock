@@ -15,13 +15,15 @@ struct SettingsView: View {
         _draft = State(initialValue: SettingsDraft.load())
     }
 
-    private var accentColor: Color {
-        draft.accentColor.color
-    }
+    private let accentColor: Color = .blue
 
     private func applySettings() {
         draft.apply()
         appState.applySettings(draft)
+    }
+
+    private func saveAsDefault() {
+        draft.apply()
     }
 
     private func restoreDefaults() {
@@ -62,23 +64,6 @@ struct SettingsView: View {
                                 Toggle("Launch at login", isOn: $draft.launchAtLogin)
                                 Toggle("Open dock on startup", isOn: $draft.openOnStartup)
                                 Toggle("Check for updates automatically", isOn: $draft.autoUpdates)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-
-                        GroupBox("Appearance") {
-                            VStack(alignment: .leading, spacing: 10) {
-                                HStack {
-                                    Text("Accent color")
-                                    Spacer()
-                                    Picker("", selection: $draft.accentColor) {
-                                        ForEach(SettingsAccentColor.allCases) { option in
-                                            Text(option.title).tag(option)
-                                        }
-                                    }
-                                    .labelsHidden()
-                                    .pickerStyle(.menu)
-                                }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -180,10 +165,16 @@ struct SettingsView: View {
                 }
 
                 HStack {
-                    Button("Restore Defaults") {
-                        restoreDefaults()
+                    Menu {
+                        Button("Restore Defaults") {
+                            restoreDefaults()
+                        }
+                        Button("Set as Default") {
+                            saveAsDefault()
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
                     }
-                    .buttonStyle(.bordered)
 
                     Spacer()
 
@@ -191,7 +182,7 @@ struct SettingsView: View {
                         applySettings()
                     }
                     .buttonStyle(.borderedProminent)
-                    .disabled(draft == SettingsDraft.load())
+                    .disabled(draft == SettingsDraft.from(appState: appState))
                 }
             }
             .padding(20)
@@ -217,7 +208,6 @@ struct SettingsDefaults {
     static let keepQuitAppsKey = "settings.keepQuitApps"
     static let defaultFilterKey = "settings.defaultFilter"
     static let defaultSortKey = "settings.defaultSort"
-    static let accentColorKey = "settings.accentColor"
     static let gridColumnsKey = "settings.gridColumns"
     static let gridRowsKey = "settings.gridRows"
     static let iconSizeKey = "settings.iconSize"
@@ -235,7 +225,6 @@ struct SettingsDefaults {
     static let keepQuitAppsDefault = true
     static let defaultFilterDefault: AppFilterOption = .all
     static let defaultSortDefault: AppSortOption = .recent
-    static let accentColorDefault = SettingsAccentColor.teal.rawValue
     static let gridColumnsDefault = 3
     static let gridRowsDefault = 4
     static let iconSizeDefault = 64.0
@@ -255,7 +244,6 @@ struct SettingsDefaults {
             keepQuitAppsKey: keepQuitAppsDefault,
             defaultFilterKey: defaultFilterDefault.rawValue,
             defaultSortKey: defaultSortDefault.rawValue,
-            accentColorKey: accentColorDefault,
             gridColumnsKey: gridColumnsDefault,
             gridRowsKey: gridRowsDefault,
             iconSizeKey: iconSizeDefault,
@@ -303,13 +291,33 @@ struct SettingsDraft: Equatable {
     var keepQuitApps: Bool
     var defaultFilter: AppFilterOption
     var defaultSort: AppSortOption
-    var accentColor: SettingsAccentColor
     var gridColumns: Int
     var gridRows: Int
     var iconSize: Double
     var labelSize: Double
     var reduceMotion: Bool
     var debugLogging: Bool
+
+    static func from(appState: AppState) -> SettingsDraft {
+        SettingsDraft(
+            launchAtLogin: appState.launchAtLogin,
+            openOnStartup: appState.openOnStartup,
+            autoUpdates: appState.autoUpdates,
+            showAppLabels: appState.showAppLabels,
+            showRunningIndicator: appState.showRunningIndicator,
+            enableHoverRemove: appState.enableHoverRemove,
+            confirmBeforeQuit: appState.confirmBeforeQuit,
+            keepQuitApps: appState.keepQuitApps,
+            defaultFilter: appState.filterOption,
+            defaultSort: appState.sortOption,
+            gridColumns: appState.gridColumns,
+            gridRows: appState.gridRows,
+            iconSize: appState.iconSize,
+            labelSize: appState.labelSize,
+            reduceMotion: appState.reduceMotion,
+            debugLogging: appState.debugLogging
+        )
+    }
 
     static func load(from defaults: UserDefaults = .standard) -> SettingsDraft {
         let defaultFilterRaw = SettingsDefaults.stringValue(
@@ -320,11 +328,6 @@ struct SettingsDraft: Equatable {
         let defaultSortRaw = SettingsDefaults.stringValue(
             forKey: SettingsDefaults.defaultSortKey,
             defaultValue: SettingsDefaults.defaultSortDefault.rawValue,
-            in: defaults
-        )
-        let accentRaw = SettingsDefaults.stringValue(
-            forKey: SettingsDefaults.accentColorKey,
-            defaultValue: SettingsDefaults.accentColorDefault,
             in: defaults
         )
 
@@ -371,7 +374,6 @@ struct SettingsDraft: Equatable {
             ),
             defaultFilter: AppFilterOption(rawValue: defaultFilterRaw) ?? SettingsDefaults.defaultFilterDefault,
             defaultSort: AppSortOption(rawValue: defaultSortRaw) ?? SettingsDefaults.defaultSortDefault,
-            accentColor: SettingsAccentColor(rawValue: accentRaw) ?? .teal,
             gridColumns: SettingsDefaults.intValue(
                 forKey: SettingsDefaults.gridColumnsKey,
                 defaultValue: SettingsDefaults.gridColumnsDefault,
@@ -417,7 +419,6 @@ struct SettingsDraft: Equatable {
         defaults.set(keepQuitApps, forKey: SettingsDefaults.keepQuitAppsKey)
         defaults.set(defaultFilter.rawValue, forKey: SettingsDefaults.defaultFilterKey)
         defaults.set(defaultSort.rawValue, forKey: SettingsDefaults.defaultSortKey)
-        defaults.set(accentColor.rawValue, forKey: SettingsDefaults.accentColorKey)
         defaults.set(gridColumns, forKey: SettingsDefaults.gridColumnsKey)
         defaults.set(gridRows, forKey: SettingsDefaults.gridRowsKey)
         defaults.set(iconSize, forKey: SettingsDefaults.iconSizeKey)
@@ -425,49 +426,6 @@ struct SettingsDraft: Equatable {
         defaults.set(reduceMotion, forKey: SettingsDefaults.reduceMotionKey)
         defaults.set(debugLogging, forKey: SettingsDefaults.debugLoggingKey)
     }
-}
-
-/// Accent options for Settings UI tinting.
-enum SettingsAccentColor: String, CaseIterable, Identifiable {
-    case blue
-    case teal
-    case orange
-    case pink
-    case graphite
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .blue:
-            return "Blue"
-        case .teal:
-            return "Teal"
-        case .orange:
-            return "Orange"
-        case .pink:
-            return "Pink"
-        case .graphite:
-            return "Graphite"
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .blue:
-            return .blue
-        case .teal:
-            return .teal
-        case .orange:
-            return .orange
-        case .pink:
-            return .pink
-        case .graphite:
-            return .gray
-        }
-    }
-
-    static var defaultColor: Color { SettingsAccentColor.teal.color }
 }
 
 /// Neutral card styling for GroupBox sections.

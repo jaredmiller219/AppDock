@@ -33,9 +33,6 @@
             // Default filter picker
             // Default sort picker
 
-        // Appearance section
-            // Accent color picker
-
         // Behavior section
             // Labels, running indicator, hover remove
             // Confirm quit, keep apps after quit
@@ -48,7 +45,7 @@
             // Restore defaults button
 
     // Footer actions
-        // Restore Defaults
+        // Ellipsis menu with Restore Defaults and Set as Default
         // Apply button to push staged values into AppState
 
     // Settings persist via SettingsDefaults keys and apply through SettingsDraft

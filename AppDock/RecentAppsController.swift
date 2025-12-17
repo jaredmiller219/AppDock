@@ -68,7 +68,6 @@ class AppState: ObservableObject {
     @Published var labelSize = SettingsDefaults.labelSizeDefault
     @Published var reduceMotion = SettingsDefaults.reduceMotionDefault
     @Published var debugLogging = SettingsDefaults.debugLoggingDefault
-    @Published var accentColor = SettingsDefaults.accentColorDefault
 
     init() {
         applySettings(SettingsDraft.load())
@@ -91,7 +90,6 @@ class AppState: ObservableObject {
         labelSize = settings.labelSize
         reduceMotion = settings.reduceMotion
         debugLogging = settings.debugLogging
-        accentColor = settings.accentColor.rawValue
     }
 }
 

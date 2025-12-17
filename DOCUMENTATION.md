@@ -63,8 +63,8 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Settings persist in `UserDefaults` via keys defined in `SettingsDefaults`.
 - Settings edits are staged and only applied when you click Apply.
 - Layout options include grid columns/rows, icon size, and label size.
-- Appearance options include the Settings accent color.
 - Behavior options include label visibility, hover remove, and quit confirmations.
+- The bottom-left ellipsis menu provides Restore Defaults and Set as Default.
 
 ### Tests
 
