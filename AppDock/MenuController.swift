@@ -46,7 +46,7 @@ struct PopoverContentView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            FilterBar(appState: appState)
+            FilterMenuButton(appState: appState)
                 .padding(.horizontal, 12)
                 .padding(.top, 8)
                 .padding(.bottom, 6)
@@ -81,42 +81,35 @@ struct PopoverContentView: View {
     }
 }
 
-private struct FilterBar: View {
+private struct FilterMenuButton: View {
     @ObservedObject var appState: AppState
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Filter & Sort")
-                .font(.caption)
-                .foregroundColor(.secondary)
-
-            HStack {
-                Text("Show")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Picker("Show", selection: $appState.filterOption) {
-                    ForEach(AppFilterOption.allCases) { option in
-                        Text(option.title).tag(option)
-                    }
+        Menu {
+            Picker("Show", selection: $appState.filterOption) {
+                ForEach(AppFilterOption.allCases) { option in
+                    Text(option.title).tag(option)
                 }
-                .labelsHidden()
-                .pickerStyle(.menu)
             }
-
-            HStack {
-                Text("Sort")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Picker("Sort", selection: $appState.sortOption) {
-                    ForEach(AppSortOption.allCases) { option in
-                        Text(option.title).tag(option)
-                    }
+            Divider()
+            Picker("Sort", selection: $appState.sortOption) {
+                ForEach(AppSortOption.allCases) { option in
+                    Text(option.title).tag(option)
                 }
-                .labelsHidden()
-                .pickerStyle(.menu)
             }
+        } label: {
+            HStack {
+                Label("Filter & Sort", systemImage: "line.3.horizontal.decrease.circle")
+                    .font(.caption)
+                Spacer()
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.primary.opacity(0.08))
+            )
         }
     }
 }

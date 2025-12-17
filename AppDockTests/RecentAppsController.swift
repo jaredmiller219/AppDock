@@ -335,7 +335,6 @@ final class AppDelegateLogicTests: XCTestCase {
     // Test 9: Newly launched apps should be inserted at the front and de-duplicated.
     func testHandleLaunchedApp_insertsAndDedupes() {
         let now = Date()
-        let app1 = MockRunningApplication(name: "App One", id: "com.app.one", urlPath: "/one.app", policy: .regular, launchDate: now)
         let app2 = MockRunningApplication(name: "App Two", id: "com.app.two", urlPath: "/two.app", policy: .regular, launchDate: now)
 
         sut.appState.recentApps = [

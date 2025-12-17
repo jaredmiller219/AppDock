@@ -356,19 +356,20 @@ struct DockView: View {
 				return !NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleid).isEmpty
 			}
 		}
-		let sortedApps: [(name: String, bundleid: String, icon: NSImage)]
-		switch appState.sortOption {
-		case .recent:
-			sortedApps = filteredApps
-		case .nameAscending:
-			sortedApps = filteredApps.sorted {
-				$0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+		let sortedApps: [(name: String, bundleid: String, icon: NSImage)] = {
+			switch appState.sortOption {
+			case .recent:
+				return filteredApps
+			case .nameAscending:
+				return filteredApps.sorted {
+					$0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+				}
+			case .nameDescending:
+				return filteredApps.sorted {
+					$0.name.localizedCaseInsensitiveCompare($1.name) == .orderedDescending
+				}
 			}
-		case .nameDescending:
-			sortedApps = filteredApps.sorted {
-				$0.name.localizedCaseInsensitiveCompare($1.name) == .orderedDescending
-			}
-		}
+		}()
 		let paddedApps = sortedApps + Array(
 			repeating: ("", "", NSImage()),
 			count: max(0, totalSlots - sortedApps.count)
