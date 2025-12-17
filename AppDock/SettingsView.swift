@@ -5,7 +5,7 @@
 
 import SwiftUI
 
-/// Simple settings surface for the menu bar app.
+/// Settings UI with staged changes and an explicit Apply action.
 struct SettingsView: View {
     @ObservedObject var appState: AppState
     @State private var draft: SettingsDraft
@@ -205,6 +205,7 @@ struct SettingsView: View {
 //    SettingsView(appState: .init())
 //}
 
+/// Central place for settings keys, defaults, and reset helpers.
 struct SettingsDefaults {
     static let launchAtLoginKey = "settings.launchAtLogin"
     static let openOnStartupKey = "settings.openOnStartup"
@@ -290,6 +291,7 @@ struct SettingsDefaults {
     }
 }
 
+/// Staged settings values, applied to UserDefaults + AppState on demand.
 struct SettingsDraft: Equatable {
     var launchAtLogin: Bool
     var openOnStartup: Bool
@@ -403,6 +405,7 @@ struct SettingsDraft: Equatable {
         )
     }
 
+    /// Persist staged values into UserDefaults.
     func apply(to defaults: UserDefaults = .standard) {
         defaults.set(launchAtLogin, forKey: SettingsDefaults.launchAtLoginKey)
         defaults.set(openOnStartup, forKey: SettingsDefaults.openOnStartupKey)
@@ -424,6 +427,7 @@ struct SettingsDraft: Equatable {
     }
 }
 
+/// Accent options for Settings UI tinting.
 enum SettingsAccentColor: String, CaseIterable, Identifiable {
     case blue
     case teal
@@ -466,6 +470,7 @@ enum SettingsAccentColor: String, CaseIterable, Identifiable {
     static var defaultColor: Color { SettingsAccentColor.teal.color }
 }
 
+/// Neutral card styling for GroupBox sections.
 private struct CardGroupBoxStyle: GroupBoxStyle {
     func makeBody(configuration: Configuration) -> some View {
         VStack(alignment: .leading, spacing: 10) {

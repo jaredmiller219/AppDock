@@ -1,15 +1,18 @@
 import XCTest
 @testable import AppDock
 
+/// Verifies SettingsDefaults keys and restore behavior.
 final class SettingsDefaultsTests: XCTestCase {
     private let suiteName = "AppDock.SettingsDefaultsTests"
 
+    /// Creates a clean, isolated UserDefaults suite for testing.
     private func makeDefaults() -> UserDefaults {
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
         return defaults
     }
 
+    /// Ensures the defaults dictionary matches the declared default values.
     func testDefaultsDictionary_matchesExpectedValues() {
         let values = SettingsDefaults.defaultsDictionary()
 
@@ -32,6 +35,7 @@ final class SettingsDefaultsTests: XCTestCase {
         XCTAssertEqual(values[SettingsDefaults.debugLoggingKey] as? Bool, SettingsDefaults.debugLoggingDefault)
     }
 
+    /// Ensures restore writes the expected values into UserDefaults.
     func testRestoreWritesDefaultsToUserDefaults() {
         let defaults = makeDefaults()
         defer { defaults.removePersistentDomain(forName: suiteName) }
