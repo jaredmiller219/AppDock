@@ -59,7 +59,7 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 
 ### Settings
 
-- Open the menu bar app menu, then choose `Settings…`.
+- Open Settings with `⌘,` or use the menu bar app menu and choose `Settings…`.
 - Settings persist in `UserDefaults` via keys defined in `SettingsDefaults`.
 - Settings edits are staged and only applied when you click Apply.
 - Layout options include grid columns/rows, icon size, and label size.
@@ -166,7 +166,7 @@ DockOverlayView(title: "Now Playing")
 - If minimized windows do not restore, this may require Accessibility APIs.
 - Menu bar apps can log to Console.app; filter by “AppDock”.
 - If filtering appears incorrect, verify the current selection in the Filter & Sort menu and re-open the popover.
-- If settings look off, use Restore Defaults in Settings to reset stored values.
+- If settings look off, use Restore Defaults in the Settings ellipsis menu.
 - If a quit app still appears, check the “Keep apps after quit” setting.
 
 ### Common Development Tasks
@@ -280,6 +280,7 @@ DockOverlayView(title: "Now Playing")
 
 - App launches and is running (foreground or background).
 - Launch screenshot captured after startup.
+- Settings UI test opens the window via `⌘,` and verifies Apply + ellipsis actions.
 
 ### Integration Test Ideas
 
