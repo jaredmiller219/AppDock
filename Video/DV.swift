@@ -9,128 +9,197 @@
 
 // Import AppKit for macOS specific functionality
 
-// Create a structure for the app button as a view
+// Extend Notification.Name with appDockDismissContextMenu
 
-    // String for the application's name
-    
-    // String for the application's bundle identifier
-    
-    // NSImage for the application's icon
-    
-    // CGFloat for the width of the button
-    
-    // CGFloat for the height of the button
-    
-    // The main view body
-    
-        // Create a button with action and label
-        
-            // Check if the bundle ID is not empty
-            
-                // Get the shared workspace
-                
-                // Try to get the URL for the application using bundle identifier
-                
-                    // Open the application with the specified URL
-                    
-                        // Handle potential errors
-                        
-                            // Print success message
-                            
-                            // Skip this block
-        
-            // If the app name is empty, show empty slot view
-            
-            // Otherwise show the app icon view
-        
-        // Set the button style to plain
-        
-        // Disable the button if bundle ID is empty
+// Create VisualEffectBlur (NSViewRepresentable wrapper)
 
-// Create a structure for empty slots view
+    // Store material and blending mode
 
-    // CGFloat for the width of the empty slot
-    
-    // CGFloat for the height of the empty slot
-    
-    // The main view body
-    
-        // Create a clear background
-        
-            // Set the frame dimensions
-            
-            // Add a border overlay
-            
-            // Add "Empty" text overlay
+    // makeNSView
+        // Create NSVisualEffectView
+        // Set material and blending
+        // Set state to active
+        // Return the view
 
-// Create a structure for app icons view
+    // updateNSView
+        // Update material and blending
+        // Keep state active
 
-    // String for the application's name
-    
-    // NSImage for the application's icon
-    
-    // CGFloat for the width of the icon
-    
-    // CGFloat for the height of the icon
-    
-    // The main view body
-    
-        // Display the app icon image
-        
-            // Make the image resizable
-            
-            // Scale to fit the frame
-            
-            // Set the frame dimensions
-            
-            // Add corner radius
-            
-            // Add app name overlay
+// MARK: - ButtonView
 
-// Main structure for DockView that displays the grid of apps
+// Create ButtonView for a single app icon
 
-    // Observe the shared app state
-    
-    // Int for number of columns in the grid
-    
-    // Int for number of rows in the grid
-    
-    // CGFloat for width of each button
-    
-    // CGFloat for height of each button
-    
-    // CGFloat for extra spacing for the divider
-    
-    // The main view body
-    
-        // Calculate the divider width
-        
-        // Create vertical stack for rows
-        
-            // Calculate total number of slots
-            
-            // Get the recent apps from app state
-            
-            // Pad the apps array with empty slots
-            
-            // Create rows of app buttons
-            
-                // Create horizontal stack for columns
-                
-                    // Create columns of app buttons
-                    
-                        // Calculate the index for each app
-                        
-                        // Get the app details
-                        
-                        // Create button view for the app
+    // Inputs:
+        // appName string
+        // bundleId string
+        // appIcon NSImage
+        // button width/height
+        // binding for isContextMenuVisible
+        // onRemove closure
 
-                        // Create a Text label for the app name
-                
-                // Add divider between rows (except last row)
-        
-        // Add padding to the entire view
+    // Local state:
+        // hover state
+        // remove button visibility
+        // delayed work item for X button
+        // command key tracking
+        // local/global modifier monitors
 
-// Preview provider for SwiftUI canvas
+    // Helper: openApp(bundleId)
+        // Resolve URL with NSWorkspace.urlForApplication
+        // Create OpenConfiguration
+        // activates = true
+        // createsNewApplicationInstance = false
+        // Open the app with openApplication(at:)
 
-    // Initialize DockView with empty app state
+    // View body
+
+        // ZStack for icon + optional remove button
+
+            // If appName is empty
+                // Render EmptySlot
+            // Else
+                // Button tap handler
+
+                    // If Command is held
+                        // Toggle context menu for this icon
+                    // Else
+                        // Close any open context menu
+                        // If running:
+                            // Unhide app
+                            // Activate all windows
+                            // Call openApp to bring windows forward
+                        // If not running:
+                            // Call openApp to relaunch
+
+                // Button label
+                    // IconView
+                    // Hover border
+
+            // Remove button overlay
+                // Visible only when showRemoveButton and appName not empty
+                // Calls onRemove
+
+        // onHover
+            // Track hover state
+            // If hovering with Command pressed, schedule X button
+            // If hover ends, cancel X button
+
+        // onAppear
+            // Start modifier key monitoring
+
+        // onDisappear
+            // Stop modifier key monitoring
+
+        // Disable button if bundleId is empty
+
+    // Modifier key monitoring
+
+        // startMonitoringModifierFlags
+            // Set initial command state
+            // Add local monitor for flagsChanged
+            // Add global monitor for flagsChanged
+
+        // stopMonitoringModifierFlags
+            // Remove monitors
+
+        // handleModifierFlagsChange
+            // Update command state
+            // Show or hide remove button based on hover
+
+    // Remove button timing
+
+        // scheduleRemoveButton
+            // Cancel prior work item
+            // Schedule show after delay
+
+        // cancelRemoveButton
+            // Cancel work item
+            // Hide remove button
+
+// MARK: - ContextMenuView
+
+// Create ContextMenuView for Hide/Quit actions
+
+    // Inputs:
+        // onDismiss closure
+        // bundleId string
+
+    // View body
+        // VStack with buttons
+        // Hide App:
+            // Find running app by bundleId
+            // Call hide()
+            // Dismiss menu
+        // Quit App:
+            // Find running app by bundleId
+            // Try terminate; if false, forceTerminate
+            // Dismiss menu
+        // Apply padding and fixed width
+
+// MARK: - EmptySlot
+
+// Placeholder when no app is present
+
+    // Inputs: width, height
+    // Body: clear frame with border and "Empty" label
+
+// MARK: - IconView
+
+// Renders the NSImage icon
+
+    // Inputs: appName, appIcon, width, height
+    // Body: resizable image, scaled to fit, corner radius
+
+// MARK: - DockView
+
+// Main grid view for the dock
+
+    // ObservedObject appState
+    // Active context menu index
+    // Context menu token for re-animation
+    // Spring animation config
+
+    // dismissContextMenus
+        // Animate context menu index to nil
+
+    // setActiveContextMenuIndex
+        // Animate index change
+        // Refresh token when opening
+
+    // Layout constants
+        // rows, columns, spacing, sizes
+
+    // View body
+
+        // Compute divider width
+
+        // Filter apps
+            // AppFilterOption.all -> keep all
+            // AppFilterOption.runningOnly -> keep only running apps
+
+        // Sort apps
+            // recent -> preserve order
+            // nameAscending -> A-Z
+            // nameDescending -> Z-A
+
+        // Pad list to fixed grid size
+
+        // Render rows and columns
+            // For each slot:
+                // ButtonView for icon
+                // Optional label under icon
+
+        // Divider between rows
+
+        // Dismiss context menu on tap
+
+        // Overlay context menu when active
+            // VisualEffectBlur background
+            // Rounded rectangle stroke
+            // ContextMenuView content
+            // Transition with scale + opacity
+
+        // Dismiss rules
+            // On app resign active
+            // On custom dismiss notification
+            // On other app activation

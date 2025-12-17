@@ -9,68 +9,129 @@
 
 // Import Cocoa framework for macOS functionality
 
-// Mark this as the main entry point of the application - @main
+// MARK: - App Entry
 
-// Define the main app structure that conforms to the App protocol
-    
-    // Create an instance of AppDelegate and connect it to the SwiftUI app lifecycle
-    
-    // Define the scene for the app
-    
-        // Use Settings scene type with an empty view since we're making a menu bar app
+// @main app declaration
 
-// Define a class for the shared state of the application with a protocol of ObservableObject
-    
-    // Create a published array to store recent applications
-    // Each element is a tuple containing:
-    // - name: The localized name of the application
-    // - bundleid: The bundle identifier of the application
-    // - icon: The application's icon as an NSImage
+// Define the main app structure that conforms to App
 
-// Define the a class for the application delegate to handle app lifecycle and menu bar functionality, with protocols NSObject and NSApplicationDelegate
-    
-    // Create an instance of the app delegate that can be accessed globally
-    
-    // Initialize the shared app state as published
-    
-    // Create the status bar item with variable length
-    
-    // Initialize the app menu
-    
-    // Function to call when the "application finishes launching"
-    
-        // Set the instance to itself
-        
-        // Configure the status bar icon
-        
-        // Set the image position in the status bar
-        
-        // Attach the menu to the status bar item
-        
-        // Fetch the list of recent applications
-    
-    // Function to retrieve and process recently used applications
-    
-        // Get access to the shared workspace
-        
-        // Get all currently running applications
-        
-        // Filter out applications that aren't user-facing or don't have bundle IDs
-        
-        // Sort the applications by launch date, most recent first
-        
-        // Process each application to extract necessary info using a compact map
-        
-            // Extract app's name, bundleid, and icon
-            
-                // return nil if any are missing
-            
-            // Get the application's icon
-            
-            // Resize the icon to fit our UI
-            
-            // Return the tuple of app's name, bundleid, and icon
-        
-        // Update the UI on the main thread using a dispatch queue
-        
-            // Update the shared state with the new app information
+    // Create an AppDelegate adaptor
+
+    // Define Settings scene with SettingsView
+
+// MARK: - Shared State
+
+// AppFilterOption enum (in AppDockTypes.swift)
+// - all
+// - runningOnly
+// - title for UI labels
+
+// AppSortOption enum (in AppDockTypes.swift)
+// - recent
+// - nameAscending
+// - nameDescending
+// - title for UI labels
+
+// AppState (ObservableObject)
+
+    // recentApps: list of (name, bundleid, icon)
+    // filterOption: AppFilterOption
+    // sortOption: AppSortOption
+
+// MARK: - App Delegate
+
+// AppDelegate: NSObject, NSApplicationDelegate
+
+    // Singleton instance
+    // appState (shared ObservableObject)
+    // statusBarItem
+    // menu controller
+    // settings window controller
+    // popover
+    // workspace observers
+    // key event monitor
+
+    // applicationDidFinishLaunching
+
+        // Save singleton instance
+
+        // Configure status bar icon
+        // Set image position
+
+        // Attach popover toggle action
+
+        // Build popover content via MenuController
+
+        // Setup main menu (About/Settings/Quit)
+
+        // Load recent apps
+
+        // Start workspace monitoring for app launches
+
+    // setupMainMenu
+        // Build main menu
+        // Add About
+        // Add Settings
+        // Add Quit
+
+    // togglePopover
+        // Open if closed, close if open
+
+    // showPopover
+        // Activate app
+        // Center popover on screen
+        // Fallback to button anchor
+        // Start escape key monitor
+
+    // makeStatusBarImage
+        // Create system symbol image
+        // Fallback to app icon or empty image
+        // Set size and template flag
+
+    // closePopover
+        // Close and stop monitors
+
+    // startPopoverMonitor
+        // Add Escape key handler
+
+    // stopPopoverMonitor
+        // Remove monitor
+
+    // startWorkspaceMonitoring
+        // Observe didLaunchApplication
+        // Call handleLaunchedApp
+
+    // stopWorkspaceMonitoring
+        // Remove observers
+
+    // getRecentApplications
+        // Read running apps
+        // Filter by activation policy, bundle ID, launch date
+        // Sort by launch date (recent first)
+        // Convert to app entries with icons
+        // Publish to appState
+
+    // handleLaunchedApp
+        // Skip if bundle id is AppDock
+        // Make app entry
+        // Deduplicate by bundle id
+        // Insert at front
+
+    // makeAppEntry
+        // Read name, bundle id, bundle URL
+        // Fetch icon
+        // Resize to 64x64
+        // Return tuple
+
+    // about
+        // Show standard About panel
+        // Close popover
+
+    // openSettings
+        // Create window if needed
+        // Host SettingsView
+        // Show and activate window
+        // Close popover
+
+    // quit
+        // Terminate app

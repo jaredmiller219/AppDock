@@ -9,67 +9,79 @@
 
 // Import Foundation framework for basic functionality
 
-// Define the menu controller class that manages the status bar menu
+// Define the MenuController class that builds the popover content
 // Inherits from NSObject to work with Objective-C runtime
-    
-    // NSMenu instance that will contain our menu items
-    // This will hold all of our menu items and the dock view
-    
-    // Function to create and configure the status bar menu
-    // Returns: NSMenu - The configured menu ready to be displayed
-    
-        // Access shared state
-        
-        // Create the main dock view with the current app state
-        // This will display our grid of recent applications
-        
-        // Wrap the SwiftUI dock view in an NSHostingController
-        // This allows us to use SwiftUI views in AppKit menus
-        
-        // Configure the size of the menu window
-        // Set width to 170 points and height to 260 points
-        
-        // Create a menu item to hold our dock view
-        // This will be the main content area of our menu
-        
-        // Attach the hosting view to our menu item
-        // This embeds our SwiftUI view in the menu
-        
-        // Add the configured menu item to our menu
-        // This is the top section containing the dock grid
-        
-        // Add a separator line below the dock grid
-        // This visually separates the dock from the menu options
-        
-        // Create the "About" menu item
-        // Configure it with a title and action, but no keyboard shortcut
-        
-        // Set the target for the about menu item
-        // This ensures the action method will be called on this instance
-        
-        // Add the about menu item to the menu
-        // This appears below the separator
-        
-        // Create the "Quit" menu item
-        // Configure it with a title, action, and "q" keyboard shortcut
-        
-        // Set the target for the quit menu item to itself
-        // This ensures the action method will be called on this instance
-        
-        // Add the quit menu item to the menu
-        // This will be the last item in the menu
-        
-        // Return the menu
-        // This will be used by the status bar item
-    
-    // Handler for the "About" menu item - sender is the menu item
-    // Shows the standard macOS about panel
-    
-        // Display the default macOS about window
-        // This shows application information and credits
-    
-    // Handler for the "Quit" menu item - sender is the menu item
-    // Terminates the application
-    
-        // Terminate the application cleanly
-        // This will close all windows and end the application
+
+    // Function to create a hosting controller for the popover content
+    // Inputs:
+    // - appState: shared state for the dock list
+    // - settingsAction: open Settings window
+    // - aboutAction: show About panel
+    // - quitAction: quit the app
+    // Returns: NSViewController hosting the SwiftUI content
+
+        // Build the PopoverContentView
+        // Wrap it in an NSHostingController
+        // Set the view frame size to match the popover
+        // Return the hosting controller
+
+// Define PopoverContentView (SwiftUI layout for the popover)
+
+    // Observe AppState to get the current app list and filter/sort settings
+    // Store menu actions for Settings, About, Quit
+
+    // The main view body
+
+        // Create a vertical stack
+
+            // Add FilterBar at the top
+            // Add padding around FilterBar
+
+            // Add a divider below FilterBar
+
+            // Add a scroll view containing DockView
+            // Apply padding to DockView for layout
+
+            // Add a divider above the menu rows
+
+            // Add menu rows:
+            // - Settings
+            // - About
+            // - Quit AppDock
+
+        // Set the popover frame size to fixed width/height
+        // Add a tap gesture to dismiss context menus
+
+// Define FilterBar (filtering and sorting controls)
+
+    // Observe AppState
+
+    // The main view body
+
+        // Create a vertical stack aligned to leading
+
+            // Add a small "Filter & Sort" label
+
+            // Row for filter selection
+                // Left label: "Show"
+                // Right picker: AppFilterOption
+                // Picker style: menu
+
+            // Row for sort selection
+                // Left label: "Sort"
+                // Right picker: AppSortOption
+                // Picker style: menu
+
+// Define MenuRow (single menu entry)
+
+    // Inputs: title, action
+    // Track hover state for highlighting
+
+    // The main view body
+
+        // Create a button with an HStack
+        // Left: text label
+        // Right: spacer
+        // Apply padding
+        // Apply hover background when hovering
+        // Use plain button style
