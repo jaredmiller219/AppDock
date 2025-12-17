@@ -199,7 +199,7 @@ struct ContextMenuView: View {
 	let bundleId: String
 	
 	var body: some View {
-		VStack(spacing: 6) {
+		VStack(spacing: 8) {
 			Button("Hide App") {
 				if let app = NSRunningApplication
 					.runningApplications(withBundleIdentifier: bundleId)
@@ -209,19 +209,25 @@ struct ContextMenuView: View {
 				}
 				onDismiss()
 			}
-			
+			.frame(maxWidth: .infinity, minHeight: 36)
+
 			Button("Quit App") {
 				if let targetApp = NSRunningApplication
 					.runningApplications(withBundleIdentifier: bundleId)
 					.first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
 					print("Quitting app with bundle ID: \(bundleId)")
-					targetApp.terminate()
+					let terminated = targetApp.terminate()
+					if !terminated {
+						targetApp.forceTerminate()
+					}
 				}
 				onDismiss()
 			}
+			.frame(maxWidth: .infinity, minHeight: 36)
 		}
-		.padding(8)
-		.frame(width: 120)
+		.padding(.horizontal, 14)
+		.padding(.vertical, 10)
+		.frame(width: 160)
 	}
 }
 
@@ -364,16 +370,19 @@ struct DockView: View {
 				let (_, bundleId, _) = paddedApps[active]
 				
 				if !bundleId.isEmpty {
+					let menuWidth: CGFloat = 200
+					let menuHeight: CGFloat = 130
+					
 					ZStack {
 						VisualEffectBlur(material: .hudWindow, blendingMode: .withinWindow)
-							.frame(width: 160, height: 100)
+							.frame(width: menuWidth, height: menuHeight)
 							.clipShape(RoundedRectangle(cornerRadius: 10))
 							.shadow(radius: 6)
 							.allowsHitTesting(false)
 						
 						RoundedRectangle(cornerRadius: 10)
 							.stroke(Color.white.opacity(0.08), lineWidth: 1)
-							.frame(width: 160, height: 100)
+							.frame(width: menuWidth, height: menuHeight)
 							.allowsHitTesting(false)
 						
 						ContextMenuView(
