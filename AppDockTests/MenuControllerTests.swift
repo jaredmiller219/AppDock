@@ -56,4 +56,20 @@ final class MenuControllerTests: XCTestCase {
         XCTAssertTrue(aboutCalled, "About action should be wired.")
         XCTAssertTrue(quitCalled, "Quit action should be wired.")
     }
+
+    func testFilterMenuOptions_titlesAndOrder() {
+        XCTAssertEqual(AppFilterOption.allCases, [.all, .runningOnly])
+        XCTAssertEqual(AppFilterOption.allCases.map(\.title), ["All Apps", "Running Only"])
+    }
+
+    func testSortMenuOptions_titlesAndOrder() {
+        XCTAssertEqual(AppSortOption.allCases, [.recent, .nameAscending, .nameDescending])
+        XCTAssertEqual(AppSortOption.allCases.map(\.title), ["Recently Opened", "Name A-Z", "Name Z-A"])
+    }
+
+    func testAppState_defaultsMatchMenuDefaults() {
+        let appState = AppDock.AppState()
+        XCTAssertEqual(appState.filterOption, .all)
+        XCTAssertEqual(appState.sortOption, .recent)
+    }
 }
