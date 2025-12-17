@@ -57,26 +57,46 @@ struct ButtonView: View {
 	@State private var modifierFlagsMonitor: Any?
 	@State private var globalModifierFlagsMonitor: Any?
 
+	private func openApp(bundleId: String) {
+		guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleId) else {
+			return
+		}
+		let configuration = NSWorkspace.OpenConfiguration()
+		configuration.activates = true
+		configuration.createsNewApplicationInstance = false
+		NSWorkspace.shared.openApplication(
+			at: appURL,
+			configuration: configuration,
+			completionHandler: nil
+		)
+	}
+
 	var body: some View {
 		ZStack(alignment: .topLeading) {
 			Group {
-						if appName.isEmpty {
-							EmptySlot(width: buttonWidth, height: buttonHeight)
+				if appName.isEmpty {
+					EmptySlot(width: buttonWidth, height: buttonHeight)
+				} else {
+					Button {
+						if let event = NSApp.currentEvent,
+						   event.modifierFlags.contains(.command) {
+							// Command-click: toggle this button's context menu.
+							isContextMenuVisible.toggle()
 						} else {
-							Button {
-								if let event = NSApp.currentEvent,
-								   event.modifierFlags.contains(.command) {
-									// Command-click: toggle this button's context menu
-									isContextMenuVisible.toggle()
-								} else {
-									// Any regular click closes all context menus first
-									isContextMenuVisible = false
-									// Regular click: activate the app
-									if !bundleId.isEmpty,
-									   let targetApp = NSRunningApplication
-										.runningApplications(withBundleIdentifier: bundleId)
-										.first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
-								targetApp.activate()
+							// Any regular click closes all context menus first.
+							isContextMenuVisible = false
+							// Regular click: activate or relaunch the app.
+							if !bundleId.isEmpty,
+							   let targetApp = NSRunningApplication
+								.runningApplications(withBundleIdentifier: bundleId)
+								.first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
+								// Unhide and activate all windows to restore minimized apps.
+								targetApp.unhide()
+								targetApp.activate(options: [.activateAllWindows])
+								openApp(bundleId: bundleId)
+							} else if !bundleId.isEmpty {
+								// If the app isn't running, relaunch it.
+								openApp(bundleId: bundleId)
 							}
 						}
 					} label: {
