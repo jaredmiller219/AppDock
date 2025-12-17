@@ -12,7 +12,7 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Status bar icon now uses a system symbol with a fallback image.
 - Relaunch uses `NSWorkspace.OpenConfiguration` and `openApplication(at:)` APIs.
 - Minimized apps are restored via `unhide()` + `activateAllWindows` and a relaunch event.
-- Added Filter & Sort controls for running-only and name-based ordering.
+- Added a Filter & Sort menu button for running-only and name-based ordering.
 - Moved shared filter/sort enums into `AppDock/AppDockTypes.swift`.
 - Added a SettingsView narration outline in the Video folder.
 
@@ -23,7 +23,7 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Command-hover remove affordance for manual list cleanup.
 - Lightweight menu bar UI with a centered popover.
 - App list is derived from `NSWorkspace` running apps and sorted by launch time.
-- Built-in filter and sort controls for list customization.
+- Built-in filter and sort menu for list customization.
 
 ## Glossary
 
@@ -49,7 +49,7 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Apps stay listed after they quit (by design).
 - Clicking a listed app that is no longer running relaunches it.
 - Clicking a minimized app should restore its windows (OS behavior may vary).
-- Use the Filter & Sort controls to switch between running-only and all apps, or reorder by name.
+- Use the Filter & Sort menu button to switch between running-only and all apps, or reorder by name.
 
 ### Settings
 
@@ -155,7 +155,7 @@ DockOverlayView(title: "Now Playing")
 - If icons are missing, verify the bundle URL and icon retrieval in `makeAppEntry(from:workspace:)`.
 - If minimized windows do not restore, this may require Accessibility APIs.
 - Menu bar apps can log to Console.app; filter by “AppDock”.
-- If filtering appears incorrect, verify the current selection in the Filter & Sort bar and re-open the popover.
+- If filtering appears incorrect, verify the current selection in the Filter & Sort menu and re-open the popover.
 
 ### Common Development Tasks
 
@@ -198,7 +198,7 @@ DockOverlayView(title: "Now Playing")
 - Apps are filtered to `.regular` with a bundle identifier and launch date.
 - New launches insert at index 0 and dedupe existing bundle identifiers.
 - App quits do not remove entries (this preserves the “recent” history).
-- The Filter & Sort bar can further constrain or reorder the visible list.
+- The Filter & Sort menu can further constrain or reorder the visible list.
 
 ### App Activation and Relaunch
 
