@@ -97,6 +97,23 @@ final class DockViewTests: XCTestCase {
 			activeContextMenuIndex = nil
 		}
 	}
+
+	// Helper that mirrors the onRemove logic in DockView's ButtonView closure.
+	struct DockRemoveHandler {
+		var recentApps: [AppDetail]
+		var activeContextMenuIndex: Int?
+
+		mutating func remove(at index: Int) {
+			if index < recentApps.count {
+				recentApps.remove(at: index)
+			}
+			if activeContextMenuIndex == index {
+				activeContextMenuIndex = nil
+			} else if let active = activeContextMenuIndex, active > index {
+				activeContextMenuIndex = active - 1
+			}
+		}
+	}
 	
 	// Test 1: Verify the DockView correctly calculates the padded app list (padding logic)
 	func testDockView_paddingLogic() {
@@ -279,5 +296,35 @@ final class DockViewTests: XCTestCase {
 		XCTAssertEqual(totalSlots, 12, "Total slots should remain constant even when no apps exist.")
 		let expectedPadding = totalSlots - appState.recentApps.count
 		XCTAssertEqual(expectedPadding, 12, "All slots should be padding when there are no apps.")
+	}
+
+	// Test 9: Removing the active app should clear the active context menu index.
+	func testDockView_removeClearsActiveIndex() {
+		let apps: [AppDetail] = [
+			("One", "id.one", test_createDummyImage()),
+			("Two", "id.two", test_createDummyImage()),
+			("Three", "id.three", test_createDummyImage())
+		]
+		var handler = DockRemoveHandler(recentApps: apps, activeContextMenuIndex: 1)
+
+		handler.remove(at: 1)
+
+		XCTAssertEqual(handler.recentApps.count, 2)
+		XCTAssertNil(handler.activeContextMenuIndex)
+	}
+
+	// Test 10: Removing an item before the active one should shift the index down.
+	func testDockView_removeAdjustsActiveIndex() {
+		let apps: [AppDetail] = [
+			("One", "id.one", test_createDummyImage()),
+			("Two", "id.two", test_createDummyImage()),
+			("Three", "id.three", test_createDummyImage())
+		]
+		var handler = DockRemoveHandler(recentApps: apps, activeContextMenuIndex: 2)
+
+		handler.remove(at: 0)
+
+		XCTAssertEqual(handler.recentApps.count, 2)
+		XCTAssertEqual(handler.activeContextMenuIndex, 1)
 	}
 }

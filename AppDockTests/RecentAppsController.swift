@@ -36,10 +36,14 @@ class MockRunningApplication: NSRunningApplication, @unchecked Sendable {
     override var launchDate: Date? { _launchDate }
 
     // Custom initializer to set all required properties
-    init(name: String, id: String?, urlPath: String, policy: NSApplication.ActivationPolicy, launchDate: Date?) {
+    init(name: String?, id: String?, urlPath: String?, policy: NSApplication.ActivationPolicy, launchDate: Date?) {
         self._localizedName = name
         self._bundleIdentifier = id
-        self._bundleURL = URL(fileURLWithPath: urlPath)
+        if let urlPath {
+            self._bundleURL = URL(fileURLWithPath: urlPath)
+        } else {
+            self._bundleURL = nil
+        }
         self._activationPolicy = policy
         self._launchDate = launchDate
         // Call the superclass init, even though we override all accessors
@@ -155,6 +159,11 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
         let appIcon = self.workspace.icon(forFile: appPath)
         appIcon.size = NSSize(width: 64, height: 64)
         return (name: appName, bundleid: bundleid, icon: appIcon)
+    }
+
+    /// Exposes app entry creation for unit tests.
+    func makeAppEntryForTest(from app: NSRunningApplication) -> AppDetail? {
+        makeAppEntry(from: app)
     }
     
     /// Mimic the original method to check if getRecentApplications is called.
@@ -297,7 +306,33 @@ final class AppDelegateLogicTests: XCTestCase {
         XCTAssertEqual(sut.appState.recentApps.first?.name, "Valid")
     }
 
-    // Test 7: Newly launched apps should be inserted at the front and de-duplicated.
+    // Test 7: Verify apps missing localizedName are skipped.
+    func testGetRecentApplications_skipsAppsMissingName() {
+        let now = Date()
+        let validApp = MockRunningApplication(name: "Valid", id: "com.valid", urlPath: "/valid.app", policy: .regular, launchDate: now)
+        let missingName = MockRunningApplication(name: nil, id: "com.noname", urlPath: "/noname.app", policy: .regular, launchDate: now)
+
+        mockWorkspace.appsToReturn = [validApp, missingName]
+        sut.getRecentApplications()
+
+        XCTAssertEqual(sut.appState.recentApps.count, 1)
+        XCTAssertEqual(sut.appState.recentApps.first?.bundleid, "com.valid")
+    }
+
+    // Test 8: Verify apps missing bundle URL are skipped.
+    func testGetRecentApplications_skipsAppsMissingBundleURL() {
+        let now = Date()
+        let validApp = MockRunningApplication(name: "Valid", id: "com.valid", urlPath: "/valid.app", policy: .regular, launchDate: now)
+        let missingURL = MockRunningApplication(name: "NoURL", id: "com.nourl", urlPath: nil, policy: .regular, launchDate: now)
+
+        mockWorkspace.appsToReturn = [validApp, missingURL]
+        sut.getRecentApplications()
+
+        XCTAssertEqual(sut.appState.recentApps.count, 1)
+        XCTAssertEqual(sut.appState.recentApps.first?.bundleid, "com.valid")
+    }
+
+    // Test 9: Newly launched apps should be inserted at the front and de-duplicated.
     func testHandleLaunchedApp_insertsAndDedupes() {
         let now = Date()
         let app1 = MockRunningApplication(name: "App One", id: "com.app.one", urlPath: "/one.app", policy: .regular, launchDate: now)
@@ -315,7 +350,7 @@ final class AppDelegateLogicTests: XCTestCase {
         XCTAssertEqual(sut.appState.recentApps.last?.bundleid, "com.app.one")
     }
 
-    // Test 8: Newly launched apps should be added when the list is empty.
+    // Test 10: Newly launched apps should be added when the list is empty.
     func testHandleLaunchedApp_insertsWhenEmpty() {
         let now = Date()
         let app = MockRunningApplication(name: "Fresh App", id: "com.app.fresh", urlPath: "/fresh.app", policy: .regular, launchDate: now)
@@ -326,4 +361,31 @@ final class AppDelegateLogicTests: XCTestCase {
         XCTAssertEqual(sut.appState.recentApps.count, 1)
         XCTAssertEqual(sut.appState.recentApps.first?.bundleid, "com.app.fresh")
     }
+
+    // Test 11: handleLaunchedApp should ignore apps without required fields.
+    func testHandleLaunchedApp_ignoresIncompleteApp() {
+        let now = Date()
+        let missingURL = MockRunningApplication(name: "NoURL", id: "com.nourl", urlPath: nil, policy: .regular, launchDate: now)
+
+        sut.appState.recentApps = [("Existing", "com.existing", createDummyImage())]
+        sut.handleLaunchedApp(missingURL)
+
+        XCTAssertEqual(sut.appState.recentApps.count, 1)
+        XCTAssertEqual(sut.appState.recentApps.first?.bundleid, "com.existing")
+    }
+
+    // Test 12: handleLaunchedApp should ignore the AppDock bundle identifier when available.
+    func testHandleLaunchedApp_ignoresMainBundleId() {
+        guard let bundleId = Bundle.main.bundleIdentifier else {
+            return
+        }
+        let now = Date()
+        let app = MockRunningApplication(name: "AppDock", id: bundleId, urlPath: "/appdock.app", policy: .regular, launchDate: now)
+
+        sut.appState.recentApps = []
+        sut.handleLaunchedApp(app)
+
+        XCTAssertTrue(sut.appState.recentApps.isEmpty)
+    }
+
 }
