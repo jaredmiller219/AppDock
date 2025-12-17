@@ -90,8 +90,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Set the instance to itself
         AppDelegate.instance = self
         
-        // Configure the status bar icon
-        statusBarItem.button?.image = NSImage(named: NSImage.Name("statusBarIcon"))
+        // Configure a visible status bar icon.
+        statusBarItem.button?.image = makeStatusBarImage()
         
         // Set the image position in the status bar
         statusBarItem.button?.imagePosition = .imageLeading
@@ -204,6 +204,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         startPopoverMonitor()
+    }
+
+    /// Builds a status bar icon with a symbol and a fallback to the app icon.
+    private func makeStatusBarImage() -> NSImage {
+        let symbolImage = NSImage(
+            systemSymbolName: "circle.grid.2x2",
+            accessibilityDescription: "AppDock"
+        )
+        let image = symbolImage
+            ?? NSApp.applicationIconImage
+            ?? NSImage(size: NSSize(width: 18, height: 18))
+        image.size = NSSize(width: 18, height: 18)
+        image.isTemplate = true
+        return image
     }
     
     /// Closes the popover and removes its event monitors.
@@ -319,7 +333,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func makeAppEntry(
         from app: NSRunningApplication,
         workspace: NSWorkspace
-    ) -> (String, String, NSImage)? {
+    ) -> (name: String, bundleid: String, icon: NSImage)? {
         guard
             let appName = app.localizedName,
             let bundleid = app.bundleIdentifier,
@@ -330,7 +344,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let appIcon = workspace.icon(forFile: appPath)
         appIcon.size = NSSize(width: 64, height: 64)
-        return (appName, bundleid, appIcon)
+        return (name: appName, bundleid: bundleid, icon: appIcon)
     }
 
     /// Handler for the "About" action.
