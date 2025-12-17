@@ -13,6 +13,8 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Relaunch uses `NSWorkspace.OpenConfiguration` and `openApplication(at:)` APIs.
 - Minimized apps are restored via `unhide()` + `activateAllWindows` and a relaunch event.
 - Added Filter & Sort controls for running-only and name-based ordering.
+- Moved shared filter/sort enums into `AppDock/AppDockTypes.swift`.
+- Added a SettingsView narration outline in the Video folder.
 
 ## Feature Highlights
 
@@ -21,6 +23,7 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Command-hover remove affordance for manual list cleanup.
 - Lightweight menu bar UI with a centered popover.
 - App list is derived from `NSWorkspace` running apps and sorted by launch time.
+- Built-in filter and sort controls for list customization.
 
 ## Glossary
 
@@ -152,6 +155,7 @@ DockOverlayView(title: "Now Playing")
 - If icons are missing, verify the bundle URL and icon retrieval in `makeAppEntry(from:workspace:)`.
 - If minimized windows do not restore, this may require Accessibility APIs.
 - Menu bar apps can log to Console.app; filter by “AppDock”.
+- If filtering appears incorrect, verify the current selection in the Filter & Sort bar and re-open the popover.
 
 ### Common Development Tasks
 
@@ -194,12 +198,14 @@ DockOverlayView(title: "Now Playing")
 - Apps are filtered to `.regular` with a bundle identifier and launch date.
 - New launches insert at index 0 and dedupe existing bundle identifiers.
 - App quits do not remove entries (this preserves the “recent” history).
+- The Filter & Sort bar can further constrain or reorder the visible list.
 
 ### App Activation and Relaunch
 
 - Running apps are unhidden and activated with `activateAllWindows`.
 - If an app is not running, it is relaunched using `openApplication(at:)`.
 - Relaunch uses `NSWorkspace.OpenConfiguration` with `activates = true`.
+- Relaunch logic is centralized in `ButtonView` via the `openApp(bundleId:)` helper.
 
 ### Minimized vs Hidden
 
@@ -211,6 +217,7 @@ DockOverlayView(title: "Now Playing")
 
 - **SwiftUI App + AppDelegate**: `RecentAppsController` is the SwiftUI entry point while `AppDelegate` owns the status bar item and popover.
 - **Shared State**: `AppState` is an `ObservableObject` that publishes the `recentApps` list for the UI.
+- **Shared Types**: `AppDockTypes.swift` holds the filter/sort enums used by the UI.
 - **Popover UI**: `MenuController` builds the popover host, with `DockView` rendering the grid and menu rows.
 - **Workspace Monitoring**: `NSWorkspace` notifications are used to insert new apps as they launch.
 
@@ -218,6 +225,8 @@ DockOverlayView(title: "Now Playing")
 
 - `AppState.recentApps`: Array of tuples `(name: String, bundleid: String, icon: NSImage)`.
 - Icons are sized to 64x64 before being stored in state to keep rendering consistent.
+- `AppState.filterOption`: Selected `AppFilterOption` for filtering.
+- `AppState.sortOption`: Selected `AppSortOption` for sorting.
 
 ## Runtime Flow
 
@@ -232,6 +241,7 @@ DockOverlayView(title: "Now Playing")
 - `NSWorkspace.didLaunchApplicationNotification` inserts new apps at the front.
 - `NSApplication.didResignActiveNotification` dismisses context menus.
 - A local notification is used to dismiss context menus when tapping outside.
+- The popover listens for a custom dismiss event posted by the popover container.
 
 ## Testing Strategy
 
@@ -305,6 +315,7 @@ DockOverlayView(title: "Now Playing")
 
 ### Application Code
 
+- `AppDock/AppDockTypes.swift`: Shared enums for filter/sort options.
 - `AppDock/RecentAppsController.swift`: App entry point, app delegate, shared state, workspace monitoring, and application lifecycle handling.
 - `AppDock/MenuController.swift`: Popover host creation and menu row UI wiring for Settings/About/Quit.
 - `AppDock/DockView.swift`: Dock grid UI, per-app button logic, context menu overlay, and hover/remove behavior.
@@ -344,3 +355,4 @@ DockOverlayView(title: "Now Playing")
 - `Video/MC.swift`: Documentation-only outline for MenuController narration.
 - `Video/RAC.swift`: Documentation-only outline for RecentAppsController narration.
 - `Video/DV.swift`: Documentation-only outline for DockView narration.
+- `Video/SV.swift`: Documentation-only outline for SettingsView narration.
