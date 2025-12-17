@@ -159,7 +159,7 @@ struct ButtonView: View {
 		.onDisappear {
 			stopMonitoringModifierFlags()
 		}
-		.onChange(of: allowRemove) { enabled in
+		.onChange(of: allowRemove) { _, enabled in
 			if enabled {
 				startMonitoringModifierFlags()
 			} else {
