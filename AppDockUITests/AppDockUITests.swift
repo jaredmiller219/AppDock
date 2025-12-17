@@ -24,15 +24,32 @@ final class AppDockUITests: XCTestCase {
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testSettingsWindow_flow() throws {
         let app = XCUIApplication()
         app.launch()
+        app.activate()
 
-        // Verify the app is running (menu bar apps may be foreground or background).
-        let running = app.wait(for: .runningForeground, timeout: 2)
-            || app.wait(for: .runningBackground, timeout: 2)
-        XCTAssertTrue(running)
+        // Prefer the Settings keyboard shortcut to avoid menu bar hit-testing flakiness.
+        app.typeKey(",", modifierFlags: [.command])
+
+        let settingsWindow = app.windows["AppDock Settings"]
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 2))
+
+        let applyButton = settingsWindow.buttons["Apply"]
+        XCTAssertTrue(applyButton.exists)
+
+        let labelToggle = settingsWindow.checkBoxes["Show app labels"]
+        if labelToggle.waitForExistence(timeout: 2) {
+            labelToggle.click()
+            XCTAssertTrue(applyButton.isEnabled)
+        }
+
+        let actionsButton = settingsWindow.buttons["Settings Actions"]
+        if actionsButton.waitForExistence(timeout: 2) {
+            actionsButton.click()
+            XCTAssertTrue(app.menuItems["Restore Defaults"].waitForExistence(timeout: 1))
+            XCTAssertTrue(app.menuItems["Set as Default"].waitForExistence(timeout: 1))
+        }
     }
 
     @MainActor

@@ -175,6 +175,7 @@ struct SettingsView: View {
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
+                    .accessibilityLabel("Settings Actions")
 
                     Spacer()
 
