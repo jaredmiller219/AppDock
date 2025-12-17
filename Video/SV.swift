@@ -10,12 +10,11 @@
 // Define SettingsView
 
     // ZStack background
-        // Warm-to-cool gradient fill
+        // Neutral window background
 
     // Header row
-        // Circular accent icon with gear
+        // Circular icon with gear
         // Title + subtitle text stack
-        // Custom font styling
 
     // ScrollView with section cards
         // GroupBox cards using custom style
@@ -34,6 +33,9 @@
             // Default filter picker
             // Default sort picker
 
+        // Appearance section
+            // Accent color picker
+
         // Behavior section
             // Labels, running indicator, hover remove
             // Confirm quit, keep apps after quit
@@ -43,6 +45,10 @@
 
         // Advanced section
             // Debug logging
-            // Restore defaults button (accented)
+            // Restore defaults button
 
-    // Settings persist via AppStorage keys in SettingsDefaults
+    // Footer actions
+        // Restore Defaults
+        // Apply button to push staged values into AppState
+
+    // Settings persist via SettingsDefaults keys and apply through SettingsDraft

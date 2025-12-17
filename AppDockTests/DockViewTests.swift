@@ -63,6 +63,7 @@ struct ButtonView: View {
 	let appIcon: NSImage
 	let buttonWidth: CGFloat
 	let buttonHeight: CGFloat
+	let allowRemove: Bool
 	@Binding var isContextMenuVisible: Bool
 	let onRemove: () -> Void
 	
@@ -162,6 +163,7 @@ final class DockViewTests: XCTestCase {
 					appIcon: appState.recentApps[appIndexToRemove].icon,
 					buttonWidth: buttonWidth,
 					buttonHeight: buttonHeight,
+					allowRemove: true,
 					isContextMenuVisible: $isContextVisible,
 					onRemove: {
 						// This replicates the closure executed by the 'X' button
@@ -200,6 +202,7 @@ final class DockViewTests: XCTestCase {
 					appIcon: appDetail.icon,
 					buttonWidth: 50,
 					buttonHeight: 50,
+					allowRemove: true,
 					isContextMenuVisible: $isContextVisible,
 					onRemove: {}
 				)
@@ -225,6 +228,7 @@ final class DockViewTests: XCTestCase {
 					appIcon: appDetail.icon,
 					buttonWidth: 50,
 					buttonHeight: 50,
+					allowRemove: true,
 					isContextMenuVisible: $isContextVisible,
 					onRemove: {}
 				)

@@ -166,8 +166,8 @@
         // Animate index change
         // Refresh token when opening
 
-    // Layout constants
-        // rows, columns, spacing, sizes
+    // Layout settings from AppState
+        // rows, columns, icon size, label size, spacing
 
     // View body
 
@@ -188,6 +188,7 @@
             // For each slot:
                 // ButtonView for icon
                 // Optional label under icon
+                // Optional running indicator dot
 
         // Divider between rows
 

@@ -30,7 +30,7 @@ struct RecentAppsController: App {
     var body: some Scene {
         // Use Settings scene type with an empty view since we're making a menu bar app
         Settings {
-            SettingsView()
+            SettingsView(appState: appDelegate.appState)
         }
     }
 }
@@ -53,6 +53,46 @@ class AppState: ObservableObject {
 
     /// Selected sorting option for the dock list.
     @Published var sortOption: AppSortOption = .recent
+
+    @Published var launchAtLogin = SettingsDefaults.launchAtLoginDefault
+    @Published var openOnStartup = SettingsDefaults.openOnStartupDefault
+    @Published var autoUpdates = SettingsDefaults.autoUpdatesDefault
+    @Published var showAppLabels = SettingsDefaults.showAppLabelsDefault
+    @Published var showRunningIndicator = SettingsDefaults.showRunningIndicatorDefault
+    @Published var enableHoverRemove = SettingsDefaults.enableHoverRemoveDefault
+    @Published var confirmBeforeQuit = SettingsDefaults.confirmBeforeQuitDefault
+    @Published var keepQuitApps = SettingsDefaults.keepQuitAppsDefault
+    @Published var gridColumns = SettingsDefaults.gridColumnsDefault
+    @Published var gridRows = SettingsDefaults.gridRowsDefault
+    @Published var iconSize = SettingsDefaults.iconSizeDefault
+    @Published var labelSize = SettingsDefaults.labelSizeDefault
+    @Published var reduceMotion = SettingsDefaults.reduceMotionDefault
+    @Published var debugLogging = SettingsDefaults.debugLoggingDefault
+    @Published var accentColor = SettingsDefaults.accentColorDefault
+
+    init() {
+        applySettings(SettingsDraft.load())
+    }
+
+    func applySettings(_ settings: SettingsDraft) {
+        launchAtLogin = settings.launchAtLogin
+        openOnStartup = settings.openOnStartup
+        autoUpdates = settings.autoUpdates
+        showAppLabels = settings.showAppLabels
+        showRunningIndicator = settings.showRunningIndicator
+        enableHoverRemove = settings.enableHoverRemove
+        confirmBeforeQuit = settings.confirmBeforeQuit
+        keepQuitApps = settings.keepQuitApps
+        filterOption = settings.defaultFilter
+        sortOption = settings.defaultSort
+        gridColumns = settings.gridColumns
+        gridRows = settings.gridRows
+        iconSize = settings.iconSize
+        labelSize = settings.labelSize
+        reduceMotion = settings.reduceMotion
+        debugLogging = settings.debugLogging
+        accentColor = settings.accentColor.rawValue
+    }
 }
 
 // MARK: - App Delegate
@@ -271,6 +311,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     return
                 }
                 self?.handleLaunchedApp(app)
+            },
+            center.addObserver(
+                forName: NSWorkspace.didTerminateApplicationNotification,
+                object: nil,
+                queue: queue
+            ) { [weak self] notification in
+                guard
+                    let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey]
+                        as? NSRunningApplication
+                else {
+                    return
+                }
+                self?.handleTerminatedApp(app)
             }
         ]
     }
@@ -335,6 +388,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Removes terminated apps when the user disables "Keep apps after quit".
+    private func handleTerminatedApp(_ app: NSRunningApplication) {
+        guard !appState.keepQuitApps else { return }
+        guard app.bundleIdentifier != Bundle.main.bundleIdentifier else { return }
+        guard let bundleId = app.bundleIdentifier else { return }
+
+        DispatchQueue.main.async {
+            var updated = self.appState.recentApps
+            updated.removeAll { $0.bundleid == bundleId }
+            self.appState.recentApps = updated
+        }
+    }
+
     /// Converts a running app into an entry for the dock list.
     private func makeAppEntry(
         from app: NSRunningApplication,
@@ -363,7 +429,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func openSettings() {
         if settingsWindowController == nil {
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 360, height: 320),
+                contentRect: NSRect(x: 0, y: 0, width: 480, height: 640),
                 styleMask: [.titled, .closable, .miniaturizable],
                 backing: .buffered,
                 defer: false
@@ -371,7 +437,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window.title = "AppDock Settings"
             window.isReleasedWhenClosed = false
             window.center()
-            window.contentView = NSHostingView(rootView: SettingsView())
+            window.contentView = NSHostingView(rootView: SettingsView(appState: appState))
             settingsWindowController = NSWindowController(window: window)
         }
 

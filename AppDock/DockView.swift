@@ -43,6 +43,7 @@ struct ButtonView: View {
 	let appIcon: NSImage
 	let buttonWidth: CGFloat
 	let buttonHeight: CGFloat
+	let allowRemove: Bool
 	
 	// Controls whether THIS button's context menu is visible.
 	@Binding var isContextMenuVisible: Bool
@@ -116,7 +117,7 @@ struct ButtonView: View {
 			}
 			
 			// Remove "X" button overlay in top-left
-			if showRemoveButton && !appName.isEmpty {
+			if allowRemove && showRemoveButton && !appName.isEmpty {
 				Button {
 					onRemove()
 				} label: {
@@ -132,25 +133,39 @@ struct ButtonView: View {
 		.onHover { hovering in
 			isHovering = hovering
 			
-			if hovering {
-				let commandIsDown = isCommandHeld || (NSApp.currentEvent?.modifierFlags.contains(.command) ?? false)
+			if allowRemove {
+				if hovering {
+					let commandIsDown = isCommandHeld || (NSApp.currentEvent?.modifierFlags.contains(.command) ?? false)
 
-				// Only schedule the "X" if Command is held
-				if commandIsDown {
-					scheduleRemoveButton()
+					// Only schedule the "X" if Command is held
+					if commandIsDown {
+						scheduleRemoveButton()
+					} else {
+						cancelRemoveButton()
+					}
 				} else {
+					// Actually left the button area: hide X
 					cancelRemoveButton()
 				}
 			} else {
-				// Actually left the button area: hide X
 				cancelRemoveButton()
 			}
 		}
 		.onAppear {
-			startMonitoringModifierFlags()
+			if allowRemove {
+				startMonitoringModifierFlags()
+			}
 		}
 		.onDisappear {
 			stopMonitoringModifierFlags()
+		}
+		.onChange(of: allowRemove) { enabled in
+			if enabled {
+				startMonitoringModifierFlags()
+			} else {
+				stopMonitoringModifierFlags()
+				cancelRemoveButton()
+			}
 		}
 		.disabled(bundleId.isEmpty)
 	}
@@ -189,6 +204,7 @@ struct ButtonView: View {
 
 	/// Updates local state when modifier flags change.
 	private func handleModifierFlagsChange(_ event: NSEvent) {
+		guard allowRemove else { return }
 		let commandIsDown = event.modifierFlags.contains(.command)
 		isCommandHeld = commandIsDown
 
@@ -229,7 +245,21 @@ struct ButtonView: View {
 /// Context menu shown when a slot is command-clicked.
 struct ContextMenuView: View {
 	var onDismiss: () -> Void
+	let appName: String
 	let bundleId: String
+	let confirmBeforeQuit: Bool
+
+	private func shouldQuitApp() -> Bool {
+		guard confirmBeforeQuit else { return true }
+
+		let alert = NSAlert()
+		let title = appName.isEmpty ? "Quit this app?" : "Quit \(appName)?"
+		alert.messageText = title
+		alert.informativeText = "Any unsaved changes may be lost."
+		alert.addButton(withTitle: "Quit")
+		alert.addButton(withTitle: "Cancel")
+		return alert.runModal() == .alertFirstButtonReturn
+	}
 	
 	var body: some View {
 		VStack(spacing: 8) {
@@ -245,6 +275,7 @@ struct ContextMenuView: View {
 			.frame(maxWidth: .infinity, minHeight: 36)
 
 			Button("Quit App") {
+				guard shouldQuitApp() else { return }
 				if let targetApp = NSRunningApplication
 					.runningApplications(withBundleIdentifier: bundleId)
 					.first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
@@ -314,7 +345,9 @@ struct DockView: View {
 	@State private var activeContextMenuIndex: Int? = nil
 	@State private var contextMenuToken = UUID()
 
-	private let contextMenuAnimation = Animation.spring(response: 0.25, dampingFraction: 0.8)
+	private var contextMenuAnimation: Animation? {
+		appState.reduceMotion ? nil : Animation.spring(response: 0.25, dampingFraction: 0.8)
+	}
 	
 	/// Clears any open context menu.
 	private func dismissContextMenus() {
@@ -333,15 +366,17 @@ struct DockView: View {
 	}
 	
 	// Layout constants for the grid.
-	let numberOfColumns: Int = 3
-	let numberOfRows: Int = 4
-	let buttonWidth: CGFloat = 50
-	let buttonHeight: CGFloat = 50
-	let columnSpacing: CGFloat = 16
-	let extraSpace: CGFloat = 15
+	private let columnSpacing: CGFloat = 16
+	private let extraSpace: CGFloat = 15
 	
 	var body: some View {
 		// Compute the overall divider width for row separators.
+		let numberOfColumns = max(1, appState.gridColumns)
+		let numberOfRows = max(1, appState.gridRows)
+		let buttonWidth = CGFloat(appState.iconSize)
+		let buttonHeight = CGFloat(appState.iconSize)
+		let labelSize = CGFloat(appState.labelSize)
+
 		let dividerWidth: CGFloat = (CGFloat(numberOfColumns) * buttonWidth)
 			+ (CGFloat(numberOfColumns - 1) * columnSpacing)
 			+ extraSpace
@@ -381,37 +416,49 @@ struct DockView: View {
 					ForEach(0..<numberOfColumns, id: \.self) { columnIndex in
 						let appIndex = (rowIndex * numberOfColumns) + columnIndex
 						let (appName, bundleId, appIcon) = paddedApps[appIndex]
+						let isRunning = !bundleId.isEmpty
+							&& !NSRunningApplication.runningApplications(withBundleIdentifier: bundleId).isEmpty
 						
 						VStack(spacing: 3) {
-							ButtonView(
-								appName: appName,
-								bundleId: bundleId,
-								appIcon: appIcon,
-								buttonWidth: buttonWidth,
-								buttonHeight: buttonHeight,
-								isContextMenuVisible: Binding(
-									get: { activeContextMenuIndex == appIndex },
-									set: { isVisible in
-										setActiveContextMenuIndex(isVisible ? appIndex : nil)
+							ZStack(alignment: .bottomTrailing) {
+								ButtonView(
+									appName: appName,
+									bundleId: bundleId,
+									appIcon: appIcon,
+									buttonWidth: buttonWidth,
+									buttonHeight: buttonHeight,
+									allowRemove: appState.enableHoverRemove,
+									isContextMenuVisible: Binding(
+										get: { activeContextMenuIndex == appIndex },
+										set: { isVisible in
+											setActiveContextMenuIndex(isVisible ? appIndex : nil)
+										}
+									),
+									onRemove: {
+										// Only remove if this index corresponds to a real app
+										if appIndex < appState.recentApps.count {
+											appState.recentApps.remove(at: appIndex)
+										}
+										// Clear or adjust active context menu index
+										if activeContextMenuIndex == appIndex {
+											dismissContextMenus()
+										} else if let active = activeContextMenuIndex, active > appIndex {
+											activeContextMenuIndex = active - 1
+										}
 									}
-								),
-								onRemove: {
-									// Only remove if this index corresponds to a real app
-									if appIndex < appState.recentApps.count {
-										appState.recentApps.remove(at: appIndex)
-									}
-									// Clear or adjust active context menu index
-									if activeContextMenuIndex == appIndex {
-										dismissContextMenus()
-									} else if let active = activeContextMenuIndex, active > appIndex {
-										activeContextMenuIndex = active - 1
-									}
+								)
+
+								if appState.showRunningIndicator && isRunning {
+									Circle()
+										.fill(Color.green)
+										.frame(width: 6, height: 6)
+										.padding(4)
 								}
-							)
+							}
 							
-							if !appName.isEmpty {
+							if appState.showAppLabels && !appName.isEmpty {
 								Text(appName)
-									.font(.system(size: 8))
+									.font(.system(size: labelSize))
 									.lineLimit(1)
 									.foregroundColor(.white)
 									.padding(.horizontal, 5)
@@ -443,7 +490,7 @@ struct DockView: View {
 		.overlay(alignment: .center) {
 			if let active = activeContextMenuIndex,
 			   active < paddedApps.count {
-				let (_, bundleId, _) = paddedApps[active]
+				let (appName, bundleId, _) = paddedApps[active]
 				
 				if !bundleId.isEmpty {
 					// Match the menu frame in both blur and stroke layers.
@@ -464,12 +511,14 @@ struct DockView: View {
 						
 						ContextMenuView(
 							onDismiss: { dismissContextMenus() },
-							bundleId: bundleId
+							appName: appName,
+							bundleId: bundleId,
+							confirmBeforeQuit: appState.confirmBeforeQuit
 						)
 						.padding(6)
 					}
 					.id(contextMenuToken)
-					.transition(.scale(scale: 0.96).combined(with: .opacity))
+					.transition(appState.reduceMotion ? .opacity : .scale(scale: 0.96).combined(with: .opacity))
 					.zIndex(3)
 				}
 			}

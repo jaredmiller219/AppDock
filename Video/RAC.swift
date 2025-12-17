@@ -38,6 +38,7 @@
     // filterOption: AppFilterOption
     // sortOption: AppSortOption
     // SettingsDefaults: UserDefaults keys and defaults used by SettingsView
+    // SettingsDraft: staged settings applied to AppState
 
 // MARK: - App Delegate
 
@@ -101,6 +102,8 @@
     // startWorkspaceMonitoring
         // Observe didLaunchApplication
         // Call handleLaunchedApp
+        // Observe didTerminateApplication
+        // Remove apps if Keep apps after quit is disabled
 
     // stopWorkspaceMonitoring
         // Remove observers

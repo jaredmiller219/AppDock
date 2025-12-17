@@ -7,7 +7,7 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 ## Recent Changes
 
 - Dock updates in real time when new apps launch (launch events insert at the front).
-- Quitting apps does not remove them from the dock list by design.
+- Quitting apps stays listed when “Keep apps after quit” is enabled.
 - Context menu dismisses when clicking outside and re-animates when switching apps.
 - Status bar icon now uses a system symbol with a fallback image.
 - Relaunch uses `NSWorkspace.OpenConfiguration` and `openApplication(at:)` APIs.
@@ -16,6 +16,7 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Moved shared filter/sort enums into `AppDock/AppDockTypes.swift`.
 - Added a SettingsView narration outline in the Video folder.
 - Expanded Settings with persistent layout, behavior, and accessibility preferences.
+- Settings changes now apply on demand and update the live dock layout.
 
 ## Feature Highlights
 
@@ -26,6 +27,7 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - App list is derived from `NSWorkspace` running apps and sorted by launch time.
 - Built-in filter and sort menu for list customization.
 - Settings panel includes grid sizing, labels, and behavior toggles stored in `UserDefaults`.
+- Settings apply directly to the grid size, label size, and running indicators.
 
 ## Glossary
 
@@ -48,17 +50,20 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Click an app icon to activate the app.
 - Command-click an icon to open the context menu (Hide/Quit).
 - Command-hover an icon to reveal the remove “X” button.
-- Apps stay listed after they quit (by design).
+- Apps stay listed after they quit when “Keep apps after quit” is enabled.
 - Clicking a listed app that is no longer running relaunches it.
 - Clicking a minimized app should restore its windows (OS behavior may vary).
 - Use the Filter & Sort menu button to switch between running-only and all apps, or reorder by name.
 - Use Settings to configure the default filter/sort, grid size, and behavior toggles.
+- Click Apply in Settings to push changes into the live dock view.
 
 ### Settings
 
 - Open the menu bar app menu, then choose `Settings…`.
-- Settings persist in `UserDefaults` via `@AppStorage` keys defined in `SettingsDefaults`.
+- Settings persist in `UserDefaults` via keys defined in `SettingsDefaults`.
+- Settings edits are staged and only applied when you click Apply.
 - Layout options include grid columns/rows, icon size, and label size.
+- Appearance options include the Settings accent color.
 - Behavior options include label visibility, hover remove, and quit confirmations.
 
 ### Tests
@@ -148,7 +153,7 @@ DockOverlayView(title: "Now Playing")
 2. Verify the status bar icon appears.
 3. Click the icon to open the popover.
 4. Open a new app (Finder, Notes, etc.) and confirm it appears at the front.
-5. Quit an app and confirm it stays listed.
+5. Quit an app and confirm it stays listed (if “Keep apps after quit” is enabled).
 6. Command-click an icon to open the context menu and test Hide/Quit.
 7. Command-hover to verify the remove button appears and removes the item.
 8. Open Settings from the menu and confirm the window opens.
@@ -162,15 +167,17 @@ DockOverlayView(title: "Now Playing")
 - Menu bar apps can log to Console.app; filter by “AppDock”.
 - If filtering appears incorrect, verify the current selection in the Filter & Sort menu and re-open the popover.
 - If settings look off, use Restore Defaults in Settings to reset stored values.
+- If a quit app still appears, check the “Keep apps after quit” setting.
 
 ### Common Development Tasks
 
-- **Change grid size**: Edit constants in `AppDock/DockView.swift` (`numberOfColumns`, `numberOfRows`, and sizing constants).
+- **Change grid size**: Update defaults in `SettingsDefaults` or apply new values in Settings.
 - **Adjust popover size**: Update `popover.contentSize` in `AppDock/RecentAppsController.swift`.
 - **Add menu actions**: Update `PopoverContentView` in `AppDock/MenuController.swift` and wire new actions in `AppDelegate`.
 - **Modify app filtering**: Edit `getRecentApplications()` in `AppDock/RecentAppsController.swift`.
-- **Keep apps after quit**: Launch updates are handled in `handleLaunchedApp`; termination does not remove items.
+- **Keep apps after quit**: Toggle the setting or adjust `handleTerminatedApp` in `AppDock/RecentAppsController.swift`.
 - **Update settings defaults**: Edit `SettingsDefaults` in `AppDock/SettingsView.swift`.
+- **Apply settings programmatically**: Call `appState.applySettings(_:)` in `AppDock/RecentAppsController.swift`.
 
 ### Entitlements and Permissions
 
@@ -204,7 +211,7 @@ DockOverlayView(title: "Now Playing")
 - On launch, the list is populated from `NSWorkspace.shared.runningApplications`.
 - Apps are filtered to `.regular` with a bundle identifier and launch date.
 - New launches insert at index 0 and dedupe existing bundle identifiers.
-- App quits do not remove entries (this preserves the “recent” history).
+- App quits do not remove entries when “Keep apps after quit” is enabled.
 - The Filter & Sort menu can further constrain or reorder the visible list.
 - Settings can change the default filter/sort choice used at startup.
 
@@ -236,6 +243,7 @@ DockOverlayView(title: "Now Playing")
 - `AppState.filterOption`: Selected `AppFilterOption` for filtering.
 - `AppState.sortOption`: Selected `AppSortOption` for sorting.
 - `SettingsDefaults`: Centralized `UserDefaults` keys and default values for Settings.
+- `SettingsDraft`: Staged settings values applied to `AppState` on demand.
 
 ## Runtime Flow
 
@@ -266,6 +274,7 @@ DockOverlayView(title: "Now Playing")
 - Dock padding math and removal index adjustment.
 - Command-click context menu state toggling.
 - Settings default values and UserDefaults restore behavior.
+- Settings apply behavior and quit-removal handling.
 
 ### UI Tests (Launch)
 
@@ -329,7 +338,7 @@ DockOverlayView(title: "Now Playing")
 - `AppDock/RecentAppsController.swift`: App entry point, app delegate, shared state, workspace monitoring, and application lifecycle handling.
 - `AppDock/MenuController.swift`: Popover host creation and menu row UI wiring for Settings/About/Quit.
 - `AppDock/DockView.swift`: Dock grid UI, per-app button logic, context menu overlay, and hover/remove behavior.
-- `AppDock/SettingsView.swift`: Minimal settings window UI.
+- `AppDock/SettingsView.swift`: Settings UI with staged apply and `SettingsDefaults`/`SettingsDraft`.
 - `AppDock/AppDock.entitlements`: App entitlements (sandbox, file access, network client).
 
 ### Assets
