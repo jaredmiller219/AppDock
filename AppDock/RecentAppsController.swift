@@ -118,7 +118,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let popover = NSPopover()
         popover.behavior = .transient
         popover.animates = true
-        popover.contentSize = NSSize(width: 260, height: 460)
+        popover.contentSize = PopoverSizing.size(for: appState)
         return popover
     }()
 
@@ -215,6 +215,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// Displays the popover centered on the current screen.
     private func showPopover(_ sender: Any?) {
         guard let button = statusBarItem.button else { return }
+
+        updatePopoverSize()
         
         // Bring the app/popup to the front immediately on open.
         NSApp.activate(ignoringOtherApps: true)
@@ -248,6 +250,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         startPopoverMonitor()
+    }
+
+    private func updatePopoverSize() {
+        let popoverSize = PopoverSizing.size(for: appState)
+        if popover.contentSize != popoverSize {
+            popover.contentSize = popoverSize
+        }
+        if let view = popover.contentViewController?.view, view.frame.size != popoverSize {
+            view.frame.size = popoverSize
+        }
     }
 
     /// Builds a status bar icon with a symbol and a fallback to the app icon.

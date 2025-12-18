@@ -13,6 +13,23 @@ import Foundation
 
 // MARK: - Menu Controller
 
+/// Centralizes popover sizing so content and AppKit stay in sync.
+enum PopoverSizing {
+    static let defaultWidth: CGFloat = 260
+    static let height: CGFloat = 460
+    static let columnSpacing: CGFloat = 16
+
+    static func width(for appState: AppState) -> CGFloat {
+        let extraColumns = max(0, appState.gridColumns - SettingsDefaults.gridColumnsDefault)
+        let columnIncrement = CGFloat(appState.iconSize) + columnSpacing
+        return defaultWidth + CGFloat(extraColumns) * columnIncrement
+    }
+
+    static func size(for appState: AppState) -> NSSize {
+        NSSize(width: width(for: appState), height: height)
+    }
+}
+
 /// Hosts the SwiftUI popover content inside an AppKit view controller.
 ///
 /// This wrapper keeps AppKit/SwiftUI interop isolated from the rest of the app.
@@ -32,7 +49,7 @@ class MenuController: NSObject {
             quitAction: quitAction
         )
         let hostingController = NSHostingController(rootView: contentView)
-        hostingController.view.frame.size = CGSize(width: 260, height: 460)
+        hostingController.view.frame.size = PopoverSizing.size(for: appState)
         return hostingController
     }
 }
@@ -43,6 +60,10 @@ struct PopoverContentView: View {
     let settingsAction: () -> Void
     let aboutAction: () -> Void
     let quitAction: () -> Void
+
+    private var popoverWidth: CGFloat {
+        PopoverSizing.width(for: appState)
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -74,7 +95,7 @@ struct PopoverContentView: View {
             }
             .padding(.bottom, 6)
         }
-        .frame(width: 260, height: 460, alignment: .top)
+        .frame(width: popoverWidth, height: PopoverSizing.height, alignment: .top)
         .simultaneousGesture(TapGesture().onEnded {
             NotificationCenter.default.post(name: .appDockDismissContextMenu, object: nil)
         })
