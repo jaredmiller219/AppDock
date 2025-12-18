@@ -47,6 +47,69 @@ final class MenuControllerTests: XCTestCase {
         let expectedWidth = PopoverSizing.width(for: appState)
         XCTAssertEqual(hosting.view.frame.size.width, expectedWidth, accuracy: 0.1)
     }
+
+    func testMakePopoverController_widthStaysDefaultWhenColumnsBelowDefault() {
+        let controller = MenuController()
+        let appState = AppDock.AppState()
+        appState.gridColumns = max(0, SettingsDefaults.gridColumnsDefault - 2)
+
+        let popVC = controller.makePopoverController(
+            appState: appState,
+            settingsAction: {},
+            aboutAction: {},
+            quitAction: {}
+        )
+
+        guard let hosting = popVC as? NSHostingController<PopoverContentView> else {
+            XCTFail("Popover controller should be an NSHostingController<PopoverContentView>")
+            return
+        }
+
+        XCTAssertEqual(hosting.view.frame.size.width, PopoverSizing.defaultWidth, accuracy: 0.1)
+    }
+
+    func testMakePopoverController_heightAlwaysUsesPopoverSizingHeight() {
+        let controller = MenuController()
+        let appState = AppDock.AppState()
+        appState.gridColumns = SettingsDefaults.gridColumnsDefault + 3
+        appState.iconSize = SettingsDefaults.iconSizeDefault + 12
+
+        let popVC = controller.makePopoverController(
+            appState: appState,
+            settingsAction: {},
+            aboutAction: {},
+            quitAction: {}
+        )
+
+        guard let hosting = popVC as? NSHostingController<PopoverContentView> else {
+            XCTFail("Popover controller should be an NSHostingController<PopoverContentView>")
+            return
+        }
+
+        XCTAssertEqual(hosting.view.frame.size.height, PopoverSizing.height, accuracy: 0.1)
+    }
+
+    func testMakePopoverController_widthAccountsForIconSizeChanges() {
+        let controller = MenuController()
+        let appState = AppDock.AppState()
+        appState.gridColumns = SettingsDefaults.gridColumnsDefault + 1
+        appState.iconSize = SettingsDefaults.iconSizeDefault + 10
+
+        let popVC = controller.makePopoverController(
+            appState: appState,
+            settingsAction: {},
+            aboutAction: {},
+            quitAction: {}
+        )
+
+        guard let hosting = popVC as? NSHostingController<PopoverContentView> else {
+            XCTFail("Popover controller should be an NSHostingController<PopoverContentView>")
+            return
+        }
+
+        let expectedWidth = PopoverSizing.width(for: appState)
+        XCTAssertEqual(hosting.view.frame.size.width, expectedWidth, accuracy: 0.1)
+    }
     
     // Verify button actions are wired through the view
     func testMakePopoverController_wiresActions() {
