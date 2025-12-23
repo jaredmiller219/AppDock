@@ -1,4 +1,10 @@
-site_name: My Docs
+site_name: AppDock Docs
 nav:
   - Home: index.md
+  - Features: features.md
+  - Usage: usage.md
+  - Architecture: architecture.md
+  - Testing: testing.md
+  - Troubleshooting: troubleshooting.md
+  - Reference: reference.md
 theme: readthedocs
