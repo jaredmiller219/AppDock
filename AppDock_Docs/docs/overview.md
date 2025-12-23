@@ -12,7 +12,6 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Minimized apps are restored via `unhide()` + `activateAllWindows` and a relaunch event.
 - Added a Filter & Sort menu button for running-only and name-based ordering.
 - Moved shared filter/sort enums into `AppDock/AppDockTypes.swift`.
-- Added a SettingsView narration outline in the Video folder.
 - Expanded Settings with persistent layout, behavior, and accessibility preferences.
 - Settings changes now apply on demand and update the live dock layout.
 

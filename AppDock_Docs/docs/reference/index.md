@@ -7,4 +7,3 @@
 - [Assets](assets.md)
 - [Tests](tests.md)
 - [Xcode Project Files](xcode-project-files.md)
-- [Video Notes](video-notes.md)
