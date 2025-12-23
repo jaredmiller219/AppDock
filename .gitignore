@@ -1,0 +1,17 @@
+.DS_Store
+.venv/
+
+# Xcode
+DerivedData/
+*.xcuserstate
+*.xcuserdata
+AppDock.xcodeproj/xcuserdata/
+AppDock.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# MkDocs site output
+AppDock_Docs/site/

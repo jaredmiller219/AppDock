@@ -29,6 +29,16 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 - Settings panel includes grid sizing, labels, and behavior toggles stored in `UserDefaults`.
 - Settings apply directly to the grid size, label size, and running indicators.
 
+## Project Layout
+
+- `AppDock/`: SwiftUI app source, settings, assets, and entitlements.
+- `AppDockTests/`: Unit tests for dock logic, settings defaults, and controller wiring.
+- `AppDockUITests/`: UI test scaffolding and launch screenshot baseline.
+- `AppDock.xcodeproj/`: Xcode project, schemes, baselines, and workspace metadata.
+- `AppDock_Docs/`: MkDocs configuration, source docs, and generated site output.
+- `Video/`: Narration outlines for explaining key Swift files.
+- `appdock.md`: Root documentation page mirroring the MkDocs index.
+
 ## Glossary
 
 - **Dock Grid**: The 3x4 grid of app icons rendered in the popover.
@@ -327,11 +337,20 @@ DockOverlayView(title: "Now Playing")
 - User-configurable grid sizing and sorting.
 - Theming for icons, labels, and context menu appearance.
 
-## File Reference
+## Documentation Workflow
+
+- Author docs in `AppDock_Docs/docs/index.md` and keep `appdock.md` in sync.
+- MkDocs config lives in `AppDock_Docs/mkdocs.yml`.
+- Generated site output is in `AppDock_Docs/site/` (treat as build artifacts).
+
+## File and Folder Reference
 
 ### Documentation
 
-- `DOCUMENTATION.md`: This file; full project and file-level documentation.
+- `appdock.md`: Root documentation page and project overview.
+- `AppDock_Docs/docs/index.md`: MkDocs source for the documentation site.
+- `AppDock_Docs/mkdocs.yml`: MkDocs configuration and theme settings.
+- `AppDock_Docs/site/`: Generated documentation site output.
 
 ### Application Code
 
@@ -340,6 +359,7 @@ DockOverlayView(title: "Now Playing")
 - `AppDock/MenuController.swift`: Popover host creation and menu row UI wiring for Settings/About/Quit.
 - `AppDock/DockView.swift`: Dock grid UI, per-app button logic, context menu overlay, and hover/remove behavior.
 - `AppDock/SettingsView.swift`: Settings UI with staged apply and `SettingsDefaults`/`SettingsDraft`.
+- `AppDock/SettingsSupport.swift`: Supporting types and helpers for settings behavior.
 - `AppDock/AppDock.entitlements`: App entitlements (sandbox, file access, network client).
 
 ### Assets
