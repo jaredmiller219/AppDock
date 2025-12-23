@@ -1,0 +1,43 @@
+/* Widen content and let the main area fill the viewport. */
+.wy-nav-content {
+  max-width: none;
+  min-height: 100vh;
+}
+
+.wy-nav-content-wrap {
+  min-height: 100vh;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* Push prev/next buttons to the bottom of the content area. */
+.wy-nav-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.wy-nav-content .rst-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.wy-nav-content .rst-content .rst-footer-buttons {
+  margin-top: auto;
+}
+
+.wy-nav-content .rst-content .rst-footer {
+  margin-top: 0;
+}
+
+/* Keep the sidebar search box pinned while the nav scrolls. */
+.wy-side-nav-search {
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  background: #343131;
+}

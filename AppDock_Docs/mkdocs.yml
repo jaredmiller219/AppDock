@@ -44,3 +44,5 @@ nav:
       - Xcode Project Files: reference/xcode-project-files.md
       - Video Notes: reference/video-notes.md
 theme: readthedocs
+extra_css:
+  - stylesheets/extra.css
