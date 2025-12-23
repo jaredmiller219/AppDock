@@ -35,4 +35,4 @@ The full documentation is split into pages in `AppDock_Docs/docs/`:
 - `architecture/index.md`: state, data model, and runtime flow.
 - `testing/index.md`: unit/UI guidance and test matrix.
 - `troubleshooting.md`: common issues and fixes.
-- `reference.md`: project layout, docs workflow, and file map.
+- `reference/index.md`: project layout, docs workflow, and file map.
