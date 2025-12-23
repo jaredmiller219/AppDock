@@ -1,6 +1,4 @@
-# AppDock Documentation
-
-## Overview
+# Overview
 
 AppDock is a macOS menu bar app that presents a dock-style grid of running apps. The app runs as a status item with a popover UI, and it exposes quick actions (hide, quit) via a command-click context menu.
 
@@ -24,15 +22,3 @@ AppDock is a macOS menu bar app that presents a dock-style grid of running apps.
 2. Select the `AppDock` scheme.
 3. Run the app (menu bar icon appears).
 4. Click the status item to open the dock popover.
-
-## Documentation Map
-
-The full documentation is split into pages in `AppDock_Docs/docs/`:
-
-- `overview.md`: summary, recent changes, and quick start.
-- `features/index.md`: feature section landing page with subpages.
-- `usage/index.md`: run, settings, and manual testing flows.
-- `architecture/index.md`: state, data model, and runtime flow.
-- `testing/index.md`: unit/UI guidance and test matrix.
-- `troubleshooting.md`: common issues and fixes.
-- `reference.md`: project layout, docs workflow, and file map.

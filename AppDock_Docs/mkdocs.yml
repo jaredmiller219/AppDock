@@ -1,10 +1,46 @@
 site_name: AppDock Docs
 nav:
   - Home: index.md
-  - Features: features.md
-  - Usage: usage.md
-  - Architecture: architecture.md
-  - Testing: testing.md
+  - Overview: overview.md
+  - Features:
+      - Overview: features/index.md
+      - Highlights: features/highlights.md
+      - Glossary: features/glossary.md
+      - Behavior:
+          - Overview: features/behavior/index.md
+          - Status Bar Icon: features/behavior/status-bar-icon.md
+          - Context Menu: features/behavior/context-menu.md
+          - Dock Updates: features/behavior/dock-updates.md
+          - Activation and Relaunch: features/behavior/activation.md
+          - Minimized vs Hidden: features/behavior/minimized-hidden.md
+          - Future Enhancements: features/behavior/future-enhancements.md
+  - Usage:
+      - Overview: usage/index.md
+      - Build and Run: usage/build-run.md
+      - Using the Dock: usage/dock.md
+      - Settings: usage/settings.md
+      - Manual Testing: usage/manual-testing.md
+  - Architecture:
+      - Overview: architecture/index.md
+      - Data Model: architecture/data-model.md
+      - Runtime Flow: architecture/runtime-flow.md
+      - Notifications: architecture/notifications.md
+      - Entitlements: architecture/entitlements.md
+  - Testing:
+      - Overview: testing/index.md
+      - Running Tests: testing/running-tests.md
+      - Unit Tests: testing/unit-tests.md
+      - UI Tests: testing/ui-tests.md
+      - Strategy and Matrix: testing/strategy.md
   - Troubleshooting: troubleshooting.md
-  - Reference: reference.md
+  - Reference:
+      - Overview: reference/index.md
+      - Project Layout: reference/project-layout.md
+      - Docs Workflow: reference/docs-workflow.md
+      - Documentation Files: reference/documentation.md
+      - Application Code: reference/application-code.md
+      - Assets: reference/assets.md
+      - Tests: reference/tests.md
+      - Xcode Project Files: reference/xcode-project-files.md
+      - Video Notes: reference/video-notes.md
 theme: readthedocs
