@@ -6,4 +6,3 @@
 - `AppDock/DockView.swift`: Dock grid UI, per-app button logic, context menu overlay, and hover/remove behavior.
 - `AppDock/SettingsView.swift`: Settings UI with staged apply and `SettingsDefaults`/`SettingsDraft`.
 - `AppDock/SettingsSupport.swift`: Supporting types and helpers for settings behavior.
-- `AppDock/AppDock.entitlements`: App entitlements (sandbox, file access, network client).

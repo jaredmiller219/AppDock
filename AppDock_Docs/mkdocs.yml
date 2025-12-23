@@ -25,7 +25,6 @@ nav:
       - Data Model: architecture/data-model.md
       - Runtime Flow: architecture/runtime-flow.md
       - Notifications: architecture/notifications.md
-      - Entitlements: architecture/entitlements.md
   - Testing:
       - Overview: testing/index.md
       - Running Tests: testing/running-tests.md
@@ -36,12 +35,9 @@ nav:
   - Reference:
       - Overview: reference/index.md
       - Project Layout: reference/project-layout.md
-      - Docs Workflow: reference/docs-workflow.md
-      - Documentation Files: reference/documentation.md
       - Application Code: reference/application-code.md
       - Assets: reference/assets.md
       - Tests: reference/tests.md
-      - Xcode Project Files: reference/xcode-project-files.md
 theme: readthedocs
 extra_css:
   - stylesheets/extra.css

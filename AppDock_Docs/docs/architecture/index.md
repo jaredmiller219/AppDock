@@ -13,4 +13,3 @@
 - [Data Model](data-model.md)
 - [Runtime Flow](runtime-flow.md)
 - [Notifications](notifications.md)
-- [Entitlements](entitlements.md)
