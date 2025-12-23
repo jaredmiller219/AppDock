@@ -1,7 +1,5 @@
 # Reference
 
-This section is split into subpages:
-
 - [Project Layout](project-layout.md)
 - [Docs Workflow](docs-workflow.md)
 - [Documentation Files](documentation.md)
