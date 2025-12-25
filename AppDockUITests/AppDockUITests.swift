@@ -12,6 +12,7 @@ final class AppDockUITests: XCTestCase {
 
     @MainActor
     private func launchAppForPopoverTests() -> XCUIApplication {
+        // Launch with test-only flags to open the popover and seed dock data.
         let app = XCUIApplication()
         app.launchArguments = [
             "--ui-test-mode",
@@ -39,6 +40,7 @@ final class AppDockUITests: XCTestCase {
 
     @MainActor
     func testSettingsWindow_flow() throws {
+        // Smoke test: open Settings, toggle a value, and ensure Apply enables.
         let app = XCUIApplication()
         app.launch()
         app.activate()
@@ -51,6 +53,11 @@ final class AppDockUITests: XCTestCase {
 
         let applyButton = settingsWindow.buttons["Apply"]
         XCTAssertTrue(applyButton.exists)
+
+        let behaviorTab = settingsWindow.buttons["Behavior"]
+        if behaviorTab.waitForExistence(timeout: 2) {
+            behaviorTab.click()
+        }
 
         let labelToggle = settingsWindow.checkBoxes["Show app labels"]
         if labelToggle.waitForExistence(timeout: 2) {
@@ -67,7 +74,38 @@ final class AppDockUITests: XCTestCase {
     }
 
     @MainActor
+    func testSettingsTabsContainControls() throws {
+        // Verify each settings tab exposes its expected controls.
+        let app = XCUIApplication()
+        app.launch()
+        app.activate()
+
+        app.typeKey(",", modifierFlags: [.command])
+        let settingsWindow = app.windows["AppDock Settings"]
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 2))
+
+        settingsWindow.buttons["General"].click()
+        XCTAssertTrue(settingsWindow.checkBoxes["Launch at login"].waitForExistence(timeout: 2))
+
+        settingsWindow.buttons["Layout"].click()
+        XCTAssertTrue(settingsWindow.staticTexts["Columns"].waitForExistence(timeout: 2))
+
+        settingsWindow.buttons["Filtering"].click()
+        XCTAssertTrue(settingsWindow.staticTexts["Default filter"].waitForExistence(timeout: 2))
+
+        settingsWindow.buttons["Behavior"].click()
+        XCTAssertTrue(settingsWindow.checkBoxes["Show running indicator"].waitForExistence(timeout: 2))
+
+        settingsWindow.buttons["Accessibility"].click()
+        XCTAssertTrue(settingsWindow.checkBoxes["Reduce motion"].waitForExistence(timeout: 2))
+
+        settingsWindow.buttons["Advanced"].click()
+        XCTAssertTrue(settingsWindow.checkBoxes["Enable debug logging"].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
     func testPopoverShowsDockAndMenuRows() throws {
+        // Validate the seeded dock grid and menu rows are visible in the popover.
         let app = launchAppForPopoverTests()
 
         let filterButton = app.buttons["DockFilterMenu"]
@@ -83,6 +121,7 @@ final class AppDockUITests: XCTestCase {
 
     @MainActor
     func testFilterMenuListsOptions() throws {
+        // Confirm the filter/sort menu options are present.
         let app = launchAppForPopoverTests()
 
         let filterButton = app.buttons["DockFilterMenu"]
@@ -98,6 +137,7 @@ final class AppDockUITests: XCTestCase {
 
     @MainActor
     func testPopoverSettingsRowOpensSettingsWindow() throws {
+        // Integration check: popover Settings row opens the settings window.
         let app = launchAppForPopoverTests()
 
         let settingsRow = app.buttons["MenuRow-Settings"]

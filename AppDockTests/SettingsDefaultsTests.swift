@@ -14,6 +14,7 @@ final class SettingsDefaultsTests: XCTestCase {
 
     /// Ensures the defaults dictionary matches the declared default values.
     func testDefaultsDictionary_matchesExpectedValues() {
+        // Validate every key/value pair so defaults stay in sync with SettingsDefaults.
         let values = SettingsDefaults.defaultsDictionary()
 
         XCTAssertEqual(values[SettingsDefaults.launchAtLoginKey] as? Bool, SettingsDefaults.launchAtLoginDefault)
@@ -36,6 +37,7 @@ final class SettingsDefaultsTests: XCTestCase {
 
     /// Ensures restore writes the expected values into UserDefaults.
     func testRestoreWritesDefaultsToUserDefaults() {
+        // Use an isolated suite so tests do not pollute real app settings.
         let defaults = makeDefaults()
         defer { defaults.removePersistentDomain(forName: suiteName) }
 

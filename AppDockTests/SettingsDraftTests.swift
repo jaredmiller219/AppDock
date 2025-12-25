@@ -12,6 +12,7 @@ final class SettingsDraftTests: XCTestCase {
     }
 
     func testLoad_readsDefaultsValues() {
+        // Seed test defaults to confirm SettingsDraft reads each value correctly.
         let defaults = makeDefaults()
         defer { defaults.removePersistentDomain(forName: suiteName) }
 
@@ -41,6 +42,7 @@ final class SettingsDraftTests: XCTestCase {
     }
 
     func testApply_writesValuesToDefaults() {
+        // Verify that apply writes the full settings snapshot to UserDefaults.
         let defaults = makeDefaults()
         defer { defaults.removePersistentDomain(forName: suiteName) }
 

@@ -5,6 +5,7 @@ import AppKit
 
 final class DockViewPartsTests: XCTestCase {
     func testButtonViewInteraction_toggleContextMenu() {
+        // Command-click should toggle context menus while regular click should not.
         let commandEvent = NSEvent.mouseEvent(
             with: .leftMouseDown,
             location: .zero,
@@ -34,6 +35,7 @@ final class DockViewPartsTests: XCTestCase {
     }
 
     func testButtonViewInteraction_shouldScheduleRemoveButton() {
+        // Hover + command should schedule the remove button; any missing condition should not.
         XCTAssertTrue(ButtonViewInteraction.shouldScheduleRemoveButton(
             allowRemove: true,
             isHovering: true,
@@ -58,6 +60,7 @@ final class DockViewPartsTests: XCTestCase {
     }
 
     func testContextMenuViewPrompt_values() {
+        // Confirm the prompt text and confirmation gate are stable.
         XCTAssertTrue(ContextMenuViewPrompt.requiresConfirmation(confirmBeforeQuit: true))
         XCTAssertFalse(ContextMenuViewPrompt.requiresConfirmation(confirmBeforeQuit: false))
         XCTAssertEqual(ContextMenuViewPrompt.quitTitle(for: ""), "Quit this app?")
@@ -66,6 +69,7 @@ final class DockViewPartsTests: XCTestCase {
     }
 
     func testEmptySlotConstants_values() {
+        // Ensure EmptySlot uses stable UI constants for tests and layout.
         XCTAssertEqual(EmptySlotConstants.labelText, "Empty")
         XCTAssertEqual(EmptySlotConstants.cornerRadius, 5)
         XCTAssertEqual(EmptySlotConstants.strokeOpacity, 0.4)
@@ -74,11 +78,13 @@ final class DockViewPartsTests: XCTestCase {
     }
 
     func testIconViewConstants_values() {
+        // Verify IconView constants for accessibility/testing.
         XCTAssertEqual(IconViewConstants.cornerRadius, 8)
         XCTAssertEqual(IconViewConstants.accessibilityIdPrefix, "DockIcon-")
     }
 
     func testVisualEffectBlur_makeAndUpdate() {
+        // Exercise both NSViewRepresentable creation and update paths.
         let initial = VisualEffectBlur(material: .hudWindow, blendingMode: .withinWindow)
         let context = NSViewRepresentableContext<VisualEffectBlur>(coordinator: ())
         let view = initial.makeNSView(context: context)
@@ -96,6 +102,7 @@ final class DockViewPartsTests: XCTestCase {
     }
 
     func testAppDockDismissContextMenuNotificationName() {
+        // Keep the notification name stable for menu dismissal broadcasts.
         XCTAssertEqual(Notification.Name.appDockDismissContextMenu.rawValue, "AppDockDismissContextMenu")
     }
 }
