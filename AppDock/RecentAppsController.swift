@@ -141,8 +141,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Configure a visible status bar icon.
         statusBarItem.button?.image = makeStatusBarImage()
-        statusBarItem.button?.accessibilityIdentifier = "AppDockStatusItem"
-        statusBarItem.button?.accessibilityLabel = "AppDock"
+        statusBarItem.button?.setAccessibilityIdentifier("AppDockStatusItem")
+        statusBarItem.button?.setAccessibilityLabel("AppDock")
         
         // Set the image position in the status bar
         statusBarItem.button?.imagePosition = .imageLeading
