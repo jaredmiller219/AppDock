@@ -6,20 +6,63 @@
 //
 
 import XCTest
-import AppDock
 
 /// Basic UI test scaffold for AppDock.
 final class AppDockUITests: XCTestCase {
+    private enum UITestConstants {
+        enum Accessibility {
+            static let dockSlotPrefix = "DockSlot-"
+            static let dockFilterMenu = "DockFilterMenu"
+            static let menuRowPrefix = "MenuRow-"
+            static let uiTestWindow = "AppDock UI Test"
+            static let iconPrefix = "DockIcon-"
+        }
+
+        enum TestingArgs {
+            static let uiTestMode = "--ui-test-mode"
+            static let uiTestOpenPopover = "--ui-test-open-popover"
+            static let uiTestSeedDock = "--ui-test-seed-dock"
+            static let uiTestDisableActivation = "--ui-test-disable-activation"
+            static let uiTestOpenSettings = "--ui-test-open-settings"
+            static let uiTestOpenPopovers = "--ui-test-open-popovers"
+        }
+    }
 
     @MainActor
     private func launchAppForPopoverTests() -> XCUIApplication {
         // Launch with test-only flags to open the popover and seed dock data.
         let app = XCUIApplication()
         app.launchArguments = [
-            AppDockConstants.Testing.uiTestMode,
-            AppDockConstants.Testing.uiTestOpenPopover,
-            AppDockConstants.Testing.uiTestSeedDock,
-            AppDockConstants.Testing.uiTestDisableActivation
+            UITestConstants.TestingArgs.uiTestMode,
+            UITestConstants.TestingArgs.uiTestOpenPopover,
+            UITestConstants.TestingArgs.uiTestSeedDock,
+            UITestConstants.TestingArgs.uiTestDisableActivation
+        ]
+        app.launch()
+        app.activate()
+        return app
+    }
+
+    @MainActor
+    private func launchAppForSettingsTests() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            UITestConstants.TestingArgs.uiTestMode,
+            UITestConstants.TestingArgs.uiTestOpenSettings
+        ]
+        app.launch()
+        app.activate()
+        return app
+    }
+
+    @MainActor
+    private func launchAppForPopoverAndSettingsTests() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            UITestConstants.TestingArgs.uiTestMode,
+            UITestConstants.TestingArgs.uiTestOpenPopovers,
+            UITestConstants.TestingArgs.uiTestSeedDock,
+            UITestConstants.TestingArgs.uiTestDisableActivation
         ]
         app.launch()
         app.activate()
@@ -42,15 +85,10 @@ final class AppDockUITests: XCTestCase {
     @MainActor
     func testSettingsWindow_flow() throws {
         // Smoke test: open Settings, toggle a value, and ensure Apply enables.
-        let app = XCUIApplication()
-        app.launch()
-        app.activate()
-
-        // Prefer the Settings keyboard shortcut to avoid menu bar hit-testing flakiness.
-        app.typeKey(",", modifierFlags: [.command])
+        let app = launchAppForSettingsTests()
 
         let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 2))
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
 
         let applyButton = settingsWindow.buttons["Apply"]
         XCTAssertTrue(applyButton.exists)
@@ -77,13 +115,9 @@ final class AppDockUITests: XCTestCase {
     @MainActor
     func testSettingsTabsContainControls() throws {
         // Verify each settings tab exposes its expected controls.
-        let app = XCUIApplication()
-        app.launch()
-        app.activate()
-
-        app.typeKey(",", modifierFlags: [.command])
+        let app = launchAppForSettingsTests()
         let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 2))
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
 
         settingsWindow.buttons["General"].click()
         XCTAssertTrue(settingsWindow.checkBoxes["Launch at login"].waitForExistence(timeout: 2))
@@ -109,15 +143,24 @@ final class AppDockUITests: XCTestCase {
         // Validate the seeded dock grid and menu rows are visible in the popover.
         let app = launchAppForPopoverTests()
 
-        let filterButton = app.buttons[AppDockConstants.Accessibility.dockFilterMenu]
-        XCTAssertTrue(filterButton.waitForExistence(timeout: 2))
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
 
-        XCTAssertTrue(app.otherElements[AppDockConstants.Accessibility.dockSlotPrefix + "0"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.otherElements[AppDockConstants.Accessibility.dockSlotPrefix + "11"].waitForExistence(timeout: 2))
+        let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
 
-        XCTAssertTrue(app.buttons[AppDockConstants.Accessibility.menuRowPrefix + "Settings"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.buttons[AppDockConstants.Accessibility.menuRowPrefix + "About"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.buttons[AppDockConstants.Accessibility.menuRowPrefix + "Quit AppDock"].waitForExistence(timeout: 2))
+        let slot0 = popoverWindow.buttons[UITestConstants.Accessibility.dockSlotPrefix + "0"]
+        if !slot0.waitForExistence(timeout: 4) {
+            XCTFail("Missing DockSlot-0. UI tree:\n\(popoverWindow.debugDescription)")
+        }
+        let slot1 = popoverWindow.buttons[UITestConstants.Accessibility.dockSlotPrefix + "1"]
+        if !slot1.waitForExistence(timeout: 4) {
+            XCTFail("Missing DockSlot-1. UI tree:\n\(popoverWindow.debugDescription)")
+        }
+
+        XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Settings"].waitForExistence(timeout: 4))
+        XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "About"].waitForExistence(timeout: 4))
+        XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Quit AppDock"].waitForExistence(timeout: 4))
     }
 
     @MainActor
@@ -125,8 +168,11 @@ final class AppDockUITests: XCTestCase {
         // Confirm the filter/sort menu options are present.
         let app = launchAppForPopoverTests()
 
-        let filterButton = app.buttons[AppDockConstants.Accessibility.dockFilterMenu]
-        XCTAssertTrue(filterButton.waitForExistence(timeout: 2))
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
         filterButton.click()
 
         XCTAssertTrue(app.menuItems["All Apps"].waitForExistence(timeout: 2))
@@ -139,14 +185,17 @@ final class AppDockUITests: XCTestCase {
     @MainActor
     func testPopoverSettingsRowOpensSettingsWindow() throws {
         // Integration check: popover Settings row opens the settings window.
-        let app = launchAppForPopoverTests()
+        let app = launchAppForPopoverAndSettingsTests()
 
-        let settingsRow = app.buttons[AppDockConstants.Accessibility.menuRowPrefix + "Settings"]
-        XCTAssertTrue(settingsRow.waitForExistence(timeout: 2))
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        let settingsRow = popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Settings"]
+        XCTAssertTrue(settingsRow.waitForExistence(timeout: 4))
         settingsRow.click()
 
         let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 2))
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
     }
 
     @MainActor

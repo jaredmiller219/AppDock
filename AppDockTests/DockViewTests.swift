@@ -16,7 +16,7 @@ func test_createDummyImage() -> NSImage {
 
 // 2. Minimal Stub for the original AppState class (The base type)
 // Provides an ObservableObject type to match the production API.
-class AppState: ObservableObject {
+class DockViewStubBaseState: ObservableObject {
 	// We only need the ObservableObject conformance for the cast to work in Test 1
 	// And an init() for inheritance.
 	init() {}
@@ -25,7 +25,7 @@ class AppState: ObservableObject {
 // 1. Mock AppState for test data control (unique name)
 // FIX: Inherit from AppState to make the cast work in Test 1.
 // Holds a mutable recentApps list for test setup.
-class DockViewTestAppState: AppState {
+class DockViewTestAppState: DockViewStubBaseState {
 	// Match the tuple structure used by the original AppState
 	typealias AppDetail = (name: String, bundleid: String, icon: NSImage)
 	// NOTE: In a real app, 'recentApps' would typically be defined on the base AppState.
@@ -47,7 +47,7 @@ class DockViewTestAppState: AppState {
 // Provides the grid constants used by the tests.
 struct DockView: View {
 	// Must match the original DockView's properties used in the test logic
-	@ObservedObject var appState: AppState // Uses the stubbed AppState
+	@ObservedObject var appState: DockViewStubBaseState // Uses the stubbed base state
 	let numberOfColumns: Int = 3
 	let numberOfRows: Int = 4
 	
@@ -124,7 +124,7 @@ final class DockViewTests: XCTestCase {
 		let appState = DockViewTestAppState(apps: [app1, app2])
 		
 		// This cast now works because DockViewTestAppState inherits from AppState.
-		let dockView = DockView(appState: appState as AppState)
+		let dockView = DockView(appState: appState as DockViewStubBaseState)
 		
 		// Assuming the properties from the original DockView source file (3x4)
 		let totalSlots = dockView.numberOfColumns * dockView.numberOfRows // 3 * 4 = 12
@@ -294,7 +294,7 @@ final class DockViewTests: XCTestCase {
 	// Test 8: Padding logic with zero apps still fills all slots
 	func testDockView_paddingLogic_whenEmpty() {
 		let appState = DockViewTestAppState(apps: [])
-		let dockView = DockView(appState: appState as AppState)
+		let dockView = DockView(appState: appState as DockViewStubBaseState)
 		let totalSlots = dockView.numberOfColumns * dockView.numberOfRows
 		
 		XCTAssertEqual(totalSlots, 12, "Total slots should remain constant even when no apps exist.")

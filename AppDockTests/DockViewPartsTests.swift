@@ -85,16 +85,14 @@ final class DockViewPartsTests: XCTestCase {
 
     func testVisualEffectBlur_makeAndUpdate() {
         // Exercise both NSViewRepresentable creation and update paths.
-        let initial = VisualEffectBlur(material: .hudWindow, blendingMode: .withinWindow)
-        let context = NSViewRepresentableContext<VisualEffectBlur>(coordinator: ())
-        let view = initial.makeNSView(context: context)
+        let view = NSVisualEffectView()
+        VisualEffectBlur.configure(view, material: .hudWindow, blendingMode: .withinWindow)
 
         XCTAssertEqual(view.material, .hudWindow)
         XCTAssertEqual(view.blendingMode, .withinWindow)
         XCTAssertEqual(view.state, .active)
 
-        let updated = VisualEffectBlur(material: .sidebar, blendingMode: .behindWindow)
-        updated.updateNSView(view, context: context)
+        VisualEffectBlur.configure(view, material: .sidebar, blendingMode: .behindWindow)
 
         XCTAssertEqual(view.material, .sidebar)
         XCTAssertEqual(view.blendingMode, .behindWindow)

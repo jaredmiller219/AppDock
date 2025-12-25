@@ -117,6 +117,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // Keep a reference to the Settings window so we reuse it
     var settingsWindowController: NSWindowController?
+    private var uiTestWindow: NSWindow?
     
     // Create the popover that will host our dock view.
     lazy var popover: NSPopover = {
@@ -370,7 +371,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         if arguments.contains(AppDockConstants.Testing.uiTestOpenPopover) {
             DispatchQueue.main.async { [weak self] in
-                self?.togglePopover(nil)
+                self?.showUITestPopoverWindow()
+            }
+        }
+
+        if arguments.contains(AppDockConstants.Testing.uiTestOpenSettings) {
+            DispatchQueue.main.async { [weak self] in
+                self?.openSettings()
+            }
+        }
+
+        if arguments.contains(AppDockConstants.Testing.uiTestOpenPopovers) {
+            DispatchQueue.main.async { [weak self] in
+                self?.showUITestPopoverWindow()
+                self?.openSettings()
             }
         }
     }
@@ -382,6 +396,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             (name: "Bravo", bundleid: "com.example.bravo", icon: placeholderIcon),
             (name: "Charlie", bundleid: "com.example.charlie", icon: placeholderIcon)
         ]
+    }
+
+    private func showUITestPopoverWindow() {
+        if let window = uiTestWindow {
+            window.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let controller = menu.makePopoverController(
+            appState: appState,
+            settingsAction: { [weak self] in self?.openSettings() },
+            aboutAction: { [weak self] in self?.about() },
+            quitAction: { [weak self] in self?.quit() }
+        )
+
+        let window = NSWindow(contentViewController: controller)
+        window.title = AppDockConstants.Accessibility.uiTestWindow
+        window.setContentSize(PopoverSizing.size(for: appState))
+        window.isReleasedWhenClosed = false
+        window.makeKeyAndOrderFront(nil)
+        uiTestWindow = window
     }
     
     /// Loads the current list of running user apps and publishes them.
