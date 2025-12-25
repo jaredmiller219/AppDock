@@ -132,6 +132,7 @@ private struct FilterMenuButton: View {
                     .fill(Color.primary.opacity(0.08))
             )
         }
+        .accessibilityIdentifier("DockFilterMenu")
     }
 }
 
@@ -158,6 +159,7 @@ private struct MenuRow: View {
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity)
         .contentShape(RoundedRectangle(cornerRadius: 6))
+        .accessibilityIdentifier("MenuRow-\(title)")
         .onHover { hovering in
             isHovering = hovering
         }

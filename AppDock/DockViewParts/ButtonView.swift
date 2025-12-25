@@ -8,6 +8,23 @@ import AppKit
 
 // MARK: - ButtonView
 
+enum ButtonViewInteraction {
+    static let removeButtonDelay: TimeInterval = 0.5
+
+    static func shouldToggleContextMenu(currentEvent: NSEvent?) -> Bool {
+        guard let event = currentEvent else { return false }
+        return event.modifierFlags.contains(.command)
+    }
+
+    static func shouldScheduleRemoveButton(
+        allowRemove: Bool,
+        isHovering: Bool,
+        isCommandHeld: Bool
+    ) -> Bool {
+        allowRemove && isHovering && isCommandHeld
+    }
+}
+
 /// Renders a single app icon slot and handles interactions.
 ///
 /// Supports command-click context menus, hover removal, and activation.
@@ -48,6 +65,9 @@ struct ButtonView: View {
 
     /// Attempts to activate an already running app and relaunch if needed.
     private func activateOrLaunchApp(bundleId: String) {
+        if ProcessInfo.processInfo.arguments.contains("--ui-test-disable-activation") {
+            return
+        }
         guard !bundleId.isEmpty else { return }
 
         if let targetApp = NSRunningApplication
@@ -65,8 +85,7 @@ struct ButtonView: View {
 
     /// Handles primary click behavior: command-click toggles menu, otherwise activates the app.
     private func handlePrimaryClick() {
-        if let event = NSApp.currentEvent,
-           event.modifierFlags.contains(.command) {
+        if ButtonViewInteraction.shouldToggleContextMenu(currentEvent: NSApp.currentEvent) {
             // Command-click: toggle this button's context menu.
             isContextMenuVisible.toggle()
         } else {
@@ -122,7 +141,11 @@ struct ButtonView: View {
                     let commandIsDown = isCommandHeld || (NSApp.currentEvent?.modifierFlags.contains(.command) ?? false)
 
                     // Only schedule the "X" if Command is held
-                    if commandIsDown {
+                    if ButtonViewInteraction.shouldScheduleRemoveButton(
+                        allowRemove: allowRemove,
+                        isHovering: hovering,
+                        isCommandHeld: commandIsDown
+                    ) {
                         scheduleRemoveButton()
                     } else {
                         cancelRemoveButton()
@@ -192,10 +215,12 @@ struct ButtonView: View {
         let commandIsDown = event.modifierFlags.contains(.command)
         isCommandHeld = commandIsDown
 
-        if commandIsDown {
-            if isHovering {
-                scheduleRemoveButton()
-            }
+        if ButtonViewInteraction.shouldScheduleRemoveButton(
+            allowRemove: allowRemove,
+            isHovering: isHovering,
+            isCommandHeld: commandIsDown
+        ) {
+            scheduleRemoveButton()
         } else {
             cancelRemoveButton()
         }
@@ -213,7 +238,7 @@ struct ButtonView: View {
             }
         }
         removeButtonWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
+        DispatchQueue.main.asyncAfter(deadline: .now() + ButtonViewInteraction.removeButtonDelay, execute: workItem)
     }
 
     /// Cancels any pending remove button display and hides it.

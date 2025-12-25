@@ -141,6 +141,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Configure a visible status bar icon.
         statusBarItem.button?.image = makeStatusBarImage()
+        statusBarItem.button?.accessibilityIdentifier = "AppDockStatusItem"
+        statusBarItem.button?.accessibilityLabel = "AppDock"
         
         // Set the image position in the status bar
         statusBarItem.button?.imagePosition = .imageLeading
@@ -165,6 +167,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Keep the dock in sync with app launches.
         startWorkspaceMonitoring()
+
+        applyUITestOverridesIfNeeded()
     }
 
     /// Creates the standard macOS app menu (About/Settings/Quit).
@@ -352,6 +356,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     deinit {
         stopWorkspaceMonitoring()
+    }
+
+    // MARK: - UI test support
+
+    private func applyUITestOverridesIfNeeded() {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard arguments.contains("--ui-test-mode") else { return }
+
+        if arguments.contains("--ui-test-seed-dock") {
+            seedDockForUITests()
+        }
+
+        if arguments.contains("--ui-test-open-popover") {
+            DispatchQueue.main.async { [weak self] in
+                self?.togglePopover(nil)
+            }
+        }
+    }
+
+    private func seedDockForUITests() {
+        let placeholderIcon = NSImage(size: NSSize(width: 64, height: 64))
+        appState.recentApps = [
+            (name: "Alpha", bundleid: "com.example.alpha", icon: placeholderIcon),
+            (name: "Bravo", bundleid: "com.example.bravo", icon: placeholderIcon),
+            (name: "Charlie", bundleid: "com.example.charlie", icon: placeholderIcon)
+        ]
     }
     
     /// Loads the current list of running user apps and publishes them.

@@ -8,6 +8,18 @@ import AppKit
 
 // MARK: - ContextMenuView
 
+enum ContextMenuViewPrompt {
+    static let accessibilityId = "DockContextMenu"
+
+    static func requiresConfirmation(confirmBeforeQuit: Bool) -> Bool {
+        confirmBeforeQuit
+    }
+
+    static func quitTitle(for appName: String) -> String {
+        appName.isEmpty ? "Quit this app?" : "Quit \(appName)?"
+    }
+}
+
 /// Context menu shown when a slot is command-clicked.
 struct ContextMenuView: View {
     var onDismiss: () -> Void
@@ -16,10 +28,10 @@ struct ContextMenuView: View {
     let confirmBeforeQuit: Bool
 
     private func shouldQuitApp() -> Bool {
-        guard confirmBeforeQuit else { return true }
+        guard ContextMenuViewPrompt.requiresConfirmation(confirmBeforeQuit: confirmBeforeQuit) else { return true }
 
         let alert = NSAlert()
-        let title = appName.isEmpty ? "Quit this app?" : "Quit \(appName)?"
+        let title = ContextMenuViewPrompt.quitTitle(for: appName)
         alert.messageText = title
         alert.informativeText = "Any unsaved changes may be lost."
         alert.addButton(withTitle: "Quit")
@@ -58,5 +70,6 @@ struct ContextMenuView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .frame(width: 160)
+        .accessibilityIdentifier(ContextMenuViewPrompt.accessibilityId)
     }
 }
