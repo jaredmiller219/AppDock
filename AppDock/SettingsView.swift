@@ -95,29 +95,37 @@ struct SettingsView: View {
                     }
                 }
 
-                ScrollView {
-                    TabView(selection: $selectedTab) {
-                        GeneralSettingsTab(draft: $draft)
-                            .tabItem { Label(SettingsTab.general.title, systemImage: SettingsTab.general.systemImage) }
-                            .tag(SettingsTab.general)
-                        LayoutSettingsTab(draft: $draft)
-                            .tabItem { Label(SettingsTab.layout.title, systemImage: SettingsTab.layout.systemImage) }
-                            .tag(SettingsTab.layout)
-                        FilteringSettingsTab(draft: $draft)
-                            .tabItem { Label(SettingsTab.filtering.title, systemImage: SettingsTab.filtering.systemImage) }
-                            .tag(SettingsTab.filtering)
-                        BehaviorSettingsTab(draft: $draft)
-                            .tabItem { Label(SettingsTab.behavior.title, systemImage: SettingsTab.behavior.systemImage) }
-                            .tag(SettingsTab.behavior)
-                        AccessibilitySettingsTab(draft: $draft)
-                            .tabItem { Label(SettingsTab.accessibility.title, systemImage: SettingsTab.accessibility.systemImage) }
-                            .tag(SettingsTab.accessibility)
-                        AdvancedSettingsTab(draft: $draft)
-                            .tabItem { Label(SettingsTab.advanced.title, systemImage: SettingsTab.advanced.systemImage) }
-                            .tag(SettingsTab.advanced)
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(SettingsTab.allCases) { tab in
+                            Button {
+                                selectedTab = tab
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: tab.systemImage)
+                                        .frame(width: 16)
+                                    Text(tab.title)
+                                    Spacer()
+                                }
+                                .padding(.vertical, 6)
+                                .padding(.horizontal, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(selectedTab == tab ? Color.accentColor.opacity(0.15) : Color.clear)
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        Spacer()
                     }
-                    .tabViewStyle(.automatic)
+                    .frame(width: AppDockConstants.SettingsUI.sidebarWidth)
+
+                    ScrollView {
+                        settingsTabContent
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
+                .frame(maxHeight: .infinity, alignment: .topLeading)
                 .tint(accentColor)
                 .onAppear {
                     draft = SettingsDraft.load()
@@ -146,9 +154,34 @@ struct SettingsView: View {
                 }
             }
             .padding(20)
+            .frame(maxHeight: .infinity, alignment: .topLeading)
         }
         .groupBoxStyle(CardGroupBoxStyle())
-        .frame(minWidth: 440, minHeight: 560, alignment: .topLeading)
+        .frame(
+            minWidth: AppDockConstants.SettingsUI.minWidth,
+            minHeight: AppDockConstants.SettingsUI.minHeight,
+            alignment: .topLeading
+        )
+    }
+}
+
+private extension SettingsView {
+    @ViewBuilder
+    var settingsTabContent: some View {
+        switch selectedTab {
+        case .general:
+            GeneralSettingsTab(draft: $draft)
+        case .layout:
+            LayoutSettingsTab(draft: $draft)
+        case .filtering:
+            FilteringSettingsTab(draft: $draft)
+        case .behavior:
+            BehaviorSettingsTab(draft: $draft)
+        case .accessibility:
+            AccessibilitySettingsTab(draft: $draft)
+        case .advanced:
+            AdvancedSettingsTab(draft: $draft)
+        }
     }
 }
 

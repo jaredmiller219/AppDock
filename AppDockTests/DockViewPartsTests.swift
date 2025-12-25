@@ -56,7 +56,7 @@ final class DockViewPartsTests: XCTestCase {
             isHovering: true,
             isCommandHeld: false
         ))
-        XCTAssertEqual(ButtonViewInteraction.removeButtonDelay, 0.5)
+        XCTAssertEqual(AppDockConstants.Timing.removeButtonDelay, 0.5)
     }
 
     func testContextMenuViewPrompt_values() {
@@ -65,22 +65,22 @@ final class DockViewPartsTests: XCTestCase {
         XCTAssertFalse(ContextMenuViewPrompt.requiresConfirmation(confirmBeforeQuit: false))
         XCTAssertEqual(ContextMenuViewPrompt.quitTitle(for: ""), "Quit this app?")
         XCTAssertEqual(ContextMenuViewPrompt.quitTitle(for: "Notes"), "Quit Notes?")
-        XCTAssertEqual(ContextMenuViewPrompt.accessibilityId, "DockContextMenu")
+        XCTAssertEqual(AppDockConstants.Accessibility.contextMenu, "DockContextMenu")
     }
 
     func testEmptySlotConstants_values() {
         // Ensure EmptySlot uses stable UI constants for tests and layout.
-        XCTAssertEqual(EmptySlotConstants.labelText, "Empty")
-        XCTAssertEqual(EmptySlotConstants.cornerRadius, 5)
-        XCTAssertEqual(EmptySlotConstants.strokeOpacity, 0.4)
-        XCTAssertEqual(EmptySlotConstants.fontSize, 8)
-        XCTAssertEqual(EmptySlotConstants.accessibilityId, "DockEmptySlot")
+        XCTAssertEqual(AppDockConstants.EmptySlot.labelText, "Empty")
+        XCTAssertEqual(AppDockConstants.EmptySlot.cornerRadius, 5)
+        XCTAssertEqual(AppDockConstants.EmptySlot.strokeOpacity, 0.4)
+        XCTAssertEqual(AppDockConstants.EmptySlot.fontSize, 8)
+        XCTAssertEqual(AppDockConstants.Accessibility.emptySlot, "DockEmptySlot")
     }
 
     func testIconViewConstants_values() {
         // Verify IconView constants for accessibility/testing.
-        XCTAssertEqual(IconViewConstants.cornerRadius, 8)
-        XCTAssertEqual(IconViewConstants.accessibilityIdPrefix, "DockIcon-")
+        XCTAssertEqual(AppDockConstants.IconView.cornerRadius, 8)
+        XCTAssertEqual(AppDockConstants.Accessibility.iconPrefix, "DockIcon-")
     }
 
     func testVisualEffectBlur_makeAndUpdate() {

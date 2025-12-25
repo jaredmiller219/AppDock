@@ -8,11 +8,6 @@ import AppKit
 
 // MARK: - IconView
 
-enum IconViewConstants {
-    static let cornerRadius: CGFloat = 8
-    static let accessibilityIdPrefix = "DockIcon-"
-}
-
 /// Visual icon for an app with consistent sizing.
 struct IconView: View {
     let appName: String
@@ -25,7 +20,7 @@ struct IconView: View {
             .resizable()
             .scaledToFit()
             .frame(width: width, height: height)
-            .cornerRadius(IconViewConstants.cornerRadius)
-            .accessibilityIdentifier(IconViewConstants.accessibilityIdPrefix + appName)
+            .cornerRadius(AppDockConstants.IconView.cornerRadius)
+            .accessibilityIdentifier(AppDockConstants.Accessibility.iconPrefix + appName)
     }
 }

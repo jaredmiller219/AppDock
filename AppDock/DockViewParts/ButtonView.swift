@@ -9,8 +9,6 @@ import AppKit
 // MARK: - ButtonView
 
 enum ButtonViewInteraction {
-    static let removeButtonDelay: TimeInterval = 0.5
-
     static func shouldToggleContextMenu(currentEvent: NSEvent?) -> Bool {
         guard let event = currentEvent else { return false }
         return event.modifierFlags.contains(.command)
@@ -65,7 +63,7 @@ struct ButtonView: View {
 
     /// Attempts to activate an already running app and relaunch if needed.
     private func activateOrLaunchApp(bundleId: String) {
-        if ProcessInfo.processInfo.arguments.contains("--ui-test-disable-activation") {
+        if ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestDisableActivation) {
             return
         }
         guard !bundleId.isEmpty else { return }
@@ -238,7 +236,7 @@ struct ButtonView: View {
             }
         }
         removeButtonWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + ButtonViewInteraction.removeButtonDelay, execute: workItem)
+        DispatchQueue.main.asyncAfter(deadline: .now() + AppDockConstants.Timing.removeButtonDelay, execute: workItem)
     }
 
     /// Cancels any pending remove button display and hides it.

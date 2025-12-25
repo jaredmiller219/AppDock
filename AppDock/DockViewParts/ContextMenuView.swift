@@ -9,8 +9,6 @@ import AppKit
 // MARK: - ContextMenuView
 
 enum ContextMenuViewPrompt {
-    static let accessibilityId = "DockContextMenu"
-
     static func requiresConfirmation(confirmBeforeQuit: Bool) -> Bool {
         confirmBeforeQuit
     }
@@ -70,6 +68,6 @@ struct ContextMenuView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .frame(width: 160)
-        .accessibilityIdentifier(ContextMenuViewPrompt.accessibilityId)
+        .accessibilityIdentifier(AppDockConstants.Accessibility.contextMenu)
     }
 }

@@ -141,8 +141,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Configure a visible status bar icon.
         statusBarItem.button?.image = makeStatusBarImage()
-        statusBarItem.button?.setAccessibilityIdentifier("AppDockStatusItem")
-        statusBarItem.button?.setAccessibilityLabel("AppDock")
+        statusBarItem.button?.setAccessibilityIdentifier(AppDockConstants.Accessibility.statusItem)
+        statusBarItem.button?.setAccessibilityLabel(AppDockConstants.Accessibility.statusItemLabel)
         
         // Set the image position in the status bar
         statusBarItem.button?.imagePosition = .imageLeading
@@ -362,13 +362,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func applyUITestOverridesIfNeeded() {
         let arguments = ProcessInfo.processInfo.arguments
-        guard arguments.contains("--ui-test-mode") else { return }
+        guard arguments.contains(AppDockConstants.Testing.uiTestMode) else { return }
 
-        if arguments.contains("--ui-test-seed-dock") {
+        if arguments.contains(AppDockConstants.Testing.uiTestSeedDock) {
             seedDockForUITests()
         }
 
-        if arguments.contains("--ui-test-open-popover") {
+        if arguments.contains(AppDockConstants.Testing.uiTestOpenPopover) {
             DispatchQueue.main.async { [weak self] in
                 self?.togglePopover(nil)
             }

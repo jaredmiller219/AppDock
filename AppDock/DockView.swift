@@ -115,7 +115,7 @@ struct DockView: View {
                                         removeApp(at: appIndex)
                                     }
                                 )
-                                .accessibilityIdentifier("DockSlot-\(appIndex)")
+                                .accessibilityIdentifier(AppDockConstants.Accessibility.dockSlotPrefix + "\(appIndex)")
 
                                 if appState.showRunningIndicator && isRunning {
                                     Circle()
