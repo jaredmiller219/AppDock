@@ -1,6 +1,7 @@
 # Project Layout
 
-- `AppDock/`: SwiftUI app source, settings, assets, and entitlements.
+- `AppDock/`: SwiftUI app source, settings, assets, entitlements, and dock subcomponents.
+- `AppDock/DockViewParts/`: Dock-specific subviews and helpers.
 - `AppDockTests/`: Unit tests for dock logic, settings defaults, and controller wiring.
 - `AppDockUITests/`: UI test scaffolding and launch screenshot baseline.
 - `AppDock.xcodeproj/`: Xcode project, schemes, baselines, and workspace metadata.
