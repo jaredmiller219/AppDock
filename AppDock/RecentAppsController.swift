@@ -40,13 +40,16 @@ struct RecentAppsController: App {
 /// Shared state for the UI, published for SwiftUI bindings.
 class AppState: ObservableObject {
     
+    /// Dock entry tuple shared across view and model logic.
+    typealias AppEntry = (name: String, bundleid: String, icon: NSImage)
+
     /// Recently launched/running applications shown in the dock grid.
     ///
     /// Each tuple contains:
     /// - name: The localized display name
     /// - bundleid: The bundle identifier
     /// - icon: A pre-sized application icon
-    @Published var recentApps: [(name: String, bundleid: String, icon: NSImage)] = []
+    @Published var recentApps: [AppEntry] = []
 
     /// Selected filter for the dock list.
     @Published var filterOption: AppFilterOption = .all
@@ -69,10 +72,12 @@ class AppState: ObservableObject {
     @Published var reduceMotion = SettingsDefaults.reduceMotionDefault
     @Published var debugLogging = SettingsDefaults.debugLoggingDefault
 
+    /// Initializes state from stored settings.
     init() {
         applySettings(SettingsDraft.load())
     }
 
+    /// Applies a full settings snapshot to the live state.
     func applySettings(_ settings: SettingsDraft) {
         launchAtLogin = settings.launchAtLogin
         openOnStartup = settings.openOnStartup
@@ -351,38 +356,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     /// Loads the current list of running user apps and publishes them.
     func getRecentApplications() {
-        
-        // Get access to the shared workspace.
         let workspace = NSWorkspace.shared
-        
-        // Get all currently running applications.
-        let recentApps = workspace.runningApplications
-
-        // Filter out applications that aren't user-facing or don't have bundle IDs.
-        let userApps = recentApps.filter { app in
-            app.activationPolicy == .regular &&
-            app.bundleIdentifier != nil &&
-            app.launchDate != nil
-        }
-
-        // Sort the applications by launch date, most recent first.
-        let sortedApps = userApps.sorted { app1, app2 in
-            guard let date1 = app1.launchDate, let date2 = app2.launchDate else {
-                return false
-            }
-            return date1 > date2
-        }
-
-        // Process each application to extract needed information.
-        let appDetails = sortedApps.compactMap { app -> (String, String, NSImage)? in
-            makeAppEntry(from: app, workspace: workspace)
-        }
-
-        // Update the UI on the main thread.
-        DispatchQueue.main.async {
-            // Update the shared state with the new app information.
-            AppDelegate.instance.appState.recentApps = appDetails
-        }
+        let userApps = fetchUserApps(from: workspace)
+        let sortedApps = sortAppsByLaunchDate(userApps)
+        let appDetails = buildAppEntries(from: sortedApps, workspace: workspace)
+        updateRecentApps(with: appDetails)
     }
 
     /// Inserts a newly launched app at the front of the list without removing older entries.
@@ -415,7 +393,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func makeAppEntry(
         from app: NSRunningApplication,
         workspace: NSWorkspace
-    ) -> (name: String, bundleid: String, icon: NSImage)? {
+    ) -> AppState.AppEntry? {
         guard
             let appName = app.localizedName,
             let bundleid = app.bundleIdentifier,
@@ -427,6 +405,44 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let appIcon = workspace.icon(forFile: appPath)
         appIcon.size = NSSize(width: 64, height: 64)
         return (name: appName, bundleid: bundleid, icon: appIcon)
+    }
+
+    // MARK: - Recent app helpers
+
+    /// Filters running applications to user-facing apps with required metadata.
+    private func fetchUserApps(from workspace: NSWorkspace) -> [NSRunningApplication] {
+        workspace.runningApplications.filter { app in
+            app.activationPolicy == .regular &&
+            app.bundleIdentifier != nil &&
+            app.launchDate != nil
+        }
+    }
+
+    /// Sorts by launch date, newest first. Apps missing a launch date are excluded.
+    private func sortAppsByLaunchDate(_ apps: [NSRunningApplication]) -> [NSRunningApplication] {
+        apps.sorted { app1, app2 in
+            guard let date1 = app1.launchDate, let date2 = app2.launchDate else {
+                return false
+            }
+            return date1 > date2
+        }
+    }
+
+    /// Maps running apps into dock entries with resized icons.
+    private func buildAppEntries(
+        from apps: [NSRunningApplication],
+        workspace: NSWorkspace
+    ) -> [AppState.AppEntry] {
+        apps.compactMap { app in
+            makeAppEntry(from: app, workspace: workspace)
+        }
+    }
+
+    /// Applies the newly built list on the main thread for SwiftUI updates.
+    private func updateRecentApps(with entries: [AppState.AppEntry]) {
+        DispatchQueue.main.async {
+            AppDelegate.instance.appState.recentApps = entries
+        }
     }
 
     /// Handler for the "About" action.

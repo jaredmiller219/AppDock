@@ -12,20 +12,24 @@ struct SettingsView: View {
 
     init(appState: AppState) {
         self.appState = appState
+        // Load staged values from UserDefaults when the settings UI is created.
         _draft = State(initialValue: SettingsDraft.load())
     }
 
     private let accentColor: Color = .blue
 
+    /// Writes draft values to disk and applies them immediately to the live UI.
     private func applySettings() {
         draft.apply()
         appState.applySettings(draft)
     }
 
+    /// Persists draft values without changing the live in-memory settings.
     private func saveAsDefault() {
         draft.apply()
     }
 
+    /// Restores default values, updates the draft, and refreshes the live state.
     private func restoreDefaults() {
         SettingsDefaults.restore()
         draft = SettingsDraft.load()
