@@ -98,6 +98,9 @@ public enum SettingsWindow {
 
 Popover sizing and layout used by the menu bar popover content.
 
+Note: Menu UI code is split across `AppDock/Menu/MenuController.swift`, `AppDock/Menu/PopoverContentView.swift`,
+`AppDock/Menu/MenuPageBar.swift`, `AppDock/Menu/MenuPages.swift`, and `AppDock/Menu/MenuGestures.swift`.
+
 ### MenuPopover
 
 - Purpose: Base popover size and column spacing.
@@ -193,6 +196,7 @@ public enum MenuPageBar {
 public enum MenuGestures {
     public static let swipeThreshold: CGFloat = 30
     public static let dragMinimumDistance: CGFloat = 12
+    public static let swipeCooldown: TimeInterval = 0.35
 }
 ```
 
