@@ -17,7 +17,10 @@ struct EmptySlot: View {
             .frame(width: width, height: height)
             .overlay(
                 RoundedRectangle(cornerRadius: AppDockConstants.EmptySlot.cornerRadius)
-                    .stroke(Color.gray.opacity(AppDockConstants.EmptySlot.strokeOpacity), lineWidth: 1)
+                    .stroke(
+                        Color.gray.opacity(AppDockConstants.EmptySlot.strokeOpacity),
+                        lineWidth: AppDockConstants.EmptySlot.strokeLineWidth
+                    )
             )
             .overlay(
                 Text(AppDockConstants.EmptySlot.labelText)

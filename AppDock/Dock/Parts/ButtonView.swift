@@ -109,8 +109,11 @@ struct ButtonView: View {
                             height: buttonHeight
                         )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(isHovering ? Color.blue : Color.clear, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: AppDockConstants.DockButton.overlayCornerRadius)
+                                .stroke(
+                                    isHovering ? Color.blue : Color.clear,
+                                    lineWidth: AppDockConstants.DockButton.overlayLineWidth
+                                )
                         )
                     }
                     .buttonStyle(.plain)
@@ -123,11 +126,11 @@ struct ButtonView: View {
                     onRemove()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: AppDockConstants.DockButton.removeButtonFontSize, weight: .bold))
                         .contentShape(Rectangle()) // nicer tap target
                 }
                 .buttonStyle(.plain)
-                .padding(2)
+                .padding(AppDockConstants.DockButton.removeButtonPadding)
             }
         }
         // Attach hover to the whole cell (icon + X), so moving onto the X doesn't "leave"

@@ -9,6 +9,7 @@
 import XCTest
 import SwiftUI
 import AppKit
+@testable import AppDock
 
 // MARK: - MOCK DEPENDENCIES
 
@@ -157,7 +158,10 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
 
         // Use the injected workspace for icon
         let appIcon = self.workspace.icon(forFile: appPath)
-        appIcon.size = NSSize(width: 64, height: 64)
+        appIcon.size = NSSize(
+            width: AppDockConstants.AppIcon.size,
+            height: AppDockConstants.AppIcon.size
+        )
         return (name: appName, bundleid: bundleid, icon: appIcon)
     }
 
@@ -248,7 +252,7 @@ final class AppDelegateLogicTests: XCTestCase {
         XCTAssertEqual(sut.appState.recentApps[2].name, "Oldest App", "The last app should be the least recently launched.")
     }
     
-    // Test 3: Verify the icon is resized to 64x64
+    // Test 3: Verify the icon is resized to the standard app icon size
     func testGetRecentApplications_resizesIcon() {
         let now = Date()
         
@@ -261,11 +265,19 @@ final class AppDelegateLogicTests: XCTestCase {
         XCTAssertEqual(sut.appState.recentApps.count, 1)
         
         // The mock workspace returns a dummy image with size 1x1 initially.
-        // We verify that the AppDelegate logic resized it to 64x64.
+        // We verify that the AppDelegate logic resized it to the standard size.
         let processedIcon = sut.appState.recentApps[0].icon
         
-        XCTAssertEqual(processedIcon.size.width, 64.0, "The app icon width should be resized to 64.")
-        XCTAssertEqual(processedIcon.size.height, 64.0, "The app icon height should be resized to 64.")
+        XCTAssertEqual(
+            processedIcon.size.width,
+            AppDockConstants.AppIcon.size,
+            "The app icon width should be resized to the standard size."
+        )
+        XCTAssertEqual(
+            processedIcon.size.height,
+            AppDockConstants.AppIcon.size,
+            "The app icon height should be resized to the standard size."
+        )
     }
     
     // Test 4: Verify applicationDidFinishLaunching calls the data retrieval method

@@ -252,20 +252,28 @@ struct SettingsDraft: Equatable {
 /// Neutral card styling for GroupBox sections.
 struct CardGroupBoxStyle: GroupBoxStyle {
     func makeBody(configuration: Configuration) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: AppDockConstants.CardStyle.spacing) {
             configuration.label
             configuration.content
         }
-        .padding(12)
+        .padding(AppDockConstants.CardStyle.padding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: AppDockConstants.CardStyle.cornerRadius)
                 .fill(Color(nsColor: .controlBackgroundColor))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: AppDockConstants.CardStyle.cornerRadius)
+                        .stroke(
+                            Color.gray.opacity(AppDockConstants.CardStyle.strokeOpacity),
+                            lineWidth: AppDockConstants.CardStyle.strokeLineWidth
+                        )
                 )
         )
-        .shadow(color: Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
+        .shadow(
+            color: Color.black.opacity(AppDockConstants.CardStyle.shadowOpacity),
+            radius: AppDockConstants.CardStyle.shadowRadius,
+            x: AppDockConstants.CardStyle.shadowOffsetX,
+            y: AppDockConstants.CardStyle.shadowOffsetY
+        )
     }
 }

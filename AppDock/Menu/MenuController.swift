@@ -15,9 +15,9 @@ import Foundation
 
 /// Centralizes popover sizing so content and AppKit stay in sync.
 enum PopoverSizing {
-    static let defaultWidth: CGFloat = 260
-    static let height: CGFloat = 460
-    static let columnSpacing: CGFloat = 16
+    static var defaultWidth: CGFloat { AppDockConstants.MenuPopover.defaultWidth }
+    static var height: CGFloat { AppDockConstants.MenuPopover.height }
+    static var columnSpacing: CGFloat { AppDockConstants.MenuPopover.columnSpacing }
 
     static func width(for appState: AppState) -> CGFloat {
         let extraColumns = max(0, appState.gridColumns - SettingsDefaults.gridColumnsDefault)
@@ -101,21 +101,21 @@ struct PopoverContentView: View {
                     MenuPageHeader(page: appState.menuPage)
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.top, 8)
-            .padding(.bottom, 6)
+            .padding(.horizontal, AppDockConstants.MenuLayout.headerPaddingHorizontal)
+            .padding(.top, AppDockConstants.MenuLayout.headerPaddingTop)
+            .padding(.bottom, AppDockConstants.MenuLayout.headerPaddingBottom)
 
             Divider()
-                .padding(.horizontal, 8)
+                .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
 
             ZStack {
                 switch appState.menuPage {
                 case .dock:
                     ScrollView(showsIndicators: false) {
                         DockView(appState: appState)
-                            .padding(.horizontal, 8)
-                            .padding(.top, 6)
-                            .padding(.bottom, 10)
+                            .padding(.horizontal, AppDockConstants.MenuLayout.dockPaddingHorizontal)
+                            .padding(.top, AppDockConstants.MenuLayout.dockPaddingTop)
+                            .padding(.bottom, AppDockConstants.MenuLayout.dockPaddingBottom)
                     }
                     .transition(pageTransition)
                 case .recents:
@@ -127,9 +127,9 @@ struct PopoverContentView: View {
                             emptyMessage: "Launch an app to see it here.",
                             emptySystemImage: "clock.arrow.circlepath"
                         )
-                        .padding(.horizontal, 12)
-                        .padding(.top, 10)
-                        .padding(.bottom, 12)
+                        .padding(.horizontal, AppDockConstants.MenuLayout.recentsPaddingHorizontal)
+                        .padding(.top, AppDockConstants.MenuLayout.recentsPaddingTop)
+                        .padding(.bottom, AppDockConstants.MenuLayout.recentsPaddingBottom)
                     }
                     .transition(pageTransition)
                 case .favorites:
@@ -139,9 +139,9 @@ struct PopoverContentView: View {
                             message: "Pin apps to keep them on this page.",
                             systemImage: "star"
                         )
-                        .padding(.horizontal, 12)
-                        .padding(.top, 16)
-                        .padding(.bottom, 12)
+                        .padding(.horizontal, AppDockConstants.MenuLayout.favoritesPaddingHorizontal)
+                        .padding(.top, AppDockConstants.MenuLayout.favoritesPaddingTop)
+                        .padding(.bottom, AppDockConstants.MenuLayout.favoritesPaddingBottom)
                     }
                     .transition(pageTransition)
                 case .actions:
@@ -153,9 +153,9 @@ struct PopoverContentView: View {
                             Divider()
                             MenuRow(title: "Quit AppDock", action: quitAction)
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.top, 8)
-                        .padding(.bottom, 12)
+                        .padding(.horizontal, AppDockConstants.MenuLayout.actionsPaddingHorizontal)
+                        .padding(.top, AppDockConstants.MenuLayout.actionsPaddingTop)
+                        .padding(.bottom, AppDockConstants.MenuLayout.actionsPaddingBottom)
                     }
                     .transition(pageTransition)
                 }
@@ -163,14 +163,14 @@ struct PopoverContentView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             
             Divider()
-                .padding(.horizontal, 8)
-                .padding(.top, 6)
+                .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
+                .padding(.top, AppDockConstants.MenuLayout.bottomDividerPaddingTop)
 
             MenuPageBar(selectedPage: appState.menuPage, onSelect: selectPage)
-                .padding(.horizontal, 8)
-                .padding(.bottom, 6)
+                .padding(.horizontal, AppDockConstants.MenuLayout.bottomBarPaddingHorizontal)
+                .padding(.bottom, AppDockConstants.MenuLayout.bottomBarPaddingBottom)
         }
-        .frame(width: popoverWidth, height: PopoverSizing.height, alignment: .top)
+        .frame(width: popoverWidth, height: AppDockConstants.MenuPopover.height, alignment: .top)
         .simultaneousGesture(TapGesture().onEnded {
             NotificationCenter.default.post(name: .appDockDismissContextMenu, object: nil)
         })
@@ -189,11 +189,11 @@ private struct MenuPageHeader: View {
                 .font(.caption)
             Spacer()
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
+        .padding(.horizontal, AppDockConstants.MenuHeader.paddingHorizontal)
+        .padding(.vertical, AppDockConstants.MenuHeader.paddingVertical)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 6)
+            RoundedRectangle(cornerRadius: AppDockConstants.MenuHeader.cornerRadius)
                 .fill(Color.primary.opacity(0.08))
         )
     }
@@ -221,11 +221,11 @@ private struct FilterMenuButton: View {
                     .font(.caption)
                 Spacer()
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
+            .padding(.horizontal, AppDockConstants.MenuHeader.paddingHorizontal)
+            .padding(.vertical, AppDockConstants.MenuHeader.paddingVertical)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: AppDockConstants.MenuHeader.cornerRadius)
                     .fill(Color.primary.opacity(0.08))
             )
         }
@@ -238,22 +238,22 @@ private struct MenuPageBar: View {
     let onSelect: (MenuPage) -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: AppDockConstants.MenuPageBar.spacing) {
             ForEach(MenuPage.allCases) { page in
                 Button {
                     onSelect(page)
                 } label: {
-                    VStack(spacing: 3) {
+                    VStack(spacing: AppDockConstants.MenuPageBar.labelSpacing) {
                         Image(systemName: page.systemImage)
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.system(size: AppDockConstants.MenuPageBar.iconFontSize, weight: .semibold))
                         Text(page.title)
                             .font(.caption2)
                     }
                     .foregroundColor(selectedPage == page ? .accentColor : .primary)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 6)
+                    .padding(.vertical, AppDockConstants.MenuPageBar.paddingVertical)
                     .background(
-                        RoundedRectangle(cornerRadius: 8)
+                        RoundedRectangle(cornerRadius: AppDockConstants.MenuPageBar.cornerRadius)
                             .fill(selectedPage == page ? Color.accentColor.opacity(0.18) : Color.clear)
                     )
                 }
@@ -262,7 +262,7 @@ private struct MenuPageBar: View {
                 .accessibilityIdentifier(AppDockConstants.Accessibility.menuPageButtonPrefix + page.rawValue)
             }
         }
-        .padding(.top, 2)
+        .padding(.top, AppDockConstants.MenuPageBar.topPadding)
     }
 }
 
@@ -274,7 +274,7 @@ private struct MenuAppListView: View {
     let emptySystemImage: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: AppDockConstants.MenuAppList.spacing) {
             Text(title)
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -286,7 +286,7 @@ private struct MenuAppListView: View {
                     systemImage: emptySystemImage
                 )
             } else {
-                VStack(spacing: 8) {
+                VStack(spacing: AppDockConstants.MenuAppList.rowSpacing) {
                     ForEach(Array(apps.enumerated()), id: \.offset) { _, app in
                         MenuAppRow(app: app)
                     }
@@ -300,12 +300,12 @@ private struct MenuAppRow: View {
     let app: AppState.AppEntry
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: AppDockConstants.MenuAppRow.spacing) {
             Image(nsImage: app.icon)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 28, height: 28)
-                .cornerRadius(6)
+                .frame(width: AppDockConstants.MenuAppRow.iconSize, height: AppDockConstants.MenuAppRow.iconSize)
+                .cornerRadius(AppDockConstants.MenuAppRow.iconCornerRadius)
 
             Text(app.name)
                 .font(.callout)
@@ -313,10 +313,10 @@ private struct MenuAppRow: View {
 
             Spacer()
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
+        .padding(.horizontal, AppDockConstants.MenuAppRow.paddingHorizontal)
+        .padding(.vertical, AppDockConstants.MenuAppRow.paddingVertical)
         .background(
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: AppDockConstants.MenuAppRow.cornerRadius)
                 .fill(Color.primary.opacity(0.05))
         )
     }
@@ -328,7 +328,7 @@ private struct MenuEmptyState: View {
     let systemImage: String
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: AppDockConstants.MenuEmptyState.spacing) {
             Image(systemName: systemImage)
                 .font(.title2)
                 .foregroundColor(.secondary)
@@ -339,7 +339,7 @@ private struct MenuEmptyState: View {
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
+        .padding(.vertical, AppDockConstants.MenuEmptyState.paddingVertical)
     }
 }
 
@@ -356,16 +356,16 @@ private struct MenuRow: View {
                     .foregroundColor(.primary)
                 Spacer()
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.horizontal, AppDockConstants.MenuRow.paddingHorizontal)
+            .padding(.vertical, AppDockConstants.MenuRow.paddingVertical)
             .background(
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: AppDockConstants.MenuRow.cornerRadius)
                     .fill(isHovering ? Color.primary.opacity(0.08) : Color.clear)
             )
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity)
-        .contentShape(RoundedRectangle(cornerRadius: 6))
+        .contentShape(RoundedRectangle(cornerRadius: AppDockConstants.MenuRow.cornerRadius))
         .accessibilityIdentifier(AppDockConstants.Accessibility.menuRowPrefix + title)
         .onHover { hovering in
             isHovering = hovering

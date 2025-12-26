@@ -75,18 +75,21 @@ struct SettingsView: View {
             Color(nsColor: .windowBackgroundColor)
                 .ignoresSafeArea()
 
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.contentSpacing) {
+                HStack(spacing: AppDockConstants.SettingsLayout.headerSpacing) {
                     ZStack {
                         Circle()
                             .fill(Color.gray.opacity(0.15))
                         Image(systemName: "gearshape.2.fill")
                             .foregroundColor(.gray)
-                            .font(.system(size: 18, weight: .semibold))
+                            .font(.system(size: AppDockConstants.SettingsLayout.headerIconFontSize, weight: .semibold))
                     }
-                    .frame(width: 38, height: 38)
+                    .frame(
+                        width: AppDockConstants.SettingsLayout.headerIconSize,
+                        height: AppDockConstants.SettingsLayout.headerIconSize
+                    )
 
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.headerTextSpacing) {
                         Text("Settings")
                             .font(.title2)
                             .bold()
@@ -95,22 +98,22 @@ struct SettingsView: View {
                     }
                 }
 
-                HStack(spacing: 16) {
-                    VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: AppDockConstants.SettingsLayout.contentColumnSpacing) {
+                    VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sidebarSpacing) {
                         ForEach(SettingsTab.allCases) { tab in
                             Button {
                                 selectedTab = tab
                             } label: {
-                                HStack(spacing: 8) {
+                                HStack(spacing: AppDockConstants.SettingsLayout.tabRowSpacing) {
                                     Image(systemName: tab.systemImage)
-                                        .frame(width: 16)
+                                        .frame(width: AppDockConstants.SettingsLayout.tabIconWidth)
                                     Text(tab.title)
                                     Spacer()
                                 }
-                                .padding(.vertical, 6)
-                                .padding(.horizontal, 8)
+                                .padding(.vertical, AppDockConstants.SettingsLayout.tabButtonPaddingVertical)
+                                .padding(.horizontal, AppDockConstants.SettingsLayout.tabButtonPaddingHorizontal)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 6)
+                                    RoundedRectangle(cornerRadius: AppDockConstants.SettingsLayout.tabButtonCornerRadius)
                                         .fill(selectedTab == tab ? Color.accentColor.opacity(0.15) : Color.clear)
                                 )
                             }
@@ -153,7 +156,7 @@ struct SettingsView: View {
                     .disabled(draft == SettingsDraft.from(appState: appState))
                 }
             }
-            .padding(20)
+            .padding(AppDockConstants.SettingsLayout.rootPadding)
             .frame(maxHeight: .infinity, alignment: .topLeading)
         }
         .groupBoxStyle(CardGroupBoxStyle())
@@ -166,189 +169,215 @@ struct SettingsView: View {
 }
 
 private extension SettingsView {
-    @ViewBuilder
-    var settingsTabContent: some View {
-        switch selectedTab {
-        case .general:
-            GeneralSettingsTab(draft: $draft)
-        case .layout:
-            LayoutSettingsTab(draft: $draft)
-        case .filtering:
-            FilteringSettingsTab(draft: $draft)
-        case .behavior:
-            BehaviorSettingsTab(draft: $draft)
-        case .accessibility:
-            AccessibilitySettingsTab(draft: $draft)
-        case .advanced:
-            AdvancedSettingsTab(draft: $draft)
-        }
-    }
+	@ViewBuilder
+	var settingsTabContent: some View {
+		switch selectedTab {
+		case .general:
+			GeneralSettingsTab(draft: $draft)
+		case .layout:
+			LayoutSettingsTab(draft: $draft)
+		case .filtering:
+			FilteringSettingsTab(draft: $draft)
+		case .behavior:
+			BehaviorSettingsTab(draft: $draft)
+		case .accessibility:
+			AccessibilitySettingsTab(draft: $draft)
+		case .advanced:
+			AdvancedSettingsTab(draft: $draft)
+		}
+	}
+	
+	var simpleSettingsContent: some View {
+		VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionSpacing) {
+			GeneralSettingsTab(draft: $draft)
+			LayoutSettingsTab(draft: $draft)
+			FilteringSettingsTab(draft: $draft)
+			BehaviorSettingsTab(draft: $draft)
+			AccessibilitySettingsTab(draft: $draft)
+			AdvancedSettingsTab(draft: $draft)
+		}
+		.padding(.top, AppDockConstants.SettingsLayout.simpleContentTopPadding)
+	}
+	
+	private struct GeneralSettingsTab: View {
+		@Binding var draft: SettingsDraft
+		
+		var body: some View {
+			VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionSpacing) {
+				GroupBox("General") {
+					VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
+						Toggle("Launch at login", isOn: $draft.launchAtLogin)
+						Toggle("Open dock on startup", isOn: $draft.openOnStartup)
+						Toggle("Check for updates automatically", isOn: $draft.autoUpdates)
+					}
+					.frame(maxWidth: .infinity, alignment: .leading)
+				}
+			}
+			.frame(maxWidth: .infinity, alignment: .leading)
+			.accessibilityIdentifier("SettingsTab-General")
+			.padding(.top, AppDockConstants.SettingsLayout.sectionTopPadding)
+		}
+	}
+	
+	private struct LayoutSettingsTab: View {
+		@Binding var draft: SettingsDraft
+		
+		var body: some View {
+			VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionSpacing) {
+				GroupBox("Dock Layout") {
+					VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
+						Stepper(
+							value: $draft.gridColumns,
+							in: AppDockConstants.SettingsRanges.gridColumnsMin...AppDockConstants.SettingsRanges.gridColumnsMax
+						) {
+							HStack {
+								Text("Columns")
+								Spacer()
+								Text("\(draft.gridColumns)")
+									.foregroundColor(.secondary)
+							}
+						}
+						Stepper(
+							value: $draft.gridRows,
+							in: AppDockConstants.SettingsRanges.gridRowsMin...AppDockConstants.SettingsRanges.gridRowsMax
+						) {
+							HStack {
+								Text("Rows")
+								Spacer()
+								Text("\(draft.gridRows)")
+									.foregroundColor(.secondary)
+							}
+						}
+						HStack {
+							Text("Icon size")
+							Slider(
+								value: $draft.iconSize,
+								in: AppDockConstants.SettingsRanges.iconSizeMin...AppDockConstants.SettingsRanges.iconSizeMax,
+								step: AppDockConstants.SettingsRanges.iconSizeStep
+							)
+							Text("\(Int(draft.iconSize))")
+								.frame(width: AppDockConstants.SettingsLayout.valueLabelWidth, alignment: .trailing)
+								.foregroundColor(.secondary)
+						}
+						HStack {
+							Text("Label size")
+							Slider(
+								value: $draft.labelSize,
+								in: AppDockConstants.SettingsRanges.labelSizeMin...AppDockConstants.SettingsRanges.labelSizeMax,
+								step: AppDockConstants.SettingsRanges.labelSizeStep
+							)
+							Text("\(Int(draft.labelSize))")
+								.frame(width: AppDockConstants.SettingsLayout.valueLabelWidth, alignment: .trailing)
+								.foregroundColor(.secondary)
+						}
+					}
+					.frame(maxWidth: .infinity, alignment: .leading)
+				}
+			}
+			.frame(maxWidth: .infinity, alignment: .leading)
+			.accessibilityIdentifier("SettingsTab-Layout")
+			.padding(.top, AppDockConstants.SettingsLayout.sectionTopPadding)
+		}
+	}
+	
+	private struct FilteringSettingsTab: View {
+		@Binding var draft: SettingsDraft
+		
+		var body: some View {
+			VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionSpacing) {
+				GroupBox("Filtering & Sorting") {
+					VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
+						HStack {
+							Text("Default filter")
+							Spacer()
+							Picker("", selection: $draft.defaultFilter) {
+								ForEach(AppFilterOption.allCases) { option in
+									Text(option.title).tag(option)
+								}
+							}
+							.labelsHidden()
+							.pickerStyle(.menu)
+						}
+						HStack {
+							Text("Default sort order")
+							Spacer()
+							Picker("", selection: $draft.defaultSort) {
+								ForEach(AppSortOption.allCases) { option in
+									Text(option.title).tag(option)
+								}
+							}
+							.labelsHidden()
+							.pickerStyle(.menu)
+						}
+					}
+					.frame(maxWidth: .infinity, alignment: .leading)
+				}
+			}
+			.frame(maxWidth: .infinity, alignment: .leading)
+			.accessibilityIdentifier("SettingsTab-Filtering")
+			.padding(.top, AppDockConstants.SettingsLayout.sectionTopPadding)
+		}
+	}
+	
+	private struct BehaviorSettingsTab: View {
+		@Binding var draft: SettingsDraft
+		
+		var body: some View {
+			VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionSpacing) {
+				GroupBox("Behavior") {
+					VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
+						Toggle("Show app labels", isOn: $draft.showAppLabels)
+						Toggle("Show running indicator", isOn: $draft.showRunningIndicator)
+						Toggle("Enable hover remove button", isOn: $draft.enableHoverRemove)
+						Toggle("Confirm before quitting apps", isOn: $draft.confirmBeforeQuit)
+						Toggle("Keep apps after quit", isOn: $draft.keepQuitApps)
+					}
+					.frame(maxWidth: .infinity, alignment: .leading)
+				}
+			}
+			.frame(maxWidth: .infinity, alignment: .leading)
+			.accessibilityIdentifier("SettingsTab-Behavior")
+			.padding(.top, AppDockConstants.SettingsLayout.sectionTopPadding)
+		}
+	}
+	
+	private struct AccessibilitySettingsTab: View {
+		@Binding var draft: SettingsDraft
+		
+		var body: some View {
+			VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionSpacing) {
+				GroupBox("Accessibility") {
+					VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
+						Toggle("Reduce motion", isOn: $draft.reduceMotion)
+					}
+					.frame(maxWidth: .infinity, alignment: .leading)
+				}
+			}
+			.frame(maxWidth: .infinity, alignment: .leading)
+			.accessibilityIdentifier("SettingsTab-Accessibility")
+			.padding(.top, AppDockConstants.SettingsLayout.sectionTopPadding)
+		}
+	}
+	
+	private struct AdvancedSettingsTab: View {
+		@Binding var draft: SettingsDraft
+		
+		var body: some View {
+			VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionSpacing) {
+				GroupBox("Advanced") {
+					VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
+						Toggle("Enable debug logging", isOn: $draft.debugLogging)
+					}
+					.frame(maxWidth: .infinity, alignment: .leading)
+				}
+			}
+			.frame(maxWidth: .infinity, alignment: .leading)
+			.accessibilityIdentifier("SettingsTab-Advanced")
+			.padding(.top, AppDockConstants.SettingsLayout.sectionTopPadding)
+		}
+	}
+	
+	//#Preview {
+	//    SettingsView(appState: .init())
+	//}
 }
-
-private struct GeneralSettingsTab: View {
-    @Binding var draft: SettingsDraft
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            GroupBox("General") {
-                VStack(alignment: .leading, spacing: 10) {
-                    Toggle("Launch at login", isOn: $draft.launchAtLogin)
-                    Toggle("Open dock on startup", isOn: $draft.openOnStartup)
-                    Toggle("Check for updates automatically", isOn: $draft.autoUpdates)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityIdentifier("SettingsTab-General")
-        .padding(.top, 4)
-    }
-}
-
-private struct LayoutSettingsTab: View {
-    @Binding var draft: SettingsDraft
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            GroupBox("Dock Layout") {
-                VStack(alignment: .leading, spacing: 10) {
-                    Stepper(value: $draft.gridColumns, in: 2...6) {
-                        HStack {
-                            Text("Columns")
-                            Spacer()
-                            Text("\(draft.gridColumns)")
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    Stepper(value: $draft.gridRows, in: 2...8) {
-                        HStack {
-                            Text("Rows")
-                            Spacer()
-                            Text("\(draft.gridRows)")
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    HStack {
-                        Text("Icon size")
-                        Slider(value: $draft.iconSize, in: 32...96, step: 2)
-                        Text("\(Int(draft.iconSize))")
-                            .frame(width: 36, alignment: .trailing)
-                            .foregroundColor(.secondary)
-                    }
-                    HStack {
-                        Text("Label size")
-                        Slider(value: $draft.labelSize, in: 6...14, step: 1)
-                        Text("\(Int(draft.labelSize))")
-                            .frame(width: 36, alignment: .trailing)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityIdentifier("SettingsTab-Layout")
-        .padding(.top, 4)
-    }
-}
-
-private struct FilteringSettingsTab: View {
-    @Binding var draft: SettingsDraft
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            GroupBox("Filtering & Sorting") {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Text("Default filter")
-                        Spacer()
-                        Picker("", selection: $draft.defaultFilter) {
-                            ForEach(AppFilterOption.allCases) { option in
-                                Text(option.title).tag(option)
-                            }
-                        }
-                        .labelsHidden()
-                        .pickerStyle(.menu)
-                    }
-                    HStack {
-                        Text("Default sort order")
-                        Spacer()
-                        Picker("", selection: $draft.defaultSort) {
-                            ForEach(AppSortOption.allCases) { option in
-                                Text(option.title).tag(option)
-                            }
-                        }
-                        .labelsHidden()
-                        .pickerStyle(.menu)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityIdentifier("SettingsTab-Filtering")
-        .padding(.top, 4)
-    }
-}
-
-private struct BehaviorSettingsTab: View {
-    @Binding var draft: SettingsDraft
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            GroupBox("Behavior") {
-                VStack(alignment: .leading, spacing: 10) {
-                    Toggle("Show app labels", isOn: $draft.showAppLabels)
-                    Toggle("Show running indicator", isOn: $draft.showRunningIndicator)
-                    Toggle("Enable hover remove button", isOn: $draft.enableHoverRemove)
-                    Toggle("Confirm before quitting apps", isOn: $draft.confirmBeforeQuit)
-                    Toggle("Keep apps after quit", isOn: $draft.keepQuitApps)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityIdentifier("SettingsTab-Behavior")
-        .padding(.top, 4)
-    }
-}
-
-private struct AccessibilitySettingsTab: View {
-    @Binding var draft: SettingsDraft
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            GroupBox("Accessibility") {
-                VStack(alignment: .leading, spacing: 10) {
-                    Toggle("Reduce motion", isOn: $draft.reduceMotion)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityIdentifier("SettingsTab-Accessibility")
-        .padding(.top, 4)
-    }
-}
-
-private struct AdvancedSettingsTab: View {
-    @Binding var draft: SettingsDraft
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            GroupBox("Advanced") {
-                VStack(alignment: .leading, spacing: 10) {
-                    Toggle("Enable debug logging", isOn: $draft.debugLogging)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityIdentifier("SettingsTab-Advanced")
-        .padding(.top, 4)
-    }
-}
-
-//#Preview {
-//    SettingsView(appState: .init())
-//}

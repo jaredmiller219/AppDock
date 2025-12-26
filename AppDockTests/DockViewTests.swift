@@ -2,6 +2,7 @@ import XCTest
 import SwiftUI
 import AppKit
 import Combine
+@testable import AppDock
 
 // This file uses lightweight stubs so view logic can be tested without
 // pulling in the full SwiftUI hierarchy.
@@ -11,7 +12,12 @@ import Combine
 // Helper function to create a dummy NSImage for testing purposes.
 func test_createDummyImage() -> NSImage {
 	// Creating a 64x64 transparent image to match the expected icon size
-	return NSImage(size: NSSize(width: 64, height: 64))
+	return NSImage(
+		size: NSSize(
+			width: AppDockConstants.AppIcon.size,
+			height: AppDockConstants.AppIcon.size
+		)
+	)
 }
 
 // 2. Minimal Stub for the original AppState class (The base type)

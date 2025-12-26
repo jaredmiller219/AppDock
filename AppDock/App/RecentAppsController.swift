@@ -286,8 +286,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
         let image = symbolImage
             ?? NSApp.applicationIconImage
-            ?? NSImage(size: NSSize(width: 18, height: 18))
-        image.size = NSSize(width: 18, height: 18)
+            ?? NSImage(size: NSSize(width: AppDockConstants.StatusBarIcon.size, height: AppDockConstants.StatusBarIcon.size))
+        image.size = NSSize(width: AppDockConstants.StatusBarIcon.size, height: AppDockConstants.StatusBarIcon.size)
         image.isTemplate = true
         return image
     }
@@ -398,7 +398,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func seedDockForUITests() {
-        let placeholderIcon = NSImage(size: NSSize(width: 64, height: 64))
+        let placeholderIcon = NSImage(size: NSSize(width: AppDockConstants.AppIcon.size, height: AppDockConstants.AppIcon.size))
         appState.recentApps = [
             (name: "Alpha", bundleid: "com.example.alpha", icon: placeholderIcon),
             (name: "Bravo", bundleid: "com.example.bravo", icon: placeholderIcon),
@@ -476,7 +476,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let appIcon = workspace.icon(forFile: appPath)
-        appIcon.size = NSSize(width: 64, height: 64)
+        appIcon.size = NSSize(width: AppDockConstants.AppIcon.size, height: AppDockConstants.AppIcon.size)
         return (name: appName, bundleid: bundleid, icon: appIcon)
     }
 
@@ -528,7 +528,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func openSettings() {
         if settingsWindowController == nil {
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 480, height: 640),
+                contentRect: NSRect(
+                    x: 0,
+                    y: 0,
+                    width: AppDockConstants.SettingsWindow.width,
+                    height: AppDockConstants.SettingsWindow.height
+                ),
                 styleMask: [.titled, .closable, .miniaturizable],
                 backing: .buffered,
                 defer: false

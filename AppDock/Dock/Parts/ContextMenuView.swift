@@ -38,7 +38,7 @@ struct ContextMenuView: View {
     }
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: AppDockConstants.ContextMenu.spacing) {
             Button("Hide App") {
                 if let app = NSRunningApplication
                     .runningApplications(withBundleIdentifier: bundleId)
@@ -48,7 +48,7 @@ struct ContextMenuView: View {
                 }
                 onDismiss()
             }
-            .frame(maxWidth: .infinity, minHeight: 36)
+            .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
 
             Button("Quit App") {
                 guard shouldQuitApp() else { return }
@@ -63,11 +63,11 @@ struct ContextMenuView: View {
                 }
                 onDismiss()
             }
-            .frame(maxWidth: .infinity, minHeight: 36)
+            .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .frame(width: 160)
+        .padding(.horizontal, AppDockConstants.ContextMenu.paddingHorizontal)
+        .padding(.vertical, AppDockConstants.ContextMenu.paddingVertical)
+        .frame(width: AppDockConstants.ContextMenu.width)
         .accessibilityIdentifier(AppDockConstants.Accessibility.contextMenu)
     }
 }
