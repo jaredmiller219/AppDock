@@ -94,6 +94,61 @@ struct PopoverContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            if appState.menuLayoutMode == .simple {
+                simpleMenuContent
+            } else {
+                advancedMenuContent
+            }
+        }
+        .frame(width: popoverWidth, height: AppDockConstants.MenuPopover.height, alignment: .top)
+        .simultaneousGesture(TapGesture().onEnded {
+            NotificationCenter.default.post(name: .appDockDismissContextMenu, object: nil)
+        })
+        .onAppear {
+            previousPage = appState.menuPage
+        }
+    }
+}
+
+private extension PopoverContentView {
+    var simpleMenuContent: some View {
+        VStack(spacing: 0) {
+            FilterMenuButton(appState: appState)
+                .padding(.horizontal, AppDockConstants.MenuLayout.headerPaddingHorizontal)
+                .padding(.top, AppDockConstants.MenuLayout.headerPaddingTop)
+                .padding(.bottom, AppDockConstants.MenuLayout.headerPaddingBottom)
+
+            Divider()
+                .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
+
+            ScrollView(showsIndicators: false) {
+                DockView(appState: appState)
+                    .padding(.horizontal, AppDockConstants.MenuLayout.dockPaddingHorizontal)
+                    .padding(.top, AppDockConstants.MenuLayout.dockPaddingTop)
+                    .padding(.bottom, AppDockConstants.MenuLayout.dockPaddingBottom)
+            }
+            .frame(maxHeight: .infinity)
+            .layoutPriority(1)
+
+            Divider()
+                .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
+                .padding(.top, AppDockConstants.MenuLayout.bottomDividerPaddingTop)
+
+            VStack(spacing: 0) {
+                MenuRow(title: "Settings", action: settingsAction)
+                Divider()
+                MenuRow(title: "About", action: aboutAction)
+                Divider()
+                MenuRow(title: "Quit AppDock", action: quitAction)
+            }
+            .padding(.horizontal, AppDockConstants.MenuLayout.actionsPaddingHorizontal)
+            .padding(.top, AppDockConstants.MenuLayout.actionsPaddingTop)
+            .padding(.bottom, AppDockConstants.MenuLayout.actionsPaddingBottom)
+        }
+    }
+
+    var advancedMenuContent: some View {
+        VStack(spacing: 0) {
             Group {
                 if appState.menuPage == .dock {
                     FilterMenuButton(appState: appState)
@@ -166,7 +221,7 @@ struct PopoverContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .layoutPriority(1)
-            
+
             Divider()
                 .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
                 .padding(.top, AppDockConstants.MenuLayout.bottomDividerPaddingTop)
@@ -174,13 +229,6 @@ struct PopoverContentView: View {
             MenuPageBar(selectedPage: appState.menuPage, onSelect: selectPage)
                 .padding(.horizontal, AppDockConstants.MenuLayout.bottomBarPaddingHorizontal)
                 .padding(.bottom, AppDockConstants.MenuLayout.bottomBarPaddingBottom)
-        }
-        .frame(width: popoverWidth, height: AppDockConstants.MenuPopover.height, alignment: .top)
-        .simultaneousGesture(TapGesture().onEnded {
-            NotificationCenter.default.post(name: .appDockDismissContextMenu, object: nil)
-        })
-        .onAppear {
-            previousPage = appState.menuPage
         }
     }
 }

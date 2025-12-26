@@ -26,6 +26,8 @@ final class SettingsDraftTests: XCTestCase {
         defaults.set(12.0, forKey: SettingsDefaults.labelSizeKey)
         defaults.set(true, forKey: SettingsDefaults.reduceMotionKey)
         defaults.set(true, forKey: SettingsDefaults.debugLoggingKey)
+        defaults.set(true, forKey: SettingsDefaults.simpleSettingsKey)
+        defaults.set(MenuLayoutMode.simple.rawValue, forKey: SettingsDefaults.menuLayoutModeKey)
 
         let draft = SettingsDraft.load(from: defaults)
 
@@ -39,6 +41,8 @@ final class SettingsDraftTests: XCTestCase {
         XCTAssertEqual(draft.labelSize, 12.0, accuracy: 0.01)
         XCTAssertTrue(draft.reduceMotion)
         XCTAssertTrue(draft.debugLogging)
+        XCTAssertTrue(draft.simpleSettings)
+        XCTAssertEqual(draft.menuLayoutMode, .simple)
     }
 
     func testApply_writesValuesToDefaults() {
@@ -62,7 +66,9 @@ final class SettingsDraftTests: XCTestCase {
             iconSize: 70,
             labelSize: 9,
             reduceMotion: true,
-            debugLogging: true
+            debugLogging: true,
+            simpleSettings: true,
+            menuLayoutMode: .simple
         )
 
         draft.apply(to: defaults)
@@ -83,5 +89,7 @@ final class SettingsDraftTests: XCTestCase {
         XCTAssertEqual(defaults.double(forKey: SettingsDefaults.labelSizeKey), 9, accuracy: 0.01)
         XCTAssertTrue(defaults.bool(forKey: SettingsDefaults.reduceMotionKey))
         XCTAssertTrue(defaults.bool(forKey: SettingsDefaults.debugLoggingKey))
+        XCTAssertTrue(defaults.bool(forKey: SettingsDefaults.simpleSettingsKey))
+        XCTAssertEqual(defaults.string(forKey: SettingsDefaults.menuLayoutModeKey), MenuLayoutMode.simple.rawValue)
     }
 }

@@ -35,6 +35,7 @@ final class SettingsDefaultsTests: XCTestCase {
         XCTAssertEqual(values[SettingsDefaults.debugLoggingKey] as? Bool, SettingsDefaults.debugLoggingDefault)
         XCTAssertEqual(values[SettingsDefaults.menuPageKey] as? String, SettingsDefaults.menuPageDefault.rawValue)
         XCTAssertEqual(values[SettingsDefaults.simpleSettingsKey] as? Bool, SettingsDefaults.simpleSettingsDefault)
+        XCTAssertEqual(values[SettingsDefaults.menuLayoutModeKey] as? String, SettingsDefaults.menuLayoutModeDefault.rawValue)
     }
 
     /// Ensures restore writes the expected values into UserDefaults.
@@ -63,5 +64,6 @@ final class SettingsDefaultsTests: XCTestCase {
         XCTAssertEqual(defaults.bool(forKey: SettingsDefaults.debugLoggingKey), SettingsDefaults.debugLoggingDefault)
         XCTAssertEqual(defaults.string(forKey: SettingsDefaults.menuPageKey), SettingsDefaults.menuPageDefault.rawValue)
         XCTAssertEqual(defaults.bool(forKey: SettingsDefaults.simpleSettingsKey), SettingsDefaults.simpleSettingsDefault)
+        XCTAssertEqual(defaults.string(forKey: SettingsDefaults.menuLayoutModeKey), SettingsDefaults.menuLayoutModeDefault.rawValue)
     }
 }

@@ -21,7 +21,9 @@ final class AppStateSettingsTests: XCTestCase {
             iconSize: 72,
             labelSize: 12,
             reduceMotion: true,
-            debugLogging: true
+            debugLogging: true,
+            simpleSettings: true,
+            menuLayoutMode: .simple
         )
 
         // Apply the full snapshot and assert each published property updated.
@@ -43,6 +45,7 @@ final class AppStateSettingsTests: XCTestCase {
         XCTAssertEqual(appState.labelSize, 12, accuracy: 0.01)
         XCTAssertTrue(appState.reduceMotion)
         XCTAssertTrue(appState.debugLogging)
+        XCTAssertEqual(appState.menuLayoutMode, .simple)
     }
 
     func testSettingsDraftFromAppState_reflectsValues() {
@@ -63,6 +66,7 @@ final class AppStateSettingsTests: XCTestCase {
         appState.labelSize = 10
         appState.reduceMotion = true
         appState.debugLogging = true
+        appState.menuLayoutMode = .simple
 
         // Capture current settings as a draft snapshot.
         let draft = SettingsDraft.from(appState: appState)
@@ -83,5 +87,6 @@ final class AppStateSettingsTests: XCTestCase {
         XCTAssertEqual(draft.labelSize, 10, accuracy: 0.01)
         XCTAssertTrue(draft.reduceMotion)
         XCTAssertTrue(draft.debugLogging)
+        XCTAssertEqual(draft.menuLayoutMode, .simple)
     }
 }

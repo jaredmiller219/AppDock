@@ -25,6 +25,7 @@ struct SettingsDefaults {
     static let debugLoggingKey = "settings.debugLogging"
     static let menuPageKey = "settings.menuPage"
     static let simpleSettingsKey = "settings.simpleMode"
+    static let menuLayoutModeKey = "settings.menuLayoutMode"
 
     static let launchAtLoginDefault = false
     static let openOnStartupDefault = true
@@ -44,6 +45,7 @@ struct SettingsDefaults {
     static let debugLoggingDefault = false
     static let menuPageDefault: MenuPage = .dock
     static let simpleSettingsDefault = false
+    static let menuLayoutModeDefault: MenuLayoutMode = .advanced
 
     static func defaultsDictionary() -> [String: Any] {
         [
@@ -64,7 +66,8 @@ struct SettingsDefaults {
             reduceMotionKey: reduceMotionDefault,
             debugLoggingKey: debugLoggingDefault,
             menuPageKey: menuPageDefault.rawValue,
-            simpleSettingsKey: simpleSettingsDefault
+            simpleSettingsKey: simpleSettingsDefault,
+            menuLayoutModeKey: menuLayoutModeDefault.rawValue
         ]
     }
 
@@ -101,6 +104,15 @@ struct SettingsDefaults {
         )
         return MenuPage(rawValue: rawValue) ?? menuPageDefault
     }
+
+    static func menuLayoutModeValue(in defaults: UserDefaults = .standard) -> MenuLayoutMode {
+        let rawValue = stringValue(
+            forKey: menuLayoutModeKey,
+            defaultValue: menuLayoutModeDefault.rawValue,
+            in: defaults
+        )
+        return MenuLayoutMode(rawValue: rawValue) ?? menuLayoutModeDefault
+    }
 }
 
 /// Staged settings values, applied to UserDefaults + AppState on demand.
@@ -121,6 +133,8 @@ struct SettingsDraft: Equatable {
     var labelSize: Double
     var reduceMotion: Bool
     var debugLogging: Bool
+    var simpleSettings: Bool
+    var menuLayoutMode: MenuLayoutMode
 
     static func from(appState: AppState) -> SettingsDraft {
         SettingsDraft(
@@ -139,7 +153,12 @@ struct SettingsDraft: Equatable {
             iconSize: appState.iconSize,
             labelSize: appState.labelSize,
             reduceMotion: appState.reduceMotion,
-            debugLogging: appState.debugLogging
+            debugLogging: appState.debugLogging,
+            simpleSettings: SettingsDefaults.boolValue(
+                forKey: SettingsDefaults.simpleSettingsKey,
+                defaultValue: SettingsDefaults.simpleSettingsDefault
+            ),
+            menuLayoutMode: appState.menuLayoutMode
         )
     }
 
@@ -227,7 +246,13 @@ struct SettingsDraft: Equatable {
                 forKey: SettingsDefaults.debugLoggingKey,
                 defaultValue: SettingsDefaults.debugLoggingDefault,
                 in: defaults
-            )
+            ),
+            simpleSettings: SettingsDefaults.boolValue(
+                forKey: SettingsDefaults.simpleSettingsKey,
+                defaultValue: SettingsDefaults.simpleSettingsDefault,
+                in: defaults
+            ),
+            menuLayoutMode: SettingsDefaults.menuLayoutModeValue(in: defaults)
         )
     }
 
@@ -249,6 +274,8 @@ struct SettingsDraft: Equatable {
         defaults.set(labelSize, forKey: SettingsDefaults.labelSizeKey)
         defaults.set(reduceMotion, forKey: SettingsDefaults.reduceMotionKey)
         defaults.set(debugLogging, forKey: SettingsDefaults.debugLoggingKey)
+        defaults.set(simpleSettings, forKey: SettingsDefaults.simpleSettingsKey)
+        defaults.set(menuLayoutMode.rawValue, forKey: SettingsDefaults.menuLayoutModeKey)
     }
 }
 

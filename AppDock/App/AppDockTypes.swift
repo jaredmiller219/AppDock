@@ -84,3 +84,18 @@ enum MenuPage: String, CaseIterable, Identifiable {
         return KeyEquivalent(keyValue)
     }
 }
+
+/// Layout modes for the menu bar popover UI.
+enum MenuLayoutMode: String, CaseIterable, Identifiable {
+    case simple
+    case advanced
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .simple: return "Simple"
+        case .advanced: return "Advanced"
+        }
+    }
+}

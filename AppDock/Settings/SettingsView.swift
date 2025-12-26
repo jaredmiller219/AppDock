@@ -43,12 +43,18 @@ struct SettingsView: View {
     @ObservedObject var appState: AppState
     @State private var draft: SettingsDraft
     @State private var selectedTab: SettingsTab = .general
-    @AppStorage(SettingsDefaults.simpleSettingsKey) private var useSimpleSettings = SettingsDefaults.simpleSettingsDefault
+    @State private var appliedSimpleSettings: Bool
 
     init(appState: AppState) {
         self.appState = appState
         // Load staged values from UserDefaults when the settings UI is created.
         _draft = State(initialValue: SettingsDraft.load())
+        _appliedSimpleSettings = State(
+            initialValue: SettingsDefaults.boolValue(
+                forKey: SettingsDefaults.simpleSettingsKey,
+                defaultValue: SettingsDefaults.simpleSettingsDefault
+            )
+        )
     }
 
     private let accentColor: Color = .blue
@@ -57,6 +63,7 @@ struct SettingsView: View {
     private func applySettings() {
         draft.apply()
         appState.applySettings(draft)
+        appliedSimpleSettings = draft.simpleSettings
     }
 
     /// Persists draft values without changing the live in-memory settings.
@@ -69,6 +76,7 @@ struct SettingsView: View {
         SettingsDefaults.restore()
         draft = SettingsDraft.load()
         appState.applySettings(draft)
+        appliedSimpleSettings = draft.simpleSettings
     }
 
     var body: some View {
@@ -100,7 +108,7 @@ struct SettingsView: View {
                 }
 
                 HStack(spacing: AppDockConstants.SettingsLayout.contentColumnSpacing) {
-                    if !useSimpleSettings {
+                    if !appliedSimpleSettings {
                         VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sidebarSpacing) {
                             ForEach(SettingsTab.allCases) { tab in
                                 Button {
@@ -127,7 +135,7 @@ struct SettingsView: View {
                     }
 
                     ScrollView {
-                        if useSimpleSettings {
+                        if appliedSimpleSettings {
                             simpleSettingsContent
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         } else {
@@ -140,6 +148,10 @@ struct SettingsView: View {
                 .tint(accentColor)
                 .onAppear {
                     draft = SettingsDraft.load()
+                    appliedSimpleSettings = SettingsDefaults.boolValue(
+                        forKey: SettingsDefaults.simpleSettingsKey,
+                        defaultValue: SettingsDefaults.simpleSettingsDefault
+                    )
                 }
 
                 HStack {
@@ -181,7 +193,7 @@ private extension SettingsView {
 	var settingsTabContent: some View {
 		switch selectedTab {
 		case .general:
-			GeneralSettingsTab(draft: $draft, useSimpleSettings: $useSimpleSettings)
+			GeneralSettingsTab(draft: $draft)
 		case .layout:
 			LayoutSettingsTab(draft: $draft)
 		case .filtering:
@@ -197,7 +209,7 @@ private extension SettingsView {
 	
 	var simpleSettingsContent: some View {
 		VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionSpacing) {
-			GeneralSettingsTab(draft: $draft, useSimpleSettings: $useSimpleSettings)
+			GeneralSettingsTab(draft: $draft)
 			LayoutSettingsTab(draft: $draft)
 			FilteringSettingsTab(draft: $draft)
 			BehaviorSettingsTab(draft: $draft)
@@ -209,12 +221,11 @@ private extension SettingsView {
 	
 	private struct GeneralSettingsTab: View {
 		@Binding var draft: SettingsDraft
-		@Binding var useSimpleSettings: Bool
 
 		private var useAdvancedLayout: Binding<Bool> {
 			Binding(
-				get: { !useSimpleSettings },
-				set: { useSimpleSettings = !$0 }
+				get: { !draft.simpleSettings },
+				set: { draft.simpleSettings = !$0 }
 			)
 		}
 		
@@ -223,6 +234,18 @@ private extension SettingsView {
 				GroupBox("Settings Layout") {
 					VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
 						Toggle("Use advanced settings layout", isOn: useAdvancedLayout)
+					}
+					.frame(maxWidth: .infinity, alignment: .leading)
+				}
+
+				GroupBox("App Layout") {
+					VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
+						Picker("Menu layout", selection: $draft.menuLayoutMode) {
+							ForEach(MenuLayoutMode.allCases) { mode in
+								Text(mode.title).tag(mode)
+							}
+						}
+						.pickerStyle(.segmented)
 					}
 					.frame(maxWidth: .infinity, alignment: .leading)
 				}

@@ -71,6 +71,11 @@ class AppState: ObservableObject {
     @Published var labelSize = SettingsDefaults.labelSizeDefault
     @Published var reduceMotion = SettingsDefaults.reduceMotionDefault
     @Published var debugLogging = SettingsDefaults.debugLoggingDefault
+    @Published var menuLayoutMode = SettingsDefaults.menuLayoutModeDefault {
+        didSet {
+            UserDefaults.standard.set(menuLayoutMode.rawValue, forKey: SettingsDefaults.menuLayoutModeKey)
+        }
+    }
     @Published var menuPage = SettingsDefaults.menuPageDefault {
         didSet {
             UserDefaults.standard.set(menuPage.rawValue, forKey: SettingsDefaults.menuPageKey)
@@ -80,6 +85,7 @@ class AppState: ObservableObject {
     /// Initializes state from stored settings.
     init() {
         menuPage = SettingsDefaults.menuPageValue()
+        menuLayoutMode = SettingsDefaults.menuLayoutModeValue()
         applySettings(SettingsDraft.load())
     }
 
@@ -101,6 +107,7 @@ class AppState: ObservableObject {
         labelSize = settings.labelSize
         reduceMotion = settings.reduceMotion
         debugLogging = settings.debugLogging
+        menuLayoutMode = settings.menuLayoutMode
     }
 }
 
@@ -375,6 +382,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         UserDefaults.standard.set(
             SettingsDefaults.simpleSettingsDefault,
             forKey: SettingsDefaults.simpleSettingsKey
+        )
+        UserDefaults.standard.set(
+            SettingsDefaults.menuLayoutModeDefault.rawValue,
+            forKey: SettingsDefaults.menuLayoutModeKey
         )
 
         if arguments.contains(AppDockConstants.Testing.uiTestSeedDock) {
