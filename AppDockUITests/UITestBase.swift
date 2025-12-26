@@ -104,8 +104,13 @@ class UITestBase: XCTestCase {
 
     @MainActor
     func dragPopover(_ popoverWindow: XCUIElement, fromX: CGFloat, toX: CGFloat, y: CGFloat) {
+        popoverWindow.click()
         let start = popoverWindow.coordinate(withNormalizedOffset: CGVector(dx: fromX, dy: y))
         let end = popoverWindow.coordinate(withNormalizedOffset: CGVector(dx: toX, dy: y))
-        start.press(forDuration: 0.05, thenDragTo: end)
+        start.press(forDuration: 0.1, thenDragTo: end)
+    }
+
+    func anyElement(in popoverWindow: XCUIElement, id: String) -> XCUIElement {
+        popoverWindow.descendants(matching: .any).matching(identifier: id).firstMatch
     }
 }

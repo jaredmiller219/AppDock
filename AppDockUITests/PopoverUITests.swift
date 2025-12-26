@@ -52,7 +52,7 @@ final class PopoverUITests: UITestBase {
 
     @MainActor
     func testPopoverSettingsRowOpensSettingsWindow() throws {
-        let app = launchAppForPopoverAndSettingsTests()
+        let app = launchAppForPopoverTests()
 
         let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
         XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
@@ -93,7 +93,8 @@ final class PopoverUITests: UITestBase {
 
         dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
 
-        let recentsHeader = popoverWindow.otherElements[UITestConstants.Accessibility.menuPageHeaderPrefix + "recents"]
+        let recentsHeader = anyElement(in: popoverWindow,
+                                       id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
         XCTAssertTrue(recentsHeader.waitForExistence(timeout: 2))
     }
 
@@ -109,7 +110,8 @@ final class PopoverUITests: UITestBase {
         dragPopover(popoverWindow, fromX: 0.6, toX: 0.5, y: 0.5)
 
         XCTAssertTrue(filterButton.waitForExistence(timeout: 2))
-        let recentsHeader = popoverWindow.otherElements[UITestConstants.Accessibility.menuPageHeaderPrefix + "recents"]
+        let recentsHeader = anyElement(in: popoverWindow,
+                                       id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
         XCTAssertFalse(recentsHeader.exists)
     }
 
@@ -120,7 +122,8 @@ final class PopoverUITests: UITestBase {
         XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
 
         dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
-        let recentsHeader = popoverWindow.otherElements[UITestConstants.Accessibility.menuPageHeaderPrefix + "recents"]
+        let recentsHeader = anyElement(in: popoverWindow,
+                                       id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
         XCTAssertTrue(recentsHeader.waitForExistence(timeout: 2))
 
         dragPopover(popoverWindow, fromX: 0.15, toX: 0.85, y: 0.5)
