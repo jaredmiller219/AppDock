@@ -3,7 +3,7 @@
 ## Testing Strategy
 
 - **AppDockTests** covers logic-level behaviors with local stubs and mocks.
-- **AppDockUITests** provides the Xcode template UI test scaffolding and a launch screenshot baseline.
+- **AppDockUITests** covers popover, settings, performance, and launch screenshot checks.
 
 ## Testing Matrix
 

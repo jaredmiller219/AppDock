@@ -11,7 +11,7 @@ Example skeleton:
 ```swift
 import XCTest
 
-final class AppDockNewUITests: XCTestCase {
+final class NewUITests: XCTestCase {
     @MainActor
     func testMenuOpens() throws {
         let app = XCUIApplication()
