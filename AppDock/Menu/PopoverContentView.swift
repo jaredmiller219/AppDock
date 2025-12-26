@@ -56,14 +56,12 @@ struct PopoverContentView: View {
     }
 
     private var orderedPages: [MenuPage] {
-        MenuPage.allCases.sorted { $0.orderIndex < $1.orderIndex }
+        MenuSwipeLogic.orderedPages()
     }
 
     private func handleSwipeDirection(_ direction: SwipeDirection) {
-        guard let currentIndex = orderedPages.firstIndex(of: appState.menuPage) else { return }
-        let nextIndex = direction == .left ? currentIndex + 1 : currentIndex - 1
-        guard orderedPages.indices.contains(nextIndex) else { return }
-        selectPage(orderedPages[nextIndex])
+        guard let nextPage = MenuSwipeLogic.nextPage(from: appState.menuPage, direction: direction) else { return }
+        selectPage(nextPage)
     }
 
     private func handleInteractiveChanged(horizontal: CGFloat, vertical: CGFloat) {
@@ -74,15 +72,12 @@ struct PopoverContentView: View {
     }
 
     private func handleInteractiveEnded(horizontal: CGFloat, vertical: CGFloat) {
-        let isHorizontal = abs(horizontal) > abs(vertical)
-        guard isHorizontal else {
+        guard abs(horizontal) > abs(vertical) else {
             resetDrag()
             return
         }
 
-        let minDistance = max(AppDockConstants.MenuGestures.swipeThreshold,
-                              popoverWidth * AppDockConstants.MenuGestures.swipePageThresholdFraction)
-        guard abs(horizontal) >= minDistance else {
+        guard MenuSwipeLogic.shouldCommit(horizontal: horizontal, vertical: vertical, width: popoverWidth) else {
             resetDrag()
             return
         }

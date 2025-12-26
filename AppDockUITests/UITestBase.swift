@@ -15,6 +15,8 @@ class UITestBase: XCTestCase {
             static let iconPrefix = "DockIcon-"
             static let menuPageButtonPrefix = "MenuPage-"
             static let menuPageHeaderPrefix = "MenuPageHeader-"
+            static let statusItem = "AppDockStatusItem"
+            static let contextMenu = "DockContextMenu"
         }
 
         enum TestingArgs {
@@ -85,6 +87,24 @@ class UITestBase: XCTestCase {
         app.launch()
         app.activate()
         return app
+    }
+
+    @MainActor
+    func launchAppForStatusItemTests() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            UITestConstants.TestingArgs.uiTestMode,
+            UITestConstants.TestingArgs.uiTestSeedDock
+        ]
+        app.launch()
+        app.activate()
+        return app
+    }
+
+    func filterButton(in app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .menuButton)
+            .matching(identifier: UITestConstants.Accessibility.dockFilterMenu)
+            .firstMatch
     }
 
     @MainActor

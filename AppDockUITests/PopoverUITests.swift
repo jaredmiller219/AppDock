@@ -99,6 +99,22 @@ final class PopoverUITests: UITestBase {
     }
 
     @MainActor
+    func testPopoverTrackpadScrollSwipeLeftSwitchesToRecents() throws {
+        let app = launchAppForPopoverTests()
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
+
+        popoverWindow.scroll(byDeltaX: -300, byDeltaY: 0)
+
+        let recentsHeader = anyElement(in: popoverWindow,
+                                       id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
+        XCTAssertTrue(recentsHeader.waitForExistence(timeout: 2))
+    }
+
+    @MainActor
     func testPopoverSmallSwipeDragDoesNotChangeTab() throws {
         let app = launchAppForPopoverTests()
         let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
@@ -108,6 +124,23 @@ final class PopoverUITests: UITestBase {
         XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
 
         dragPopover(popoverWindow, fromX: 0.6, toX: 0.5, y: 0.5)
+
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 2))
+        let recentsHeader = anyElement(in: popoverWindow,
+                                       id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
+        XCTAssertFalse(recentsHeader.exists)
+    }
+
+    @MainActor
+    func testPopoverHalfSwipeDragDoesNotChangeTab() throws {
+        let app = launchAppForPopoverTests()
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
+
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.45, y: 0.5)
 
         XCTAssertTrue(filterButton.waitForExistence(timeout: 2))
         let recentsHeader = anyElement(in: popoverWindow,
@@ -129,5 +162,64 @@ final class PopoverUITests: UITestBase {
         dragPopover(popoverWindow, fromX: 0.15, toX: 0.85, y: 0.5)
         let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
         XCTAssertTrue(filterButton.waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testPopoverCommandClickOpensAndDismissesContextMenu() throws {
+        let app = launchAppForPopoverTests()
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        let slot0 = popoverWindow.buttons[UITestConstants.Accessibility.dockSlotPrefix + "0"]
+        XCTAssertTrue(slot0.waitForExistence(timeout: 4))
+
+        slot0.click(with: .command)
+
+        let contextMenu = anyElement(in: popoverWindow, id: UITestConstants.Accessibility.contextMenu)
+        XCTAssertTrue(contextMenu.waitForExistence(timeout: 2))
+
+        popoverWindow.click()
+        XCTAssertFalse(contextMenu.exists)
+    }
+
+    @MainActor
+    func testPopoverRecentsShowsSeededApps() throws {
+        let app = launchAppForPopoverTests()
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        popoverWindow.buttons[UITestConstants.Accessibility.menuPageButtonPrefix + "recents"].click()
+
+        let recentsHeader = anyElement(in: popoverWindow,
+                                       id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
+        XCTAssertTrue(recentsHeader.waitForExistence(timeout: 2))
+        XCTAssertTrue(popoverWindow.staticTexts["Alpha"].waitForExistence(timeout: 2))
+        XCTAssertTrue(popoverWindow.staticTexts["Bravo"].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testPopoverFavoritesShowsEmptyState() throws {
+        let app = launchAppForPopoverTests()
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        popoverWindow.buttons[UITestConstants.Accessibility.menuPageButtonPrefix + "favorites"].click()
+
+        let favoritesHeader = anyElement(in: popoverWindow,
+                                         id: UITestConstants.Accessibility.menuPageHeaderPrefix + "favorites")
+        XCTAssertTrue(favoritesHeader.waitForExistence(timeout: 2))
+        XCTAssertTrue(popoverWindow.staticTexts["No Favorites Yet"].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testStatusItemClickOpensPopover() throws {
+        let app = launchAppForStatusItemTests()
+
+        let statusItem = app.statusBars.buttons[UITestConstants.Accessibility.statusItem]
+        XCTAssertTrue(statusItem.waitForExistence(timeout: 4))
+        statusItem.click()
+
+        let filterButton = filterButton(in: app)
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
     }
 }
