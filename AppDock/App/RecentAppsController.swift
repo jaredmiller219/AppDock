@@ -15,17 +15,16 @@ import Cocoa
 
 /// AppDock's main entry point.
 ///
-/// The SwiftUI `App` hosts the settings scene while the `AppDelegate` owns
-/// the menu bar status item and the popover UI.
-// Mark this as the main entry point of the application
+/// - Note: The SwiftUI `App` hosts the settings scene while `AppDelegate`
+///   owns the menu bar status item and popover UI.
 @main
 
 /// Main app definition that connects SwiftUI's lifecycle to `AppDelegate`.
 struct RecentAppsController: App {
-    
+
     // Create an instance of AppDelegate and connect it to the SwiftUI app lifecycle
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+
     // Define the scene for the app
     var body: some Scene {
         // Use Settings scene type with an empty view since we're making a menu bar app
@@ -38,9 +37,13 @@ struct RecentAppsController: App {
 // MARK: - Shared State
 
 /// Shared state for the UI, published for SwiftUI bindings.
+///
+/// - Note: Values are hydrated from settings and updated as the app runs.
 class AppState: ObservableObject {
-    
+
     /// Dock entry tuple shared across view and model logic.
+    ///
+    /// - Note: Icons are pre-sized to keep rendering cheap in the grid.
     typealias AppEntry = (name: String, bundleid: String, icon: NSImage)
 
     /// Recently launched/running applications shown in the dock grid.
@@ -57,6 +60,9 @@ class AppState: ObservableObject {
     /// Selected sorting option for the dock list.
     @Published var sortOption: AppSortOption = .recent
 
+    /// Settings-backed toggles and layout values for the dock UI.
+    ///
+    /// - Note: Populated from `SettingsDefaults` and refreshed from `SettingsDraft`.
     @Published var launchAtLogin = SettingsDefaults.launchAtLoginDefault
     @Published var openOnStartup = SettingsDefaults.openOnStartupDefault
     @Published var autoUpdates = SettingsDefaults.autoUpdatesDefault
@@ -83,6 +89,8 @@ class AppState: ObservableObject {
     }
 
     /// Initializes state from stored settings.
+    ///
+    /// - Note: Reads persisted values and applies them to the live state.
     init() {
         menuPage = SettingsDefaults.menuPageValue()
         menuLayoutMode = SettingsDefaults.menuLayoutModeValue()
@@ -90,6 +98,8 @@ class AppState: ObservableObject {
     }
 
     /// Applies a full settings snapshot to the live state.
+    ///
+    /// - Note: Keeps UI bindings and persisted values in sync.
     func applySettings(_ settings: SettingsDraft) {
         launchAtLogin = settings.launchAtLogin
         openOnStartup = settings.openOnStartup
@@ -114,24 +124,26 @@ class AppState: ObservableObject {
 // MARK: - App Delegate
 
 /// Handles menu bar setup, popover presentation, and app tracking.
+///
+/// - Note: Owns the status item, popover, and application lifecycle hooks.
 class AppDelegate: NSObject, NSApplicationDelegate {
-    
+
     // Create a singleton instance of the app delegate that can be accessed globally
     static private(set) var instance: AppDelegate!
-    
+
     // Initialize the shared app state.
     @Published var appState = AppState()
-    
+
     // Create the status bar item with variable length
     lazy var statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-    
+
     // Initialize the popover controller
     let menu = MenuController()
 
     // Keep a reference to the Settings window so we reuse it
     var settingsWindowController: NSWindowController?
     private var uiTestWindow: NSWindow?
-    
+
     // Create the popover that will host our dock view.
     lazy var popover: NSPopover = {
         let popover = NSPopover()
@@ -143,28 +155,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // Workspace notification observers for app launch/termination tracking.
     private var workspaceObservers: [NSObjectProtocol] = []
-    
+
     // Monitor keyboard events to close the popover
     var keyEventMonitor: Any?
-    
+
     /// Called when the application finishes launching.
+    ///
+    /// - Note: Sets up the status item, popover content, and workspace observers.
     func applicationDidFinishLaunching(_ notification: Notification) {
-        
+
         // Set the instance to itself
         AppDelegate.instance = self
-        
+
         // Configure a visible status bar icon.
         statusBarItem.button?.image = makeStatusBarImage()
         statusBarItem.button?.setAccessibilityIdentifier(AppDockConstants.Accessibility.statusItem)
         statusBarItem.button?.setAccessibilityLabel(AppDockConstants.Accessibility.statusItemLabel)
-        
+
         // Set the image position in the status bar
         statusBarItem.button?.imagePosition = .imageLeading
-        
+
         // Attach popover toggle to the status bar button
         statusBarItem.button?.target = self
         statusBarItem.button?.action = #selector(togglePopover(_:))
-        
+
         // Prepare popover content
         popover.contentViewController = menu.makePopoverController(
             appState: appState,
@@ -175,7 +189,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Build the main app menu so Settings/About/Quit are available from the menu bar.
         setupMainMenu()
-        
+
         // Fetch the list of recent applications.
         getRecentApplications()
 
@@ -225,8 +239,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         NSApp.mainMenu = mainMenu
     }
-    
+
     /// Toggles the popover open/closed.
+    ///
+    /// - Note: Acts as the status item action target.
     @objc func togglePopover(_ sender: Any?) {
         if popover.isShown {
             closePopover(sender)
@@ -234,16 +250,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             showPopover(sender)
         }
     }
-    
+
     /// Displays the popover centered on the current screen.
+    ///
+    /// - Note: The popover is positioned at screen center for consistency.
     private func showPopover(_ sender: Any?) {
         guard let button = statusBarItem.button else { return }
 
         updatePopoverSize()
-        
+
         // Bring the app/popup to the front immediately on open.
         NSApp.activate(ignoringOtherApps: true)
-        
+
         // Position the popover near the center of the visible screen instead of tethered to the status item.
         let screenFrame = button.window?.screen?.visibleFrame ?? NSScreen.main?.visibleFrame
         if let screenFrame {
@@ -251,11 +269,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 x: screenFrame.midX,
                 y: screenFrame.midY
             )
-            
+
             // Convert screen center into the status bar window's coordinates.
             let centerInWindow = button.window?.convertPoint(fromScreen: centerPointOnScreen) ?? .zero
             let positioningRect = NSRect(origin: centerInWindow, size: .zero)
-            
+
             // Prefer an upward arrow so it sits above the anchor point.
             popover.show(
                 relativeTo: positioningRect,
@@ -271,10 +289,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Fallback: anchor to the button if screen info is unavailable.
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
         }
-        
+
         startPopoverMonitor()
     }
 
+    /// Keeps the popover size in sync with app state.
+    ///
+    /// - Note: Called before showing the popover to account for layout changes.
     private func updatePopoverSize() {
         let popoverSize = PopoverSizing.size(for: appState)
         if popover.contentSize != popoverSize {
@@ -286,6 +307,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Builds a status bar icon with a symbol and a fallback to the app icon.
+    ///
+    /// - Note: Uses a template image so the icon adapts to menu bar appearance.
     private func makeStatusBarImage() -> NSImage {
         let symbolImage = NSImage(
             systemSymbolName: "circle.grid.2x2",
@@ -298,17 +321,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         image.isTemplate = true
         return image
     }
-    
+
     /// Closes the popover and removes its event monitors.
+    ///
+    /// - Note: Also clears the Escape key monitor to avoid leaks.
     private func closePopover(_ sender: Any?) {
         popover.performClose(sender)
         stopPopoverMonitor()
     }
-    
+
     /// Adds a local event monitor so Escape closes the popover.
+    ///
+    /// - Note: The monitor is local so it doesn't affect other apps.
     private func startPopoverMonitor() {
         guard keyEventMonitor == nil else { return }
-        
+
         // Close on Escape without interfering with mouse clicks inside the popover.
         keyEventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             if event.keyCode == 53 { // Escape
@@ -318,8 +345,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return event
         }
     }
-    
+
     /// Removes the Escape key monitor to avoid leaks.
+    ///
+    /// - Note: Safe to call multiple times.
     private func stopPopoverMonitor() {
         if let monitor = keyEventMonitor {
             NSEvent.removeMonitor(monitor)
@@ -328,6 +357,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Starts observing workspace app launch events to update the dock.
+    ///
+    /// - Note: Observers are removed in `deinit`.
     private func startWorkspaceMonitoring() {
         let center = NSWorkspace.shared.notificationCenter
         let queue = OperationQueue.main
@@ -362,6 +393,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Removes workspace observers when the app delegate is deallocated.
+    ///
+    /// - Note: Prevents retained observers after shutdown.
     private func stopWorkspaceMonitoring() {
         let center = NSWorkspace.shared.notificationCenter
         workspaceObservers.forEach { center.removeObserver($0) }
@@ -374,6 +407,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - UI test support
 
+    /// Applies UI test launch arguments to the live app state.
+    ///
+    /// - Note: Only runs when `--ui-test-mode` is present.
     private func applyUITestOverridesIfNeeded() {
         let arguments = ProcessInfo.processInfo.arguments
         guard arguments.contains(AppDockConstants.Testing.uiTestMode) else { return }
@@ -420,6 +456,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Seeds a predictable dock list for UI tests.
+    ///
+    /// - Note: Uses placeholder icons to avoid file system dependencies.
     private func seedDockForUITests() {
         let placeholderIcon = NSImage(size: NSSize(width: AppDockConstants.AppIcon.size, height: AppDockConstants.AppIcon.size))
         appState.recentApps = [
@@ -429,6 +468,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         ]
     }
 
+    /// Opens a standalone popover window for UI tests.
+    ///
+    /// - Note: This bypasses the status item for more reliable automation.
     private func showUITestPopoverWindow() {
         if let window = uiTestWindow {
             window.makeKeyAndOrderFront(nil)
@@ -449,8 +491,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(nil)
         uiTestWindow = window
     }
-    
+
     /// Loads the current list of running user apps and publishes them.
+    ///
+    /// - Note: Filters to user-facing apps and sorts by launch time.
     func getRecentApplications() {
         let workspace = NSWorkspace.shared
         let userApps = fetchUserApps(from: workspace)
@@ -460,6 +504,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Inserts a newly launched app at the front of the list without removing older entries.
+    ///
+    /// - Note: De-duplicates by bundle identifier before inserting.
     private func handleLaunchedApp(_ app: NSRunningApplication) {
         guard app.bundleIdentifier != Bundle.main.bundleIdentifier else { return }
         guard let appEntry = makeAppEntry(from: app, workspace: NSWorkspace.shared) else { return }
@@ -473,6 +519,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Removes terminated apps when the user disables "Keep apps after quit".
+    ///
+    /// - Note: The current app is ignored to avoid hiding AppDock itself.
     private func handleTerminatedApp(_ app: NSRunningApplication) {
         guard !appState.keepQuitApps else { return }
         guard app.bundleIdentifier != Bundle.main.bundleIdentifier else { return }
@@ -486,6 +534,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Converts a running app into an entry for the dock list.
+    ///
+    /// - Note: Icons are resized to the dock thumbnail size.
     private func makeAppEntry(
         from app: NSRunningApplication,
         workspace: NSWorkspace
@@ -506,6 +556,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Recent app helpers
 
     /// Filters running applications to user-facing apps with required metadata.
+    ///
+    /// - Note: Excludes background agents and missing metadata.
     private func fetchUserApps(from workspace: NSWorkspace) -> [NSRunningApplication] {
         workspace.runningApplications.filter { app in
             app.activationPolicy == .regular &&
@@ -515,6 +567,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Sorts by launch date, newest first. Apps missing a launch date are excluded.
+    ///
+    /// - Note: Ensures the most recently launched apps appear first.
     private func sortAppsByLaunchDate(_ apps: [NSRunningApplication]) -> [NSRunningApplication] {
         apps.sorted { app1, app2 in
             guard let date1 = app1.launchDate, let date2 = app2.launchDate else {
@@ -525,6 +579,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Maps running apps into dock entries with resized icons.
+    ///
+    /// - Note: Only apps with valid metadata become entries.
     private func buildAppEntries(
         from apps: [NSRunningApplication],
         workspace: NSWorkspace
@@ -535,6 +591,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Applies the newly built list on the main thread for SwiftUI updates.
+    ///
+    /// - Note: UI bindings must be updated on the main thread.
     private func updateRecentApps(with entries: [AppState.AppEntry]) {
         DispatchQueue.main.async {
             AppDelegate.instance.appState.recentApps = entries
@@ -542,12 +600,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Handler for the "About" action.
+    ///
+    /// - Note: Closes the popover after showing the panel.
     @objc func about() {
         NSApp.orderFrontStandardAboutPanel()
         closePopover(nil)
     }
-    
+
     /// Handler for "Settings" action (opens the in-app settings window).
+    ///
+    /// - Note: Reuses a single settings window controller.
     @objc func openSettings() {
         if settingsWindowController == nil {
             let window = NSWindow(
@@ -573,8 +635,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
         closePopover(nil)
     }
-    
+
     /// Handler for the "Quit" action.
+    ///
+    /// - Note: Terminates the app immediately.
     @objc func quit() {
         NSApp.terminate(self)
     }
