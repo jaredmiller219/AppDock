@@ -15,6 +15,7 @@ struct PopoverContentView: View {
     @State private var previousPage: MenuPage = .dock
     @State private var dragOffset: CGFloat = 0
     @State private var isDragging = false
+    @State private var suppressNextTransition = false
     private let dragSnapDuration: TimeInterval = 0.18
 
     private var popoverWidth: CGFloat {
@@ -96,11 +97,13 @@ struct PopoverContentView: View {
     }
 
     private func resetDrag() {
+        suppressNextTransition = true
         withAnimation(.easeOut(duration: dragSnapDuration)) {
             dragOffset = 0
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + dragSnapDuration) {
             isDragging = false
+            suppressNextTransition = false
         }
     }
 
@@ -253,7 +256,7 @@ private extension PopoverContentView {
                         .offset(x: dragOffset)
                 } else {
                     pageContent(for: appState.menuPage)
-                        .transition(pageTransition)
+                        .transition(suppressNextTransition ? .identity : pageTransition)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
