@@ -163,6 +163,12 @@ public enum AppDockConstants {
         public static let menuPageButtonPrefix = "MenuPage-"
         /// Prefix for menu page header label identifiers.
         public static let menuPageHeaderPrefix = "MenuPageHeader-"
+        /// Identifier for the UI test trackpad swipe trigger.
+        public static let uiTestTrackpadSwipeLeft = "UITestTrackpadSwipeLeft"
+        /// Identifier for the UI test context menu dismiss trigger.
+        public static let uiTestDismissContextMenu = "UITestDismissContextMenu"
+        /// Identifier for the UI test status item proxy button.
+        public static let uiTestStatusItemProxy = "UITestStatusItemProxy"
     }
 
     // MARK: - Timing
@@ -544,5 +550,7 @@ public enum AppDockConstants {
         public static let uiTestOpenPopovers = "--ui-test-open-popovers"
         /// Launch argument to force the simple menu layout during UI tests.
         public static let uiTestMenuSimple = "--ui-test-menu-simple"
+        /// Launch argument to show the status item proxy window during UI tests.
+        public static let uiTestStatusItemProxy = "--ui-test-status-item-proxy"
     }
 }

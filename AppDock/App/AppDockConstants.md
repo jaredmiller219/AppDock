@@ -473,6 +473,9 @@ public enum Accessibility {
     public static let uiTestWindow = "AppDock UI Test"
     public static let menuPageButtonPrefix = "MenuPage-"
     public static let menuPageHeaderPrefix = "MenuPageHeader-"
+    public static let uiTestTrackpadSwipeLeft = "UITestTrackpadSwipeLeft"
+    public static let uiTestDismissContextMenu = "UITestDismissContextMenu"
+    public static let uiTestStatusItemProxy = "UITestStatusItemProxy"
 }
 ```
 
@@ -548,5 +551,6 @@ public enum Testing {
     public static let uiTestOpenSettings = "--ui-test-open-settings"
     public static let uiTestOpenPopovers = "--ui-test-open-popovers"
     public static let uiTestMenuSimple = "--ui-test-menu-simple"
+    public static let uiTestStatusItemProxy = "--ui-test-status-item-proxy"
 }
 ```

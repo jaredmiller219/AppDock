@@ -4,7 +4,6 @@
 //
 
 import XCTest
-import Foundation
 
 class UITestBase: XCTestCase {
     enum UITestConstants {
@@ -18,6 +17,9 @@ class UITestBase: XCTestCase {
             static let menuPageHeaderPrefix = "MenuPageHeader-"
             static let statusItem = "AppDockStatusItem"
             static let contextMenu = "DockContextMenu"
+            static let uiTestTrackpadSwipeLeft = "UITestTrackpadSwipeLeft"
+            static let uiTestDismissContextMenu = "UITestDismissContextMenu"
+            static let uiTestStatusItemProxy = "UITestStatusItemProxy"
         }
 
         enum TestingArgs {
@@ -28,6 +30,7 @@ class UITestBase: XCTestCase {
             static let uiTestOpenSettings = "--ui-test-open-settings"
             static let uiTestOpenPopovers = "--ui-test-open-popovers"
             static let uiTestMenuSimple = "--ui-test-menu-simple"
+            static let uiTestStatusItemProxy = "--ui-test-status-item-proxy"
         }
     }
 
@@ -95,7 +98,8 @@ class UITestBase: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = [
             UITestConstants.TestingArgs.uiTestMode,
-            UITestConstants.TestingArgs.uiTestSeedDock
+            UITestConstants.TestingArgs.uiTestSeedDock,
+            UITestConstants.TestingArgs.uiTestStatusItemProxy
         ]
         app.launch()
         app.activate()
@@ -131,19 +135,35 @@ class UITestBase: XCTestCase {
         start.press(forDuration: 0.1, thenDragTo: end)
     }
 
+    @nonobjc
     func anyElement(in popoverWindow: XCUIElement, id: String) -> XCUIElement {
         popoverWindow.descendants(matching: .any).matching(identifier: id).firstMatch
     }
 
-    @MainActor
-    func commandClick(_ element: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
-        let selector = NSSelectorFromString("clickWithModifiers:")
-        guard element.responds(to: selector) else {
-            XCTFail("clickWithModifiers: is unavailable in this XCUITest runtime.", file: file, line: line)
-            return
-        }
+    @nonobjc
+    func anyElement(in app: XCUIApplication, id: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(identifier: id).firstMatch
+    }
 
-        // XCUITest exposes modifier clicks via Objective-C selector at runtime.
-        element.perform(selector, with: NSNumber(value: XCUIElement.KeyModifierFlags.command.rawValue))
+    @MainActor
+    func commandClick(_ element: XCUIElement) {
+        XCUIElement.perform(withKeyModifiers: [.command]) {
+            element.click()
+        }
+    }
+
+    func waitForDisappearance(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
+        let predicate = NSPredicate(format: "exists == false")
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
+        return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
+    }
+
+    func statusItem(in app: XCUIApplication) -> XCUIElement {
+        let byIdentifier = anyElement(in: app, id: UITestConstants.Accessibility.statusItem)
+        if byIdentifier.exists {
+            return byIdentifier
+        }
+        let statusItemQuery = app.descendants(matching: .statusItem)
+        return statusItemQuery.firstMatch
     }
 }

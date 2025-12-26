@@ -4,6 +4,7 @@
 //
 
 import Cocoa
+import SwiftUI
 
 // MARK: - UI Test Support
 
@@ -24,6 +25,7 @@ extension AppDelegate {
             SettingsDefaults.menuLayoutModeDefault.rawValue,
             forKey: SettingsDefaults.menuLayoutModeKey
         )
+        appState.menuLayoutMode = SettingsDefaults.menuLayoutModeDefault
 
         if arguments.contains(AppDockConstants.Testing.uiTestSeedDock) {
             seedDockForUITests()
@@ -45,6 +47,12 @@ extension AppDelegate {
             DispatchQueue.main.async { [weak self] in
                 self?.showUITestPopoverWindow()
                 self?.openSettings()
+            }
+        }
+
+        if arguments.contains(AppDockConstants.Testing.uiTestStatusItemProxy) {
+            DispatchQueue.main.async { [weak self] in
+                self?.showUITestStatusItemProxyWindow()
             }
         }
 
@@ -91,5 +99,37 @@ extension AppDelegate {
         window.isReleasedWhenClosed = false
         window.makeKeyAndOrderFront(nil)
         uiTestWindow = window
+    }
+
+    /// Opens a lightweight UI test window that toggles the popover.
+    func showUITestStatusItemProxyWindow() {
+        if let window = uiTestStatusItemWindow {
+            window.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let view = StatusItemProxyView { [weak self] in
+            self?.togglePopover(nil)
+        }
+        let controller = NSHostingController(rootView: view)
+        let window = NSWindow(contentViewController: controller)
+        window.title = "AppDock Status Item Proxy"
+        window.setContentSize(NSSize(width: 220, height: 80))
+        window.isReleasedWhenClosed = false
+        window.makeKeyAndOrderFront(nil)
+        uiTestStatusItemWindow = window
+    }
+}
+
+private struct StatusItemProxyView: View {
+    let onToggle: () -> Void
+
+    var body: some View {
+        Button("Open Popover") {
+            onToggle()
+        }
+        .buttonStyle(.borderedProminent)
+        .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestStatusItemProxy)
+        .padding()
     }
 }

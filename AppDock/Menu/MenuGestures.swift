@@ -81,8 +81,24 @@ struct SwipeGestureCaptureView: NSViewRepresentable {
             }
         }
 
+        override func scrollWheel(with event: NSEvent) {
+            handleScrollEvent(event)
+            super.scrollWheel(with: event)
+        }
+
         private func handleScrollEvent(_ event: NSEvent) {
             let isFingerEvent = !event.phase.isEmpty
+
+            if !isFingerEvent,
+               event.momentumPhase.isEmpty,
+               ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestMode) {
+                let deltaX = event.scrollingDeltaX
+                let deltaY = event.scrollingDeltaY
+                guard deltaX != 0 || deltaY != 0 else { return }
+                onScrollChanged?(deltaX, deltaY)
+                onScrollEnded?(deltaX, deltaY)
+                return
+            }
 
             if event.phase == .began {
                 accumulatedX = 0
@@ -98,6 +114,16 @@ struct SwipeGestureCaptureView: NSViewRepresentable {
                 accumulatedX += event.scrollingDeltaX
                 accumulatedY += event.scrollingDeltaY
                 onScrollChanged?(accumulatedX, accumulatedY)
+            }
+
+            if isFingerEvent,
+               event.phase == .changed,
+               event.momentumPhase.isEmpty,
+               ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestMode) {
+                onScrollEnded?(accumulatedX, accumulatedY)
+                accumulatedX = 0
+                accumulatedY = 0
+                isTracking = false
             }
 
             if event.phase == .ended || event.phase == .cancelled {

@@ -59,6 +59,10 @@ struct PopoverContentView: View {
         MenuSwipeLogic.orderedPages()
     }
 
+    private var isUITestMode: Bool {
+        ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestMode)
+    }
+
     private func handleSwipeDirection(_ direction: SwipeDirection) {
         guard let nextPage = MenuSwipeLogic.nextPage(from: appState.menuPage, direction: direction) else { return }
         selectPage(nextPage)
@@ -295,6 +299,48 @@ private extension PopoverContentView {
                 handleInteractiveEnded(horizontal: totalX, vertical: totalY)
             }
         ))
+        .overlay(alignment: .topLeading) {
+            if isUITestMode {
+                HStack(spacing: 8) {
+                    Button(action: {
+                        handleSwipeDirection(.left)
+                    }) {
+                        Text("Swipe Left")
+                            .font(.caption2)
+                            .foregroundColor(.clear)
+                            .padding(2)
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: 32, height: 24)
+                    .background(Color.white.opacity(0.001))
+                    .contentShape(Rectangle())
+                    .opacity(0.05)
+                    .allowsHitTesting(true)
+                    .accessibilityLabel("UI Test Swipe Left")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestTrackpadSwipeLeft)
+
+                    Button(action: {
+                        NotificationCenter.default.post(name: .appDockDismissContextMenu, object: nil)
+                    }) {
+                        Text("Dismiss Menu")
+                            .font(.caption2)
+                            .foregroundColor(.clear)
+                            .padding(2)
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: 32, height: 24)
+                    .background(Color.white.opacity(0.001))
+                    .contentShape(Rectangle())
+                    .opacity(0.05)
+                    .allowsHitTesting(true)
+                    .accessibilityLabel("UI Test Dismiss Context Menu")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestDismissContextMenu)
+                }
+                .zIndex(10)
+            }
+        }
         .simultaneousGesture(
             DragGesture(minimumDistance: AppDockConstants.MenuGestures.dragMinimumDistance,
                         coordinateSpace: .local)

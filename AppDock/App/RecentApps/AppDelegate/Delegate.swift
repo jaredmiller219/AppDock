@@ -28,6 +28,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// Keep a reference to the Settings window so we reuse it.
     var settingsWindowController: NSWindowController?
     var uiTestWindow: NSWindow?
+    var uiTestStatusItemWindow: NSWindow?
 
     /// Create the popover that will host our dock view.
     lazy var popover: NSPopover = {
@@ -77,11 +78,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Build the main app menu so Settings/About/Quit are available from the menu bar.
         setupMainMenu()
 
-        // Fetch the list of recent applications.
-        getRecentApplications()
+        let isUITestMode = ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestMode)
 
-        // Keep the dock in sync with app launches.
-        startWorkspaceMonitoring()
+        if !isUITestMode {
+            // Fetch the list of recent applications.
+            getRecentApplications()
+
+            // Keep the dock in sync with app launches.
+            startWorkspaceMonitoring()
+        }
 
         applyUITestOverridesIfNeeded()
     }

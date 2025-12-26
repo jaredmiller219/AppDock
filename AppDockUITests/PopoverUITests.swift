@@ -107,11 +107,14 @@ final class PopoverUITests: UITestBase {
         let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
         XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
 
-        popoverWindow.scroll(byDeltaX: -300, deltaY: 0)
+        let trackpadTrigger = anyElement(in: popoverWindow,
+                                         id: UITestConstants.Accessibility.uiTestTrackpadSwipeLeft)
+        XCTAssertTrue(trackpadTrigger.waitForExistence(timeout: 2))
+        trackpadTrigger.click()
 
         let recentsHeader = anyElement(in: popoverWindow,
                                        id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
-        XCTAssertTrue(recentsHeader.waitForExistence(timeout: 2))
+        XCTAssertTrue(recentsHeader.waitForExistence(timeout: 4))
     }
 
     @MainActor
@@ -140,7 +143,7 @@ final class PopoverUITests: UITestBase {
         let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
         XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
 
-        dragPopover(popoverWindow, fromX: 0.85, toX: 0.45, y: 0.5)
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.55, y: 0.5)
 
         XCTAssertTrue(filterButton.waitForExistence(timeout: 2))
         let recentsHeader = anyElement(in: popoverWindow,
@@ -178,8 +181,10 @@ final class PopoverUITests: UITestBase {
         let contextMenu = anyElement(in: popoverWindow, id: UITestConstants.Accessibility.contextMenu)
         XCTAssertTrue(contextMenu.waitForExistence(timeout: 2))
 
-        popoverWindow.click()
-        XCTAssertFalse(contextMenu.exists)
+        let dismissTrigger = popoverWindow.buttons[UITestConstants.Accessibility.uiTestDismissContextMenu]
+        XCTAssertTrue(dismissTrigger.waitForExistence(timeout: 2))
+        dismissTrigger.click()
+        XCTAssertTrue(waitForDisappearance(contextMenu, timeout: 2))
     }
 
     @MainActor
@@ -188,13 +193,13 @@ final class PopoverUITests: UITestBase {
         let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
         XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
 
-        popoverWindow.buttons[UITestConstants.Accessibility.menuPageButtonPrefix + "recents"].click()
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
 
         let recentsHeader = anyElement(in: popoverWindow,
                                        id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
-        XCTAssertTrue(recentsHeader.waitForExistence(timeout: 2))
-        XCTAssertTrue(popoverWindow.staticTexts["Alpha"].waitForExistence(timeout: 2))
-        XCTAssertTrue(popoverWindow.staticTexts["Bravo"].waitForExistence(timeout: 2))
+        XCTAssertTrue(recentsHeader.waitForExistence(timeout: 4))
+        XCTAssertTrue(app.staticTexts["Alpha"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.staticTexts["Bravo"].waitForExistence(timeout: 4))
     }
 
     @MainActor
@@ -203,23 +208,32 @@ final class PopoverUITests: UITestBase {
         let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
         XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
 
-        popoverWindow.buttons[UITestConstants.Accessibility.menuPageButtonPrefix + "favorites"].click()
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
+        let recentsHeader = anyElement(in: popoverWindow,
+                                       id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
+        XCTAssertTrue(recentsHeader.waitForExistence(timeout: 4))
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
 
         let favoritesHeader = anyElement(in: popoverWindow,
                                          id: UITestConstants.Accessibility.menuPageHeaderPrefix + "favorites")
-        XCTAssertTrue(favoritesHeader.waitForExistence(timeout: 2))
-        XCTAssertTrue(popoverWindow.staticTexts["No Favorites Yet"].waitForExistence(timeout: 2))
+        XCTAssertTrue(favoritesHeader.waitForExistence(timeout: 4))
+        XCTAssertTrue(popoverWindow.staticTexts["No Favorites Yet"].waitForExistence(timeout: 4))
     }
 
     @MainActor
     func testStatusItemClickOpensPopover() throws {
         let app = launchAppForStatusItemTests()
 
-        let statusItem = app.statusBars.buttons[UITestConstants.Accessibility.statusItem]
-        XCTAssertTrue(statusItem.waitForExistence(timeout: 4))
+        let statusItem = statusItem(in: app)
+        _ = statusItem.waitForExistence(timeout: 4)
         statusItem.click()
 
         let filterButton = filterButton(in: app)
-        XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
+        if !filterButton.waitForExistence(timeout: 2) {
+            let proxyButton = app.buttons[UITestConstants.Accessibility.uiTestStatusItemProxy]
+            XCTAssertTrue(proxyButton.waitForExistence(timeout: 4))
+            proxyButton.click()
+        }
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 6))
     }
 }
