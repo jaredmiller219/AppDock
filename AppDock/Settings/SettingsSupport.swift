@@ -23,6 +23,7 @@ struct SettingsDefaults {
     static let labelSizeKey = "settings.labelSize"
     static let reduceMotionKey = "settings.reduceMotion"
     static let debugLoggingKey = "settings.debugLogging"
+    static let menuPageKey = "settings.menuPage"
 
     static let launchAtLoginDefault = false
     static let openOnStartupDefault = true
@@ -40,6 +41,7 @@ struct SettingsDefaults {
     static let labelSizeDefault = 8.0
     static let reduceMotionDefault = false
     static let debugLoggingDefault = false
+    static let menuPageDefault: MenuPage = .dock
 
     static func defaultsDictionary() -> [String: Any] {
         [
@@ -58,7 +60,8 @@ struct SettingsDefaults {
             iconSizeKey: iconSizeDefault,
             labelSizeKey: labelSizeDefault,
             reduceMotionKey: reduceMotionDefault,
-            debugLoggingKey: debugLoggingDefault
+            debugLoggingKey: debugLoggingDefault,
+            menuPageKey: menuPageDefault.rawValue
         ]
     }
 
@@ -85,6 +88,15 @@ struct SettingsDefaults {
 
     static func stringValue(forKey key: String, defaultValue: String, in defaults: UserDefaults = .standard) -> String {
         defaults.string(forKey: key) ?? defaultValue
+    }
+
+    static func menuPageValue(in defaults: UserDefaults = .standard) -> MenuPage {
+        let rawValue = stringValue(
+            forKey: menuPageKey,
+            defaultValue: menuPageDefault.rawValue,
+            in: defaults
+        )
+        return MenuPage(rawValue: rawValue) ?? menuPageDefault
     }
 }
 

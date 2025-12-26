@@ -23,6 +23,7 @@ public enum AppDockConstants {
         public static let statusItem = "AppDockStatusItem"
         public static let statusItemLabel = "AppDock"
         public static let uiTestWindow = "AppDock UI Test"
+        public static let menuPageButtonPrefix = "MenuPage-"
     }
 
     public enum Timing {

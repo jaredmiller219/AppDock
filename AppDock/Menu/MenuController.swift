@@ -60,45 +60,142 @@ struct PopoverContentView: View {
     let settingsAction: () -> Void
     let aboutAction: () -> Void
     let quitAction: () -> Void
+    @State private var previousPage: MenuPage = .dock
 
     private var popoverWidth: CGFloat {
         PopoverSizing.width(for: appState)
     }
-    
+
+    private var pageAnimation: Animation? {
+        appState.reduceMotion ? nil : .easeInOut(duration: 0.22)
+    }
+
+    private var pageTransition: AnyTransition {
+        guard !appState.reduceMotion else { return .opacity }
+        let moveForward = appState.menuPage.orderIndex >= previousPage.orderIndex
+        let insertion = AnyTransition.move(edge: moveForward ? .trailing : .leading)
+            .combined(with: .opacity)
+        let removal = AnyTransition.move(edge: moveForward ? .leading : .trailing)
+            .combined(with: .opacity)
+        return .asymmetric(insertion: insertion, removal: removal)
+    }
+
+    private func selectPage(_ page: MenuPage) {
+        guard page != appState.menuPage else { return }
+        previousPage = appState.menuPage
+        if let animation = pageAnimation {
+            withAnimation(animation) {
+                appState.menuPage = page
+            }
+        } else {
+            appState.menuPage = page
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
-            FilterMenuButton(appState: appState)
-                .padding(.horizontal, 12)
-                .padding(.top, 8)
-                .padding(.bottom, 6)
-
-            Divider()
-                .padding(.horizontal, 8)
-
-            ScrollView(showsIndicators: false) {
-                DockView(appState: appState)
-                    .padding(.horizontal, 8)
-                    .padding(.top, 6)
-                    .padding(.bottom, 10)
+            Group {
+                if appState.menuPage == .dock {
+                    FilterMenuButton(appState: appState)
+                } else {
+                    MenuPageHeader(page: appState.menuPage)
+                }
             }
-            
-            Divider()
-                .padding(.horizontal, 8)
-                .padding(.vertical, 6)
-            
-            VStack(spacing: 0) {
-                MenuRow(title: "Settings", action: settingsAction)
-                Divider()
-                MenuRow(title: "About", action: aboutAction)
-                Divider()
-                MenuRow(title: "Quit AppDock", action: quitAction)
-            }
+            .padding(.horizontal, 12)
+            .padding(.top, 8)
             .padding(.bottom, 6)
+
+            Divider()
+                .padding(.horizontal, 8)
+
+            ZStack {
+                switch appState.menuPage {
+                case .dock:
+                    ScrollView(showsIndicators: false) {
+                        DockView(appState: appState)
+                            .padding(.horizontal, 8)
+                            .padding(.top, 6)
+                            .padding(.bottom, 10)
+                    }
+                    .transition(pageTransition)
+                case .recents:
+                    ScrollView(showsIndicators: false) {
+                        MenuAppListView(
+                            title: "Recent Apps",
+                            apps: appState.recentApps,
+                            emptyTitle: "No Recent Apps",
+                            emptyMessage: "Launch an app to see it here.",
+                            emptySystemImage: "clock.arrow.circlepath"
+                        )
+                        .padding(.horizontal, 12)
+                        .padding(.top, 10)
+                        .padding(.bottom, 12)
+                    }
+                    .transition(pageTransition)
+                case .favorites:
+                    ScrollView(showsIndicators: false) {
+                        MenuEmptyState(
+                            title: "No Favorites Yet",
+                            message: "Pin apps to keep them on this page.",
+                            systemImage: "star"
+                        )
+                        .padding(.horizontal, 12)
+                        .padding(.top, 16)
+                        .padding(.bottom, 12)
+                    }
+                    .transition(pageTransition)
+                case .actions:
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 0) {
+                            MenuRow(title: "Settings", action: settingsAction)
+                            Divider()
+                            MenuRow(title: "About", action: aboutAction)
+                            Divider()
+                            MenuRow(title: "Quit AppDock", action: quitAction)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.top, 8)
+                        .padding(.bottom, 12)
+                    }
+                    .transition(pageTransition)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            
+            Divider()
+                .padding(.horizontal, 8)
+                .padding(.top, 6)
+
+            MenuPageBar(selectedPage: appState.menuPage, onSelect: selectPage)
+                .padding(.horizontal, 8)
+                .padding(.bottom, 6)
         }
         .frame(width: popoverWidth, height: PopoverSizing.height, alignment: .top)
         .simultaneousGesture(TapGesture().onEnded {
             NotificationCenter.default.post(name: .appDockDismissContextMenu, object: nil)
         })
+        .onAppear {
+            previousPage = appState.menuPage
+        }
+    }
+}
+
+private struct MenuPageHeader: View {
+    let page: MenuPage
+
+    var body: some View {
+        HStack {
+            Label(page.title, systemImage: page.systemImage)
+                .font(.caption)
+            Spacer()
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.primary.opacity(0.08))
+        )
     }
 }
 
@@ -133,6 +230,116 @@ private struct FilterMenuButton: View {
             )
         }
         .accessibilityIdentifier(AppDockConstants.Accessibility.dockFilterMenu)
+    }
+}
+
+private struct MenuPageBar: View {
+    let selectedPage: MenuPage
+    let onSelect: (MenuPage) -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(MenuPage.allCases) { page in
+                Button {
+                    onSelect(page)
+                } label: {
+                    VStack(spacing: 3) {
+                        Image(systemName: page.systemImage)
+                            .font(.system(size: 13, weight: .semibold))
+                        Text(page.title)
+                            .font(.caption2)
+                    }
+                    .foregroundColor(selectedPage == page ? .accentColor : .primary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(selectedPage == page ? Color.accentColor.opacity(0.18) : Color.clear)
+                    )
+                }
+                .buttonStyle(.plain)
+                .keyboardShortcut(page.shortcutKey, modifiers: .command)
+                .accessibilityIdentifier(AppDockConstants.Accessibility.menuPageButtonPrefix + page.rawValue)
+            }
+        }
+        .padding(.top, 2)
+    }
+}
+
+private struct MenuAppListView: View {
+    let title: String
+    let apps: [AppState.AppEntry]
+    let emptyTitle: String
+    let emptyMessage: String
+    let emptySystemImage: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+            if apps.isEmpty {
+                MenuEmptyState(
+                    title: emptyTitle,
+                    message: emptyMessage,
+                    systemImage: emptySystemImage
+                )
+            } else {
+                VStack(spacing: 8) {
+                    ForEach(Array(apps.enumerated()), id: \.offset) { _, app in
+                        MenuAppRow(app: app)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct MenuAppRow: View {
+    let app: AppState.AppEntry
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(nsImage: app.icon)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 28, height: 28)
+                .cornerRadius(6)
+
+            Text(app.name)
+                .font(.callout)
+                .lineLimit(1)
+
+            Spacer()
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.primary.opacity(0.05))
+        )
+    }
+}
+
+private struct MenuEmptyState: View {
+    let title: String
+    let message: String
+    let systemImage: String
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(.title2)
+                .foregroundColor(.secondary)
+            Text(title)
+                .font(.headline)
+            Text(message)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
     }
 }
 

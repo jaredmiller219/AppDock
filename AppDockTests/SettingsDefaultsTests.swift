@@ -33,6 +33,7 @@ final class SettingsDefaultsTests: XCTestCase {
         XCTAssertEqual(values[SettingsDefaults.labelSizeKey] as? Double, SettingsDefaults.labelSizeDefault)
         XCTAssertEqual(values[SettingsDefaults.reduceMotionKey] as? Bool, SettingsDefaults.reduceMotionDefault)
         XCTAssertEqual(values[SettingsDefaults.debugLoggingKey] as? Bool, SettingsDefaults.debugLoggingDefault)
+        XCTAssertEqual(values[SettingsDefaults.menuPageKey] as? String, SettingsDefaults.menuPageDefault.rawValue)
     }
 
     /// Ensures restore writes the expected values into UserDefaults.
@@ -59,5 +60,6 @@ final class SettingsDefaultsTests: XCTestCase {
         XCTAssertEqual(defaults.double(forKey: SettingsDefaults.labelSizeKey), SettingsDefaults.labelSizeDefault, accuracy: 0.01)
         XCTAssertEqual(defaults.bool(forKey: SettingsDefaults.reduceMotionKey), SettingsDefaults.reduceMotionDefault)
         XCTAssertEqual(defaults.bool(forKey: SettingsDefaults.debugLoggingKey), SettingsDefaults.debugLoggingDefault)
+        XCTAssertEqual(defaults.string(forKey: SettingsDefaults.menuPageKey), SettingsDefaults.menuPageDefault.rawValue)
     }
 }

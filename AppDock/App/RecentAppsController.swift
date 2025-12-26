@@ -71,9 +71,15 @@ class AppState: ObservableObject {
     @Published var labelSize = SettingsDefaults.labelSizeDefault
     @Published var reduceMotion = SettingsDefaults.reduceMotionDefault
     @Published var debugLogging = SettingsDefaults.debugLoggingDefault
+    @Published var menuPage = SettingsDefaults.menuPageDefault {
+        didSet {
+            UserDefaults.standard.set(menuPage.rawValue, forKey: SettingsDefaults.menuPageKey)
+        }
+    }
 
     /// Initializes state from stored settings.
     init() {
+        menuPage = SettingsDefaults.menuPageValue()
         applySettings(SettingsDraft.load())
     }
 
@@ -364,6 +370,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func applyUITestOverridesIfNeeded() {
         let arguments = ProcessInfo.processInfo.arguments
         guard arguments.contains(AppDockConstants.Testing.uiTestMode) else { return }
+
+        appState.menuPage = .dock
 
         if arguments.contains(AppDockConstants.Testing.uiTestSeedDock) {
             seedDockForUITests()

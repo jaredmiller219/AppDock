@@ -16,6 +16,7 @@ final class AppDockUITests: XCTestCase {
             static let menuRowPrefix = "MenuRow-"
             static let uiTestWindow = "AppDock UI Test"
             static let iconPrefix = "DockIcon-"
+            static let menuPageButtonPrefix = "MenuPage-"
         }
 
         enum TestingArgs {
@@ -158,6 +159,10 @@ final class AppDockUITests: XCTestCase {
             XCTFail("Missing DockSlot-1. UI tree:\n\(popoverWindow.debugDescription)")
         }
 
+        let actionsPage = popoverWindow.buttons[UITestConstants.Accessibility.menuPageButtonPrefix + "actions"]
+        XCTAssertTrue(actionsPage.waitForExistence(timeout: 4))
+        actionsPage.click()
+
         XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Settings"].waitForExistence(timeout: 4))
         XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "About"].waitForExistence(timeout: 4))
         XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Quit AppDock"].waitForExistence(timeout: 4))
@@ -189,6 +194,10 @@ final class AppDockUITests: XCTestCase {
 
         let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
         XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        let actionsPage = popoverWindow.buttons[UITestConstants.Accessibility.menuPageButtonPrefix + "actions"]
+        XCTAssertTrue(actionsPage.waitForExistence(timeout: 4))
+        actionsPage.click()
 
         let settingsRow = popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Settings"]
         XCTAssertTrue(settingsRow.waitForExistence(timeout: 4))
