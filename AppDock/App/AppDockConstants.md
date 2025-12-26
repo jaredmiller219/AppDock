@@ -448,7 +448,9 @@ public enum StatusBarIcon {
 
 ## Misc
 
-Shared identifiers and visual system values.
+Shared identifiers and visual system values, grouped by feature area in `AppDockConstants`. The Swift file now uses Quick Help-style doc comments with a summary and `- Note:` for enums, plus fuller per-constant descriptions. Use this doc as an index and the code comments for details.
+
+Notes: Thresholds, opacities, and animation timings include extra `- Note:` guidance inline in the Swift file. Use Quick Help in Xcode to see the expanded per-constant explanations.
 
 ### Accessibility
 
