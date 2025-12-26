@@ -20,3 +20,12 @@ final class NewUITests: XCTestCase {
     }
 }
 ```
+
+## UI Test Launch Arguments
+
+When a test needs predictable popovers or status item behavior, use the shared launch arguments in `UITestBase.swift`:
+
+- `--ui-test-mode`: Enables UI-test-only helpers in the app.
+- `--ui-test-open-popover`: Opens a dedicated popover window for automation.
+- `--ui-test-seed-dock`: Seeds the dock with predictable app entries.
+- `--ui-test-status-item-proxy`: Shows a test-only window that toggles the popover.

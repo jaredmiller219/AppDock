@@ -25,7 +25,7 @@
 ### Integration Test Ideas
 
 - Launch app, open popover, verify dock grid exists.
-- Trigger command-click with simulated input (if possible) to open context menu.
+- Trigger command-click with simulated input (or use UI-test helpers) to open the context menu.
 - Open and close the popover repeatedly to check animations and dismissal.
 - Open a test app, ensure it appears at the top of the dock list.
 

@@ -7,9 +7,14 @@
 - `AppDock/App/RecentApps/AppDelegate/RecentApps.swift`: Recent app tracking helpers.
 - `AppDock/App/RecentApps/AppDelegate/UITestSupport.swift`: UI test overrides and fixtures.
 - `AppDock/App/RecentApps/AppDelegate/Actions.swift`: About/Settings/Quit handlers.
-- `AppDock/MenuController.swift`: Popover host creation and menu row UI wiring for Settings/About/Quit.
-- `AppDock/DockView.swift`: Dock grid UI and context menu overlay composition.
-- `AppDock/DockAppList.swift`: Pure helper for filtering, sorting, and padding dock entries.
-- `AppDock/DockViewParts/`: Dock subviews and helpers (ButtonView, ContextMenuView, IconView, EmptySlot, VisualEffectBlur, notifications).
-- `AppDock/SettingsView.swift`: Settings UI with staged apply and `SettingsDefaults`/`SettingsDraft`.
-- `AppDock/SettingsSupport.swift`: Supporting types and helpers for settings behavior.
+- `AppDock/Menu/MenuController.swift`: Popover host creation and menu row UI wiring for Settings/About/Quit.
+- `AppDock/Menu/PopoverContentView.swift`: Popover layout and swipe/drag navigation.
+- `AppDock/Menu/MenuGestures.swift`: Trackpad + drag gesture capture for menu pages.
+- `AppDock/Menu/MenuSwipeLogic.swift`: Swipe threshold and page navigation math.
+- `AppDock/Menu/MenuPageBar.swift`: Bottom tab bar UI.
+- `AppDock/Menu/MenuPages.swift`: Page content builders (dock/recents/favorites/actions).
+- `AppDock/Dock/DockView.swift`: Dock grid UI and context menu overlay composition.
+- `AppDock/Dock/DockAppList.swift`: Pure helper for filtering, sorting, and padding dock entries.
+- `AppDock/Dock/Parts/`: Dock subviews and helpers (ButtonView, ContextMenuView, IconView, EmptySlot, VisualEffectBlur, notifications).
+- `AppDock/Settings/SettingsView.swift`: Settings UI with staged apply and `SettingsDefaults`/`SettingsDraft`.
+- `AppDock/Settings/SettingsSupport.swift`: Supporting types and helpers for settings behavior.

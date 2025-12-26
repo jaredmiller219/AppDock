@@ -7,6 +7,6 @@
 - Clicking a listed app that is no longer running relaunches it.
 - Clicking a minimized app should restore its windows (OS behavior may vary).
 - Use the Filter & Sort menu button to switch between running-only and all apps, or reorder by name.
-- In Advanced layout, swipe left/right on a trackpad or drag left/right with a mouse to switch tabs.
+- In Advanced layout, swipe left/right on a trackpad or drag left/right with a mouse to switch tabs. Swipes stop at the first/last tab.
 - Use Settings to configure the default filter/sort, grid size, and behavior toggles.
 - Click Apply in Settings to push changes into the live dock view.
