@@ -410,6 +410,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.openSettings()
             }
         }
+
+        if arguments.contains(AppDockConstants.Testing.uiTestMenuSimple) {
+            UserDefaults.standard.set(
+                MenuLayoutMode.simple.rawValue,
+                forKey: SettingsDefaults.menuLayoutModeKey
+            )
+            appState.menuLayoutMode = .simple
+        }
     }
 
     private func seedDockForUITests() {

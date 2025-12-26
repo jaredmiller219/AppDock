@@ -18,6 +18,12 @@ final class SettingsDraftTests: XCTestCase {
 
         defaults.set(true, forKey: SettingsDefaults.launchAtLoginKey)
         defaults.set(false, forKey: SettingsDefaults.openOnStartupKey)
+        defaults.set(false, forKey: SettingsDefaults.autoUpdatesKey)
+        defaults.set(false, forKey: SettingsDefaults.showAppLabelsKey)
+        defaults.set(false, forKey: SettingsDefaults.showRunningIndicatorKey)
+        defaults.set(false, forKey: SettingsDefaults.enableHoverRemoveKey)
+        defaults.set(true, forKey: SettingsDefaults.confirmBeforeQuitKey)
+        defaults.set(false, forKey: SettingsDefaults.keepQuitAppsKey)
         defaults.set(AppFilterOption.runningOnly.rawValue, forKey: SettingsDefaults.defaultFilterKey)
         defaults.set(AppSortOption.nameDescending.rawValue, forKey: SettingsDefaults.defaultSortKey)
         defaults.set(5, forKey: SettingsDefaults.gridColumnsKey)
@@ -33,6 +39,12 @@ final class SettingsDraftTests: XCTestCase {
 
         XCTAssertTrue(draft.launchAtLogin)
         XCTAssertFalse(draft.openOnStartup)
+        XCTAssertFalse(draft.autoUpdates)
+        XCTAssertFalse(draft.showAppLabels)
+        XCTAssertFalse(draft.showRunningIndicator)
+        XCTAssertFalse(draft.enableHoverRemove)
+        XCTAssertTrue(draft.confirmBeforeQuit)
+        XCTAssertFalse(draft.keepQuitApps)
         XCTAssertEqual(draft.defaultFilter, .runningOnly)
         XCTAssertEqual(draft.defaultSort, .nameDescending)
         XCTAssertEqual(draft.gridColumns, 5)
@@ -91,5 +103,19 @@ final class SettingsDraftTests: XCTestCase {
         XCTAssertTrue(defaults.bool(forKey: SettingsDefaults.debugLoggingKey))
         XCTAssertTrue(defaults.bool(forKey: SettingsDefaults.simpleSettingsKey))
         XCTAssertEqual(defaults.string(forKey: SettingsDefaults.menuLayoutModeKey), MenuLayoutMode.simple.rawValue)
+    }
+
+    func testFromAppState_readsSimpleSettingsFromDefaults() {
+        let defaults = UserDefaults.standard
+        defaults.set(true, forKey: SettingsDefaults.simpleSettingsKey)
+        defer { defaults.removeObject(forKey: SettingsDefaults.simpleSettingsKey) }
+
+        let appState = AppState()
+        appState.menuLayoutMode = .advanced
+
+        let draft = SettingsDraft.from(appState: appState)
+
+        XCTAssertTrue(draft.simpleSettings)
+        XCTAssertEqual(draft.menuLayoutMode, .advanced)
     }
 }

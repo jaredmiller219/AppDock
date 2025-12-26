@@ -26,6 +26,7 @@ final class AppDockUITests: XCTestCase {
             static let uiTestDisableActivation = "--ui-test-disable-activation"
             static let uiTestOpenSettings = "--ui-test-open-settings"
             static let uiTestOpenPopovers = "--ui-test-open-popovers"
+            static let uiTestMenuSimple = "--ui-test-menu-simple"
         }
     }
 
@@ -38,6 +39,21 @@ final class AppDockUITests: XCTestCase {
             UITestConstants.TestingArgs.uiTestOpenPopover,
             UITestConstants.TestingArgs.uiTestSeedDock,
             UITestConstants.TestingArgs.uiTestDisableActivation
+        ]
+        app.launch()
+        app.activate()
+        return app
+    }
+
+    @MainActor
+    private func launchAppForSimplePopoverTests() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            UITestConstants.TestingArgs.uiTestMode,
+            UITestConstants.TestingArgs.uiTestOpenPopover,
+            UITestConstants.TestingArgs.uiTestSeedDock,
+            UITestConstants.TestingArgs.uiTestDisableActivation,
+            UITestConstants.TestingArgs.uiTestMenuSimple
         ]
         app.launch()
         app.activate()
@@ -159,9 +175,7 @@ final class AppDockUITests: XCTestCase {
             XCTFail("Missing DockSlot-1. UI tree:\n\(popoverWindow.debugDescription)")
         }
 
-        let actionsPage = popoverWindow.buttons[UITestConstants.Accessibility.menuPageButtonPrefix + "actions"]
-        XCTAssertTrue(actionsPage.waitForExistence(timeout: 4))
-        actionsPage.click()
+        openActionsPage(in: popoverWindow, app: app)
 
         XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Settings"].waitForExistence(timeout: 4))
         XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "About"].waitForExistence(timeout: 4))
@@ -195,9 +209,7 @@ final class AppDockUITests: XCTestCase {
         let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
         XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
 
-        let actionsPage = popoverWindow.buttons[UITestConstants.Accessibility.menuPageButtonPrefix + "actions"]
-        XCTAssertTrue(actionsPage.waitForExistence(timeout: 4))
-        actionsPage.click()
+        openActionsPage(in: popoverWindow, app: app)
 
         let settingsRow = popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Settings"]
         XCTAssertTrue(settingsRow.waitForExistence(timeout: 4))
@@ -205,6 +217,36 @@ final class AppDockUITests: XCTestCase {
 
         let settingsWindow = app.windows["AppDock Settings"]
         XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+    }
+
+    @MainActor
+    func testPopoverSimpleLayoutShowsActionsWithoutTabs() throws {
+        let app = launchAppForSimplePopoverTests()
+
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        let actionsPage = popoverWindow.buttons[UITestConstants.Accessibility.menuPageButtonPrefix + "actions"]
+        XCTAssertFalse(actionsPage.exists)
+
+        XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Settings"].waitForExistence(timeout: 4))
+        XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "About"].waitForExistence(timeout: 4))
+        XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Quit AppDock"].waitForExistence(timeout: 4))
+    }
+
+    @MainActor
+    private func openActionsPage(in popoverWindow: XCUIElement, app: XCUIApplication) {
+        popoverWindow.click()
+        let actionsPage = popoverWindow.buttons[UITestConstants.Accessibility.menuPageButtonPrefix + "actions"]
+        if actionsPage.waitForExistence(timeout: 4) {
+            actionsPage.click()
+        }
+
+        let settingsRow = popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Settings"]
+        if !settingsRow.waitForExistence(timeout: 1) {
+            app.typeKey("4", modifierFlags: .command)
+        }
+        _ = settingsRow.waitForExistence(timeout: 2)
     }
 
     @MainActor

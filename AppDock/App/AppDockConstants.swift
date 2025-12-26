@@ -7,12 +7,14 @@ import Foundation
 import CoreGraphics
 
 public enum AppDockConstants {
+    // Settings window sizing and sidebar layout.
     public enum SettingsUI {
         public static let minWidth: CGFloat = 560
         public static let minHeight: CGFloat = 560
         public static let sidebarWidth: CGFloat = 160
     }
 
+    // Settings screen spacing and layout metrics.
     public enum SettingsLayout {
         public static let rootPadding: CGFloat = 20
         public static let headerSpacing: CGFloat = 12
@@ -35,6 +37,7 @@ public enum AppDockConstants {
         public static let modePickerMaxWidth: CGFloat = 240
     }
 
+    // Settings control ranges for steppers and sliders.
     public enum SettingsRanges {
         public static let gridColumnsMin = 2
         public static let gridColumnsMax = 6
@@ -48,19 +51,23 @@ public enum AppDockConstants {
         public static let labelSizeStep: Double = 1
     }
 
+    // Settings window default size.
     public enum SettingsWindow {
         public static let width: CGFloat = 480
         public static let height: CGFloat = 640
     }
 
+    // Status bar icon sizing.
     public enum StatusBarIcon {
         public static let size: CGFloat = 18
     }
 
+    // Standard app icon sizing in the dock.
     public enum AppIcon {
         public static let size: CGFloat = 64
     }
 
+    // Accessibility identifiers used by UI tests.
     public enum Accessibility {
         public static let dockSlotPrefix = "DockSlot-"
         public static let dockFilterMenu = "DockFilterMenu"
@@ -74,16 +81,19 @@ public enum AppDockConstants {
         public static let menuPageButtonPrefix = "MenuPage-"
     }
 
+    // Timing constants for hover/remove behaviors.
     public enum Timing {
         public static let removeButtonDelay: TimeInterval = 0.5
     }
 
+    // Popover sizing used by menu bar UI.
     public enum MenuPopover {
         public static let defaultWidth: CGFloat = 260
         public static let height: CGFloat = 460
         public static let columnSpacing: CGFloat = 16
     }
 
+    // Popover layout padding for headers, content, and footers.
     public enum MenuLayout {
         public static let headerPaddingHorizontal: CGFloat = 12
         public static let headerPaddingTop: CGFloat = 8
@@ -106,12 +116,14 @@ public enum AppDockConstants {
         public static let bottomBarPaddingBottom: CGFloat = 6
     }
 
+    // Header pill styling for filter and page labels.
     public enum MenuHeader {
         public static let paddingHorizontal: CGFloat = 10
         public static let paddingVertical: CGFloat = 8
         public static let cornerRadius: CGFloat = 6
     }
 
+    // Bottom page bar styling and spacing.
     public enum MenuPageBar {
         public static let spacing: CGFloat = 8
         public static let iconFontSize: CGFloat = 13
@@ -121,11 +133,13 @@ public enum AppDockConstants {
         public static let topPadding: CGFloat = 2
     }
 
+    // Recents/favorites list spacing.
     public enum MenuAppList {
         public static let spacing: CGFloat = 12
         public static let rowSpacing: CGFloat = 8
     }
 
+    // Row styling for app list entries.
     public enum MenuAppRow {
         public static let spacing: CGFloat = 10
         public static let iconSize: CGFloat = 28
@@ -135,17 +149,20 @@ public enum AppDockConstants {
         public static let cornerRadius: CGFloat = 8
     }
 
+    // Empty-state layout for menu pages.
     public enum MenuEmptyState {
         public static let spacing: CGFloat = 8
         public static let paddingVertical: CGFloat = 16
     }
 
+    // Generic menu row styling (Settings/About/Quit).
     public enum MenuRow {
         public static let paddingHorizontal: CGFloat = 12
         public static let paddingVertical: CGFloat = 8
         public static let cornerRadius: CGFloat = 6
     }
 
+    // Dock grid layout and paging interaction thresholds.
     public enum DockLayout {
         public static let columnSpacing: CGFloat = 16
         public static let extraSpace: CGFloat = 15
@@ -157,6 +174,7 @@ public enum AppDockConstants {
         public static let tileSpacing: CGFloat = 3
     }
 
+    // Page dots indicator styling for dock paging.
     public enum DockPageIndicator {
         public static let dotSize: CGFloat = 6
         public static let spacing: CGFloat = 6
@@ -167,6 +185,7 @@ public enum AppDockConstants {
         public static let inactiveOpacity: Double = 0.4
     }
 
+    // Context menu chrome used inside the dock grid.
     public enum DockContextMenu {
         public static let width: CGFloat = 200
         public static let height: CGFloat = 130
@@ -178,6 +197,7 @@ public enum AppDockConstants {
         public static let transitionScale: CGFloat = 0.96
     }
 
+    // Dock label bubble styling.
     public enum DockLabel {
         public static let horizontalPadding: CGFloat = 5
         public static let verticalPadding: CGFloat = 2
@@ -185,11 +205,13 @@ public enum AppDockConstants {
         public static let backgroundOpacity: Double = 0.25
     }
 
+    // Running indicator dot sizing.
     public enum DockRunningIndicator {
         public static let size: CGFloat = 6
         public static let padding: CGFloat = 4
     }
 
+    // Hover/selection styling for dock buttons.
     public enum DockButton {
         public static let overlayCornerRadius: CGFloat = 8
         public static let overlayLineWidth: CGFloat = 2
@@ -197,6 +219,7 @@ public enum AppDockConstants {
         public static let removeButtonPadding: CGFloat = 2
     }
 
+    // Context menu button sizing and padding.
     public enum ContextMenu {
         public static let spacing: CGFloat = 8
         public static let buttonMinHeight: CGFloat = 36
@@ -205,6 +228,7 @@ public enum AppDockConstants {
         public static let width: CGFloat = 160
     }
 
+    // Card group box styling shared by settings sections.
     public enum CardStyle {
         public static let spacing: CGFloat = 10
         public static let padding: CGFloat = 12
@@ -217,6 +241,7 @@ public enum AppDockConstants {
         public static let shadowOffsetY: CGFloat = 3
     }
 
+    // Empty slot placeholder styling.
     public enum EmptySlot {
         public static let labelText = "Empty"
         public static let cornerRadius: CGFloat = 5
@@ -225,10 +250,12 @@ public enum AppDockConstants {
         public static let strokeLineWidth: CGFloat = 1
     }
 
+    // Icon corner radius in dock tiles.
     public enum IconView {
         public static let cornerRadius: CGFloat = 8
     }
 
+    // CLI args used to control UI tests.
     public enum Testing {
         public static let uiTestMode = "--ui-test-mode"
         public static let uiTestOpenPopover = "--ui-test-open-popover"
@@ -236,5 +263,6 @@ public enum AppDockConstants {
         public static let uiTestDisableActivation = "--ui-test-disable-activation"
         public static let uiTestOpenSettings = "--ui-test-open-settings"
         public static let uiTestOpenPopovers = "--ui-test-open-popovers"
+        public static let uiTestMenuSimple = "--ui-test-menu-simple"
     }
 }
