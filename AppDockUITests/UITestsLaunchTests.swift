@@ -1,5 +1,5 @@
 //
-//  AppDockUITestsLaunchTests.swift
+//  UITestsLaunchTests.swift
 //  AppDockUITests
 //
 //  Created by Jared Miller on 12/12/24.
@@ -8,7 +8,7 @@
 import XCTest
 
 /// Launch screenshot baseline for UI testing.
-final class AppDockUITestsLaunchTests: XCTestCase {
+final class UITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
