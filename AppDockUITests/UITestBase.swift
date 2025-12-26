@@ -4,6 +4,7 @@
 //
 
 import XCTest
+import Foundation
 
 class UITestBase: XCTestCase {
     enum UITestConstants {
@@ -132,5 +133,17 @@ class UITestBase: XCTestCase {
 
     func anyElement(in popoverWindow: XCUIElement, id: String) -> XCUIElement {
         popoverWindow.descendants(matching: .any).matching(identifier: id).firstMatch
+    }
+
+    @MainActor
+    func commandClick(_ element: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
+        let selector = NSSelectorFromString("clickWithModifiers:")
+        guard element.responds(to: selector) else {
+            XCTFail("clickWithModifiers: is unavailable in this XCUITest runtime.", file: file, line: line)
+            return
+        }
+
+        // XCUITest exposes modifier clicks via Objective-C selector at runtime.
+        element.perform(selector, with: NSNumber(value: XCUIElement.KeyModifierFlags.command.rawValue))
     }
 }

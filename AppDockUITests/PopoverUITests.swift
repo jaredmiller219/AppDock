@@ -107,7 +107,7 @@ final class PopoverUITests: UITestBase {
         let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
         XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
 
-        popoverWindow.scroll(byDeltaX: -300, byDeltaY: 0)
+        popoverWindow.scroll(byDeltaX: -300, deltaY: 0)
 
         let recentsHeader = anyElement(in: popoverWindow,
                                        id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
@@ -173,7 +173,7 @@ final class PopoverUITests: UITestBase {
         let slot0 = popoverWindow.buttons[UITestConstants.Accessibility.dockSlotPrefix + "0"]
         XCTAssertTrue(slot0.waitForExistence(timeout: 4))
 
-        slot0.click(with: .command)
+        commandClick(slot0)
 
         let contextMenu = anyElement(in: popoverWindow, id: UITestConstants.Accessibility.contextMenu)
         XCTAssertTrue(contextMenu.waitForExistence(timeout: 2))
