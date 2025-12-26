@@ -43,6 +43,7 @@ struct SettingsView: View {
     @ObservedObject var appState: AppState
     @State private var draft: SettingsDraft
     @State private var selectedTab: SettingsTab = .general
+    @AppStorage(SettingsDefaults.simpleSettingsKey) private var useSimpleSettings = SettingsDefaults.simpleSettingsDefault
 
     init(appState: AppState) {
         self.appState = appState
@@ -99,33 +100,40 @@ struct SettingsView: View {
                 }
 
                 HStack(spacing: AppDockConstants.SettingsLayout.contentColumnSpacing) {
-                    VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sidebarSpacing) {
-                        ForEach(SettingsTab.allCases) { tab in
-                            Button {
-                                selectedTab = tab
-                            } label: {
-                                HStack(spacing: AppDockConstants.SettingsLayout.tabRowSpacing) {
-                                    Image(systemName: tab.systemImage)
-                                        .frame(width: AppDockConstants.SettingsLayout.tabIconWidth)
-                                    Text(tab.title)
-                                    Spacer()
+                    if !useSimpleSettings {
+                        VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sidebarSpacing) {
+                            ForEach(SettingsTab.allCases) { tab in
+                                Button {
+                                    selectedTab = tab
+                                } label: {
+                                    HStack(spacing: AppDockConstants.SettingsLayout.tabRowSpacing) {
+                                        Image(systemName: tab.systemImage)
+                                            .frame(width: AppDockConstants.SettingsLayout.tabIconWidth)
+                                        Text(tab.title)
+                                        Spacer()
+                                    }
+                                    .padding(.vertical, AppDockConstants.SettingsLayout.tabButtonPaddingVertical)
+                                    .padding(.horizontal, AppDockConstants.SettingsLayout.tabButtonPaddingHorizontal)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: AppDockConstants.SettingsLayout.tabButtonCornerRadius)
+                                            .fill(selectedTab == tab ? Color.accentColor.opacity(0.15) : Color.clear)
+                                    )
                                 }
-                                .padding(.vertical, AppDockConstants.SettingsLayout.tabButtonPaddingVertical)
-                                .padding(.horizontal, AppDockConstants.SettingsLayout.tabButtonPaddingHorizontal)
-                                .background(
-                                    RoundedRectangle(cornerRadius: AppDockConstants.SettingsLayout.tabButtonCornerRadius)
-                                        .fill(selectedTab == tab ? Color.accentColor.opacity(0.15) : Color.clear)
-                                )
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
+                            Spacer()
                         }
-                        Spacer()
+                        .frame(width: AppDockConstants.SettingsUI.sidebarWidth)
                     }
-                    .frame(width: AppDockConstants.SettingsUI.sidebarWidth)
 
                     ScrollView {
-                        settingsTabContent
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        if useSimpleSettings {
+                            simpleSettingsContent
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        } else {
+                            settingsTabContent
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                     }
                 }
                 .frame(maxHeight: .infinity, alignment: .topLeading)
@@ -173,7 +181,7 @@ private extension SettingsView {
 	var settingsTabContent: some View {
 		switch selectedTab {
 		case .general:
-			GeneralSettingsTab(draft: $draft)
+			GeneralSettingsTab(draft: $draft, useSimpleSettings: $useSimpleSettings)
 		case .layout:
 			LayoutSettingsTab(draft: $draft)
 		case .filtering:
@@ -189,7 +197,7 @@ private extension SettingsView {
 	
 	var simpleSettingsContent: some View {
 		VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionSpacing) {
-			GeneralSettingsTab(draft: $draft)
+			GeneralSettingsTab(draft: $draft, useSimpleSettings: $useSimpleSettings)
 			LayoutSettingsTab(draft: $draft)
 			FilteringSettingsTab(draft: $draft)
 			BehaviorSettingsTab(draft: $draft)
@@ -201,9 +209,24 @@ private extension SettingsView {
 	
 	private struct GeneralSettingsTab: View {
 		@Binding var draft: SettingsDraft
+		@Binding var useSimpleSettings: Bool
+
+		private var useAdvancedLayout: Binding<Bool> {
+			Binding(
+				get: { !useSimpleSettings },
+				set: { useSimpleSettings = !$0 }
+			)
+		}
 		
 		var body: some View {
 			VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionSpacing) {
+				GroupBox("Settings Layout") {
+					VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
+						Toggle("Use advanced settings layout", isOn: useAdvancedLayout)
+					}
+					.frame(maxWidth: .infinity, alignment: .leading)
+				}
+
 				GroupBox("General") {
 					VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
 						Toggle("Launch at login", isOn: $draft.launchAtLogin)

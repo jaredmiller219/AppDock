@@ -117,6 +117,7 @@ struct PopoverContentView: View {
                             .padding(.top, AppDockConstants.MenuLayout.dockPaddingTop)
                             .padding(.bottom, AppDockConstants.MenuLayout.dockPaddingBottom)
                     }
+                    .frame(maxHeight: .infinity)
                     .transition(pageTransition)
                 case .recents:
                     ScrollView(showsIndicators: false) {
@@ -131,6 +132,7 @@ struct PopoverContentView: View {
                         .padding(.top, AppDockConstants.MenuLayout.recentsPaddingTop)
                         .padding(.bottom, AppDockConstants.MenuLayout.recentsPaddingBottom)
                     }
+                    .frame(maxHeight: .infinity)
                     .transition(pageTransition)
                 case .favorites:
                     ScrollView(showsIndicators: false) {
@@ -143,6 +145,7 @@ struct PopoverContentView: View {
                         .padding(.top, AppDockConstants.MenuLayout.favoritesPaddingTop)
                         .padding(.bottom, AppDockConstants.MenuLayout.favoritesPaddingBottom)
                     }
+                    .frame(maxHeight: .infinity)
                     .transition(pageTransition)
                 case .actions:
                     ScrollView(showsIndicators: false) {
@@ -157,10 +160,12 @@ struct PopoverContentView: View {
                         .padding(.top, AppDockConstants.MenuLayout.actionsPaddingTop)
                         .padding(.bottom, AppDockConstants.MenuLayout.actionsPaddingBottom)
                     }
+                    .frame(maxHeight: .infinity)
                     .transition(pageTransition)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .layoutPriority(1)
             
             Divider()
                 .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)

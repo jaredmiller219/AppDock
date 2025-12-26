@@ -372,6 +372,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard arguments.contains(AppDockConstants.Testing.uiTestMode) else { return }
 
         appState.menuPage = .dock
+        UserDefaults.standard.set(
+            SettingsDefaults.simpleSettingsDefault,
+            forKey: SettingsDefaults.simpleSettingsKey
+        )
 
         if arguments.contains(AppDockConstants.Testing.uiTestSeedDock) {
             seedDockForUITests()
