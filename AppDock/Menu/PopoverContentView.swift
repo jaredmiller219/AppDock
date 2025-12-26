@@ -13,6 +13,9 @@ struct PopoverContentView: View {
     let aboutAction: () -> Void
     let quitAction: () -> Void
     @State private var previousPage: MenuPage = .dock
+    @State private var dragOffset: CGFloat = 0
+    @State private var isDragging = false
+    private let dragSnapDuration: TimeInterval = 0.18
 
     private var popoverWidth: CGFloat {
         PopoverSizing.width(for: appState)
@@ -32,10 +35,10 @@ struct PopoverContentView: View {
         return .asymmetric(insertion: insertion, removal: removal)
     }
 
-    private func selectPage(_ page: MenuPage) {
+    private func selectPage(_ page: MenuPage, animated: Bool = true) {
         guard page != appState.menuPage else { return }
         previousPage = appState.menuPage
-        if let animation = pageAnimation {
+        if animated, let animation = pageAnimation {
             withAnimation(animation) {
                 appState.menuPage = page
             }
@@ -44,20 +47,71 @@ struct PopoverContentView: View {
         }
     }
 
+    private var orderedPages: [MenuPage] {
+        MenuPage.allCases.sorted { $0.orderIndex < $1.orderIndex }
+    }
+
     private func handleSwipeDirection(_ direction: SwipeDirection) {
-        let orderedPages = MenuPage.allCases.sorted { $0.orderIndex < $1.orderIndex }
         guard let currentIndex = orderedPages.firstIndex(of: appState.menuPage) else { return }
         let nextIndex = direction == .left ? currentIndex + 1 : currentIndex - 1
         guard orderedPages.indices.contains(nextIndex) else { return }
         selectPage(orderedPages[nextIndex])
     }
 
-    private func handleDrag(_ value: DragGesture.Value) {
-        let horizontal = value.translation.width
-        let vertical = value.translation.height
-        guard abs(horizontal) > abs(vertical),
-              abs(horizontal) >= AppDockConstants.MenuGestures.swipeThreshold else { return }
-        handleSwipeDirection(horizontal < 0 ? .left : .right)
+    private func handleInteractiveChanged(horizontal: CGFloat, vertical: CGFloat) {
+        guard abs(horizontal) > abs(vertical) else { return }
+        isDragging = true
+        dragOffset = max(-popoverWidth, min(popoverWidth, horizontal))
+    }
+
+    private func handleInteractiveEnded(horizontal: CGFloat, vertical: CGFloat) {
+        guard abs(horizontal) > abs(vertical) else {
+            resetDrag()
+            return
+        }
+
+        let direction: SwipeDirection = horizontal < 0 ? .left : .right
+        guard abs(horizontal) >= AppDockConstants.MenuGestures.swipeThreshold,
+              let nextPage = neighborPage(for: direction) else {
+            resetDrag()
+            return
+        }
+
+        let targetOffset = direction == .left ? -popoverWidth : popoverWidth
+        withAnimation(.easeOut(duration: dragSnapDuration)) {
+            dragOffset = targetOffset
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + dragSnapDuration) {
+            selectPage(nextPage, animated: false)
+            dragOffset = 0
+            isDragging = false
+        }
+    }
+
+    private func resetDrag() {
+        withAnimation(.easeOut(duration: dragSnapDuration)) {
+            dragOffset = 0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + dragSnapDuration) {
+            isDragging = false
+        }
+    }
+
+    private var dragDirection: SwipeDirection? {
+        if dragOffset < 0 {
+            return .left
+        }
+        if dragOffset > 0 {
+            return .right
+        }
+        return nil
+    }
+
+    private func neighborPage(for direction: SwipeDirection) -> MenuPage? {
+        guard let currentIndex = orderedPages.firstIndex(of: appState.menuPage) else { return nil }
+        let nextIndex = direction == .left ? currentIndex + 1 : currentIndex - 1
+        guard orderedPages.indices.contains(nextIndex) else { return nil }
+        return orderedPages[nextIndex]
     }
 
     var body: some View {
@@ -79,6 +133,59 @@ struct PopoverContentView: View {
 }
 
 private extension PopoverContentView {
+    @ViewBuilder
+    func pageContent(for page: MenuPage) -> some View {
+        Group {
+            switch page {
+            case .dock:
+                ScrollView(showsIndicators: false) {
+                    DockView(appState: appState)
+                        .padding(.horizontal, AppDockConstants.MenuLayout.dockPaddingHorizontal)
+                        .padding(.top, AppDockConstants.MenuLayout.dockPaddingTop)
+                        .padding(.bottom, AppDockConstants.MenuLayout.dockPaddingBottom)
+                }
+            case .recents:
+                ScrollView(showsIndicators: false) {
+                    MenuAppListView(
+                        title: "Recent Apps",
+                        apps: appState.recentApps,
+                        emptyTitle: "No Recent Apps",
+                        emptyMessage: "Launch an app to see it here.",
+                        emptySystemImage: "clock.arrow.circlepath"
+                    )
+                    .padding(.horizontal, AppDockConstants.MenuLayout.recentsPaddingHorizontal)
+                    .padding(.top, AppDockConstants.MenuLayout.recentsPaddingTop)
+                    .padding(.bottom, AppDockConstants.MenuLayout.recentsPaddingBottom)
+                }
+            case .favorites:
+                ScrollView(showsIndicators: false) {
+                    MenuEmptyState(
+                        title: "No Favorites Yet",
+                        message: "Pin apps to keep them on this page.",
+                        systemImage: "star"
+                    )
+                    .padding(.horizontal, AppDockConstants.MenuLayout.favoritesPaddingHorizontal)
+                    .padding(.top, AppDockConstants.MenuLayout.favoritesPaddingTop)
+                    .padding(.bottom, AppDockConstants.MenuLayout.favoritesPaddingBottom)
+                }
+            case .actions:
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 0) {
+                        MenuRow(title: "Settings", action: settingsAction)
+                        Divider()
+                        MenuRow(title: "About", action: aboutAction)
+                        Divider()
+                        MenuRow(title: "Quit AppDock", action: quitAction)
+                    }
+                    .padding(.horizontal, AppDockConstants.MenuLayout.actionsPaddingHorizontal)
+                    .padding(.top, AppDockConstants.MenuLayout.actionsPaddingTop)
+                    .padding(.bottom, AppDockConstants.MenuLayout.actionsPaddingBottom)
+                }
+            }
+        }
+        .frame(maxHeight: .infinity)
+    }
+
     var simpleMenuContent: some View {
         VStack(spacing: 0) {
             FilterMenuButton(appState: appState)
@@ -132,83 +239,60 @@ private extension PopoverContentView {
                 .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
 
             ZStack {
-                switch appState.menuPage {
-                case .dock:
-                    ScrollView(showsIndicators: false) {
-                        DockView(appState: appState)
-                            .padding(.horizontal, AppDockConstants.MenuLayout.dockPaddingHorizontal)
-                            .padding(.top, AppDockConstants.MenuLayout.dockPaddingTop)
-                            .padding(.bottom, AppDockConstants.MenuLayout.dockPaddingBottom)
-                    }
-                    .frame(maxHeight: .infinity)
-                    .transition(pageTransition)
-                case .recents:
-                    ScrollView(showsIndicators: false) {
-                        MenuAppListView(
-                            title: "Recent Apps",
-                            apps: appState.recentApps,
-                            emptyTitle: "No Recent Apps",
-                            emptyMessage: "Launch an app to see it here.",
-                            emptySystemImage: "clock.arrow.circlepath"
-                        )
-                        .padding(.horizontal, AppDockConstants.MenuLayout.recentsPaddingHorizontal)
-                        .padding(.top, AppDockConstants.MenuLayout.recentsPaddingTop)
-                        .padding(.bottom, AppDockConstants.MenuLayout.recentsPaddingBottom)
-                    }
-                    .frame(maxHeight: .infinity)
-                    .transition(pageTransition)
-                case .favorites:
-                    ScrollView(showsIndicators: false) {
-                        MenuEmptyState(
-                            title: "No Favorites Yet",
-                            message: "Pin apps to keep them on this page.",
-                            systemImage: "star"
-                        )
-                        .padding(.horizontal, AppDockConstants.MenuLayout.favoritesPaddingHorizontal)
-                        .padding(.top, AppDockConstants.MenuLayout.favoritesPaddingTop)
-                        .padding(.bottom, AppDockConstants.MenuLayout.favoritesPaddingBottom)
-                    }
-                    .frame(maxHeight: .infinity)
-                    .transition(pageTransition)
-                case .actions:
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 0) {
-                            MenuRow(title: "Settings", action: settingsAction)
-                            Divider()
-                            MenuRow(title: "About", action: aboutAction)
-                            Divider()
-                            MenuRow(title: "Quit AppDock", action: quitAction)
-                        }
-                        .padding(.horizontal, AppDockConstants.MenuLayout.actionsPaddingHorizontal)
-                        .padding(.top, AppDockConstants.MenuLayout.actionsPaddingTop)
-                        .padding(.bottom, AppDockConstants.MenuLayout.actionsPaddingBottom)
-                    }
-                    .frame(maxHeight: .infinity)
-                    .transition(pageTransition)
+                if isDragging, let direction = dragDirection, let neighbor = neighborPage(for: direction) {
+                    pageContent(for: neighbor)
+                        .offset(x: dragOffset + (direction == .left ? popoverWidth : -popoverWidth))
+                    pageContent(for: appState.menuPage)
+                        .offset(x: dragOffset)
+                } else {
+                    pageContent(for: appState.menuPage)
+                        .transition(pageTransition)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .layoutPriority(1)
+            .clipped()
 
             Divider()
                 .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
                 .padding(.top, AppDockConstants.MenuLayout.bottomDividerPaddingTop)
 
-            MenuPageBar(selectedPage: appState.menuPage, onSelect: selectPage)
+            MenuPageBar(selectedPage: appState.menuPage, onSelect: { selectPage($0) })
                 .padding(.horizontal, AppDockConstants.MenuLayout.bottomBarPaddingHorizontal)
                 .padding(.bottom, AppDockConstants.MenuLayout.bottomBarPaddingBottom)
         }
         .contentShape(Rectangle())
-        #if canImport(AppKit) || canImport(UIKit)
-        .background(SwipeGestureCaptureView(swipeThreshold: AppDockConstants.MenuGestures.swipeThreshold) { direction in
-            handleSwipeDirection(direction)
-        })
+        #if canImport(AppKit)
+        .background(SwipeGestureCaptureView(
+            swipeThreshold: AppDockConstants.MenuGestures.swipeThreshold,
+            onSwipe: { _ in },
+            onScrollChanged: { totalX, totalY in
+                handleInteractiveChanged(horizontal: totalX, vertical: totalY)
+            },
+            onScrollEnded: { totalX, totalY in
+                handleInteractiveEnded(horizontal: totalX, vertical: totalY)
+            }
+        ))
+        #elseif canImport(UIKit)
+        .background(SwipeGestureCaptureView(
+            swipeThreshold: AppDockConstants.MenuGestures.swipeThreshold,
+            onSwipe: { direction in
+                handleSwipeDirection(direction)
+            },
+            onScrollChanged: { _, _ in },
+            onScrollEnded: { _, _ in }
+        ))
         #endif
         .simultaneousGesture(
             DragGesture(minimumDistance: AppDockConstants.MenuGestures.dragMinimumDistance,
                         coordinateSpace: .local)
+                .onChanged { value in
+                    handleInteractiveChanged(horizontal: value.translation.width,
+                                             vertical: value.translation.height)
+                }
                 .onEnded { value in
-                    handleDrag(value)
+                    handleInteractiveEnded(horizontal: value.translation.width,
+                                           vertical: value.translation.height)
                 }
         )
     }
