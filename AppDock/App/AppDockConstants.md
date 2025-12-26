@@ -13,7 +13,7 @@ Settings window sizing and layout behavior, used by the Settings window and its 
 - Defined in: `AppDock/App/AppDockConstants.swift#L11`
 - Used in:
   - `AppDock/Settings/SettingsView.swift`
-  - `AppDock/App/RecentAppsController.swift`
+  - `AppDock/App/RecentApps/AppDelegate/Delegate.swift`
 - Notes: Keeps the Settings window readable and prevents cramped layouts.
 
 ```swift
@@ -84,7 +84,7 @@ public enum SettingsRanges {
 - Purpose: Default Settings window size.
 - Defined in: `AppDock/App/AppDockConstants.swift#L55`
 - Used in:
-  - `AppDock/App/RecentAppsController.swift`
+  - `AppDock/App/RecentApps/AppDelegate/Delegate.swift`
 - Notes: Creates the NSWindow with consistent dimensions.
 
 ```swift
@@ -423,7 +423,7 @@ Shared icon sizing constants.
 - Purpose: Standard icon size used in dock entries.
 - Defined in: `AppDock/App/AppDockConstants.swift#L66`
 - Used in:
-  - `AppDock/App/RecentAppsController.swift`
+  - `AppDock/App/RecentApps/AppDelegate/UITestSupport.swift`
 - Notes: Resizes app icons to a consistent grid size.
 
 ```swift
@@ -437,7 +437,7 @@ public enum AppIcon {
 - Purpose: Status item symbol size.
 - Defined in: `AppDock/App/AppDockConstants.swift#L61`
 - Used in:
-  - `AppDock/App/RecentAppsController.swift`
+  - `AppDock/App/RecentApps/AppDelegate/Delegate.swift`
 - Notes: Ensures the menu bar icon is crisp and aligned.
 
 ```swift
@@ -536,7 +536,7 @@ public enum CardStyle {
 - Defined in: `AppDock/App/AppDockConstants.swift#L259`
 - Used in:
   - `AppDock/App/AppDockConstants.swift`
-  - `AppDock/App/RecentAppsController.swift`
+  - `AppDock/App/RecentApps/AppDelegate/UITestSupport.swift`
 - Notes: Configures test-only behaviors at launch.
 
 ```swift

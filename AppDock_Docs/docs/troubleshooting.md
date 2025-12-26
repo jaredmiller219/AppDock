@@ -3,7 +3,7 @@
 ## Debugging Tips
 
 - Use `NSLog` or unified logging if output is not visible in Xcode's console.
-- If the popover isn’t visible, check `popover.contentSize` and the status item configuration in `AppDock/RecentAppsController.swift`.
+- If the popover isn’t visible, check `popover.contentSize` and the status item configuration in `AppDock/App/RecentApps/AppDelegate/Delegate.swift`.
 - If icons are missing, verify the bundle URL and icon retrieval in `makeAppEntry(from:workspace:)`.
 - If minimized windows do not restore, this may require Accessibility APIs.
 - Menu bar apps can log to Console.app; filter by “AppDock”.

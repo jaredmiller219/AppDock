@@ -1,7 +1,12 @@
 # Application Code
 
 - `AppDock/App/AppDockTypes.swift`: Shared enums for filter/sort, menu layout, and page navigation.
-- `AppDock/App/RecentAppsController.swift`: App entry point, app delegate, shared state, workspace monitoring, and application lifecycle handling (with expanded inline doc comments).
+- `AppDock/App/RecentApps/RecentAppsController.swift`: App entry point (SwiftUI `App`).
+- `AppDock/App/RecentApps/AppState.swift`: Shared app state and settings bindings.
+- `AppDock/App/RecentApps/AppDelegate/Delegate.swift`: Status item setup, popover wiring, and lifecycle.
+- `AppDock/App/RecentApps/AppDelegate/RecentApps.swift`: Recent app tracking helpers.
+- `AppDock/App/RecentApps/AppDelegate/UITestSupport.swift`: UI test overrides and fixtures.
+- `AppDock/App/RecentApps/AppDelegate/Actions.swift`: About/Settings/Quit handlers.
 - `AppDock/MenuController.swift`: Popover host creation and menu row UI wiring for Settings/About/Quit.
 - `AppDock/DockView.swift`: Dock grid UI and context menu overlay composition.
 - `AppDock/DockAppList.swift`: Pure helper for filtering, sorting, and padding dock entries.
