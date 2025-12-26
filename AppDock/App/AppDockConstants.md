@@ -196,7 +196,6 @@ public enum MenuPageBar {
 public enum MenuGestures {
     public static let swipeThreshold: CGFloat = 30
     public static let dragMinimumDistance: CGFloat = 12
-    public static let swipeCooldown: TimeInterval = 0.35
 }
 ```
 

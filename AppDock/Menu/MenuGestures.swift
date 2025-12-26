@@ -42,7 +42,6 @@ struct SwipeGestureCaptureView: NSViewRepresentable {
         private var accumulatedX: CGFloat = 0
         private var accumulatedY: CGFloat = 0
         private var didTrigger = false
-        private var lastTriggerTime: TimeInterval = 0
 
         override init(frame frameRect: NSRect) {
             super.init(frame: frameRect)
@@ -77,10 +76,10 @@ struct SwipeGestureCaptureView: NSViewRepresentable {
         override func swipe(with event: NSEvent) {
             if event.deltaX > 0 {
                 didTrigger = true
-                triggerSwipe(.right)
+                onSwipe?(.right)
             } else if event.deltaX < 0 {
                 didTrigger = true
-                triggerSwipe(.left)
+                onSwipe?(.left)
             }
         }
 
@@ -98,21 +97,15 @@ struct SwipeGestureCaptureView: NSViewRepresentable {
                abs(accumulatedX) > abs(accumulatedY),
                abs(accumulatedX) >= swipeThreshold {
                 didTrigger = true
-                triggerSwipe(accumulatedX < 0 ? .left : .right)
+                onSwipe?(accumulatedX < 0 ? .left : .right)
             }
 
-            if event.phase == .ended || event.phase == .cancelled || event.momentumPhase == .ended {
+            if (event.phase == .ended || event.phase == .cancelled),
+               (event.momentumPhase == .ended || event.momentumPhase == .none) {
                 accumulatedX = 0
                 accumulatedY = 0
                 didTrigger = false
             }
-        }
-
-        private func triggerSwipe(_ direction: SwipeDirection) {
-            let now = ProcessInfo.processInfo.systemUptime
-            guard now - lastTriggerTime >= AppDockConstants.MenuGestures.swipeCooldown else { return }
-            lastTriggerTime = now
-            onSwipe?(direction)
         }
     }
 }
