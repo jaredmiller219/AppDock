@@ -7,4 +7,5 @@
 5. Quit an app and confirm it stays listed (if “Keep apps after quit” is enabled).
 6. Command-click an icon to open the context menu and test Hide/Quit.
 7. Command-hover to verify the remove button appears and removes the item.
-8. Open Settings from the menu and confirm the window opens.
+8. In Advanced layout, swipe left/right with a trackpad or drag left/right with a mouse to switch tabs.
+9. Open Settings from the menu and confirm the window opens.
