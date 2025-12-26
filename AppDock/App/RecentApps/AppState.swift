@@ -40,9 +40,8 @@ class AppState: ObservableObject {
 
     // MARK: Settings Bindings
 
-    /// Settings-backed toggles and layout values for the dock UI.
-    ///
-    /// - Note: Populated from `SettingsDefaults` and refreshed from `SettingsDraft`.
+    // Settings-backed toggles and layout values for the dock UI.
+    // Populated from `SettingsDefaults` and refreshed from `SettingsDraft`.
 	
     /// Toggle for adding the app to login items.
     @Published var launchAtLogin = SettingsDefaults.launchAtLoginDefault
