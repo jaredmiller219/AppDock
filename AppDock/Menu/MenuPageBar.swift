@@ -15,21 +15,24 @@ struct MenuPageBar: View {
                 Button {
                     onSelect(page)
                 } label: {
-                    VStack(spacing: AppDockConstants.MenuPageBar.labelSpacing) {
-                        Image(systemName: page.systemImage)
-                            .font(.system(size: AppDockConstants.MenuPageBar.iconFontSize, weight: .semibold))
-                        Text(page.title)
-                            .font(.caption2)
-                    }
-                    .foregroundColor(selectedPage == page ? .accentColor : .primary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppDockConstants.MenuPageBar.paddingVertical)
-                    .background(
+                    ZStack {
                         RoundedRectangle(cornerRadius: AppDockConstants.MenuPageBar.cornerRadius)
                             .fill(selectedPage == page ? Color.accentColor.opacity(0.18) : Color.clear)
-                    )
+
+                        VStack(spacing: AppDockConstants.MenuPageBar.labelSpacing) {
+                            Image(systemName: page.systemImage)
+                                .font(.system(size: AppDockConstants.MenuPageBar.iconFontSize, weight: .semibold))
+                            Text(page.title)
+                                .font(.caption2)
+                        }
+                        .foregroundColor(selectedPage == page ? .accentColor : .primary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AppDockConstants.MenuPageBar.paddingVertical)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .frame(maxWidth: .infinity)
                 .keyboardShortcut(page.shortcutKey, modifiers: .command)
                 .accessibilityIdentifier(AppDockConstants.Accessibility.menuPageButtonPrefix + page.rawValue)
             }

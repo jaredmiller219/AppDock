@@ -70,6 +70,11 @@ struct PopoverContentView: View {
 
     private func handleInteractiveChanged(horizontal: CGFloat, vertical: CGFloat) {
         guard abs(horizontal) > abs(vertical) else { return }
+        let direction: SwipeDirection = horizontal < 0 ? .left : .right
+        guard neighborPage(for: direction) != nil else {
+            resetDrag()
+            return
+        }
         isDragging = true
         showNeighborDuringDrag = true
         dragOffset = max(-popoverWidth, min(popoverWidth, horizontal))
@@ -81,12 +86,17 @@ struct PopoverContentView: View {
             return
         }
 
+        let direction: SwipeDirection = horizontal < 0 ? .left : .right
+        guard neighborPage(for: direction) != nil else {
+            resetDrag()
+            return
+        }
+
         guard MenuSwipeLogic.shouldCommit(horizontal: horizontal, vertical: vertical, width: popoverWidth) else {
             resetDrag()
             return
         }
 
-        let direction: SwipeDirection = horizontal < 0 ? .left : .right
         guard let nextPage = neighborPage(for: direction) else {
             resetDrag()
             return
