@@ -15,8 +15,15 @@ struct PopoverContentView: View {
     @State private var previousPage: MenuPage = .dock
     @State private var dragOffset: CGFloat = 0
     @State private var isDragging = false
+    @State private var showNeighborDuringDrag = true
     @State private var suppressNextTransition = false
-    private let dragSnapDuration: TimeInterval = 0.18
+    private var dragCommitDuration: TimeInterval {
+        AppDockConstants.MenuGestures.dragCommitDuration
+    }
+
+    private var dragCancelDuration: TimeInterval {
+        AppDockConstants.MenuGestures.dragCancelDuration
+    }
 
     private var popoverWidth: CGFloat {
         PopoverSizing.width(for: appState)
@@ -62,6 +69,7 @@ struct PopoverContentView: View {
     private func handleInteractiveChanged(horizontal: CGFloat, vertical: CGFloat) {
         guard abs(horizontal) > abs(vertical) else { return }
         isDragging = true
+        showNeighborDuringDrag = true
         dragOffset = max(-popoverWidth, min(popoverWidth, horizontal))
     }
 
@@ -86,24 +94,32 @@ struct PopoverContentView: View {
         }
 
         let targetOffset = direction == .left ? -popoverWidth : popoverWidth
-        withAnimation(.easeOut(duration: dragSnapDuration)) {
+        withAnimation(.easeOut(duration: dragCommitDuration)) {
             dragOffset = targetOffset
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + dragSnapDuration) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + dragCommitDuration) {
+            suppressNextTransition = true
             selectPage(nextPage, animated: false)
             dragOffset = 0
             isDragging = false
+            showNeighborDuringDrag = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + dragCommitDuration) {
+                suppressNextTransition = false
+            }
         }
     }
 
     private func resetDrag() {
         suppressNextTransition = true
-        withAnimation(.easeOut(duration: dragSnapDuration)) {
+        withAnimation(.easeOut(duration: dragCancelDuration)) {
             dragOffset = 0
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + dragSnapDuration) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + dragCancelDuration) {
             isDragging = false
-            suppressNextTransition = false
+            showNeighborDuringDrag = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + dragCancelDuration) {
+                suppressNextTransition = false
+            }
         }
     }
 
@@ -249,9 +265,11 @@ private extension PopoverContentView {
                 .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
 
             ZStack {
-                if isDragging, let direction = dragDirection, let neighbor = neighborPage(for: direction) {
-                    pageContent(for: neighbor)
-                        .offset(x: dragOffset + (direction == .left ? popoverWidth : -popoverWidth))
+                if isDragging {
+                    if showNeighborDuringDrag, let direction = dragDirection, let neighbor = neighborPage(for: direction) {
+                        pageContent(for: neighbor)
+                            .offset(x: dragOffset + (direction == .left ? popoverWidth : -popoverWidth))
+                    }
                     pageContent(for: appState.menuPage)
                         .offset(x: dragOffset)
                 } else {
