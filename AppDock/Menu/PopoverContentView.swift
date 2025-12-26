@@ -290,7 +290,6 @@ private extension PopoverContentView {
                 .padding(.bottom, AppDockConstants.MenuLayout.bottomBarPaddingBottom)
         }
         .contentShape(Rectangle())
-        #if canImport(AppKit)
         .background(SwipeGestureCaptureView(
             swipeThreshold: AppDockConstants.MenuGestures.swipeThreshold,
             onSwipe: { _ in },
@@ -301,16 +300,6 @@ private extension PopoverContentView {
                 handleInteractiveEnded(horizontal: totalX, vertical: totalY)
             }
         ))
-        #elseif canImport(UIKit)
-        .background(SwipeGestureCaptureView(
-            swipeThreshold: AppDockConstants.MenuGestures.swipeThreshold,
-            onSwipe: { direction in
-                handleSwipeDirection(direction)
-            },
-            onScrollChanged: { _, _ in },
-            onScrollEnded: { _, _ in }
-        ))
-        #endif
         .simultaneousGesture(
             DragGesture(minimumDistance: AppDockConstants.MenuGestures.dragMinimumDistance,
                         coordinateSpace: .local)

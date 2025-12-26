@@ -4,21 +4,13 @@
 //
 
 import SwiftUI
-
-#if canImport(AppKit)
 import AppKit
-#endif
-
-#if canImport(UIKit)
-import UIKit
-#endif
 
 enum SwipeDirection {
     case left
     case right
 }
 
-#if canImport(AppKit)
 struct SwipeGestureCaptureView: NSViewRepresentable {
     let swipeThreshold: CGFloat
     let onSwipe: (SwipeDirection) -> Void
@@ -119,53 +111,3 @@ struct SwipeGestureCaptureView: NSViewRepresentable {
         }
     }
 }
-#elseif canImport(UIKit)
-struct SwipeGestureCaptureView: UIViewRepresentable {
-    let swipeThreshold: CGFloat
-    let onSwipe: (SwipeDirection) -> Void
-    let onScrollChanged: (CGFloat, CGFloat) -> Void
-    let onScrollEnded: (CGFloat, CGFloat) -> Void
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(onSwipe: onSwipe)
-    }
-
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        let leftSwipe = UISwipeGestureRecognizer(target: context.coordinator,
-                                                 action: #selector(Coordinator.handleSwipe(_:)))
-        leftSwipe.direction = .left
-        let rightSwipe = UISwipeGestureRecognizer(target: context.coordinator,
-                                                  action: #selector(Coordinator.handleSwipe(_:)))
-        rightSwipe.direction = .right
-        view.addGestureRecognizer(leftSwipe)
-        view.addGestureRecognizer(rightSwipe)
-        return view
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {
-        _ = swipeThreshold
-        _ = onScrollChanged
-        _ = onScrollEnded
-    }
-
-    final class Coordinator: NSObject {
-        private let onSwipe: (SwipeDirection) -> Void
-
-        init(onSwipe: @escaping (SwipeDirection) -> Void) {
-            self.onSwipe = onSwipe
-        }
-
-        @objc func handleSwipe(_ gesture: UISwipeGestureRecognizer) {
-            switch gesture.direction {
-            case .left:
-                onSwipe(.left)
-            case .right:
-                onSwipe(.right)
-            default:
-                break
-            }
-        }
-    }
-}
-#endif
