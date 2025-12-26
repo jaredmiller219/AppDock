@@ -7,7 +7,6 @@ This section is split into subpages:
 - [Dock Updates](dock-updates.md)
 - [Activation and Relaunch](activation.md)
 - [Minimized vs Hidden](minimized-hidden.md)
-- [Future Enhancements](future-enhancements.md)
 
 ## High-Level Behavior
 

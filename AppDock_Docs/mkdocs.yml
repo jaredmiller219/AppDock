@@ -13,7 +13,6 @@ nav:
           - Dock Updates: features/behavior/dock-updates.md
           - Activation and Relaunch: features/behavior/activation.md
           - Minimized vs Hidden: features/behavior/minimized-hidden.md
-          - Future Enhancements: features/behavior/future-enhancements.md
   - Usage:
       - Overview: usage/index.md
       - Build and Run: usage/build-run.md
