@@ -181,6 +181,21 @@ public enum MenuPageBar {
 }
 ```
 
+### MenuGestures
+
+- Purpose: Swipe/drag thresholds for tab navigation.
+- Defined in: `AppDock/App/AppDockConstants.swift#L137`
+- Used in:
+  - `AppDock/Menu/MenuController.swift`
+- Notes: Adjusts how sensitive the menu tab switching feels.
+
+```swift
+public enum MenuGestures {
+    public static let swipeThreshold: CGFloat = 30
+    public static let dragMinimumDistance: CGFloat = 12
+}
+```
+
 ### MenuAppList
 
 - Purpose: Recents/favorites list spacing.

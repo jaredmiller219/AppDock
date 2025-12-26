@@ -67,7 +67,6 @@ struct PopoverContentView: View {
     let aboutAction: () -> Void
     let quitAction: () -> Void
     @State private var previousPage: MenuPage = .dock
-    private let swipeThreshold: CGFloat = 50
 
     private var popoverWidth: CGFloat {
         PopoverSizing.width(for: appState)
@@ -110,7 +109,8 @@ struct PopoverContentView: View {
     private func handleDrag(_ value: DragGesture.Value) {
         let horizontal = value.translation.width
         let vertical = value.translation.height
-        guard abs(horizontal) > abs(vertical), abs(horizontal) >= swipeThreshold else { return }
+        guard abs(horizontal) > abs(vertical),
+              abs(horizontal) >= AppDockConstants.MenuGestures.swipeThreshold else { return }
         handleSwipeDirection(horizontal < 0 ? .left : .right, source: .drag)
     }
 
@@ -254,12 +254,13 @@ private extension PopoverContentView {
         }
         .contentShape(Rectangle())
 #if canImport(AppKit) || canImport(UIKit)
-        .background(SwipeGestureCaptureView(swipeThreshold: swipeThreshold) { direction in
+        .background(SwipeGestureCaptureView(swipeThreshold: AppDockConstants.MenuGestures.swipeThreshold) { direction in
             handleSwipeDirection(direction, source: .trackpad)
         })
 #endif
         .simultaneousGesture(
-            DragGesture(minimumDistance: 20, coordinateSpace: .local)
+            DragGesture(minimumDistance: AppDockConstants.MenuGestures.dragMinimumDistance,
+                        coordinateSpace: .local)
                 .onEnded { value in
                     handleDrag(value)
                 }
