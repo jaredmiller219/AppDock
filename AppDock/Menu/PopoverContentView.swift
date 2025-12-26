@@ -331,6 +331,7 @@ private struct MenuPageHeader: View {
             RoundedRectangle(cornerRadius: AppDockConstants.MenuHeader.cornerRadius)
                 .fill(Color.primary.opacity(0.08))
         )
+        .accessibilityIdentifier(AppDockConstants.Accessibility.menuPageHeaderPrefix + page.rawValue)
     }
 }
 

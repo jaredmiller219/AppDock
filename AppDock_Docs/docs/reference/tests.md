@@ -4,8 +4,9 @@
 - `AppDockTests/DockViewTests.swift`: DockView layout and interaction logic tests using stubs.
 - `AppDockTests/DockAppListTests.swift`: Filter/sort/padding helper tests for dock list construction.
 - `AppDockTests/MenuControllerTests.swift`: Popover controller creation and action wiring tests.
+- `AppDockTests/MenuGesturesTests.swift`: Menu gesture constants and thresholds coverage.
 - `AppDockTests/RecentAppsController.swift`: AppDelegate logic tests with mock workspace and running apps.
 - `AppDockTests/SettingsDefaultsTests.swift`: Settings default values and restore behavior tests.
 - `AppDockTests/SettingsDraftTests.swift`: Settings draft load/apply persistence tests.
-- `AppDockUITests/AppDockUITests.swift`: UI test scaffolding.
+- `AppDockUITests/AppDockUITests.swift`: UI test scaffolding, including popover tab swipe/drag checks.
 - `AppDockUITests/AppDockUITestsLaunchTests.swift`: Launch screenshot baseline.

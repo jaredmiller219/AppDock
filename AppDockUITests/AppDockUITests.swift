@@ -17,6 +17,7 @@ final class AppDockUITests: XCTestCase {
             static let uiTestWindow = "AppDock UI Test"
             static let iconPrefix = "DockIcon-"
             static let menuPageButtonPrefix = "MenuPage-"
+            static let menuPageHeaderPrefix = "MenuPageHeader-"
         }
 
         enum TestingArgs {
@@ -232,6 +233,59 @@ final class AppDockUITests: XCTestCase {
         XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Settings"].waitForExistence(timeout: 4))
         XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "About"].waitForExistence(timeout: 4))
         XCTAssertTrue(popoverWindow.buttons[UITestConstants.Accessibility.menuRowPrefix + "Quit AppDock"].waitForExistence(timeout: 4))
+    }
+
+    @MainActor
+    func testPopoverSwipeDragLeftSwitchesToRecents() throws {
+        let app = launchAppForPopoverTests()
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
+
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
+
+        let recentsHeader = popoverWindow.otherElements[UITestConstants.Accessibility.menuPageHeaderPrefix + "recents"]
+        XCTAssertTrue(recentsHeader.waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testPopoverSmallSwipeDragDoesNotChangeTab() throws {
+        let app = launchAppForPopoverTests()
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
+
+        dragPopover(popoverWindow, fromX: 0.6, toX: 0.5, y: 0.5)
+
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 2))
+        let recentsHeader = popoverWindow.otherElements[UITestConstants.Accessibility.menuPageHeaderPrefix + "recents"]
+        XCTAssertFalse(recentsHeader.exists)
+    }
+
+    @MainActor
+    func testPopoverSwipeDragRightReturnsToDock() throws {
+        let app = launchAppForPopoverTests()
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
+        let recentsHeader = popoverWindow.otherElements[UITestConstants.Accessibility.menuPageHeaderPrefix + "recents"]
+        XCTAssertTrue(recentsHeader.waitForExistence(timeout: 2))
+
+        dragPopover(popoverWindow, fromX: 0.15, toX: 0.85, y: 0.5)
+        let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    private func dragPopover(_ popoverWindow: XCUIElement, fromX: CGFloat, toX: CGFloat, y: CGFloat) {
+        let start = popoverWindow.coordinate(withNormalizedOffset: CGVector(dx: fromX, dy: y))
+        let end = popoverWindow.coordinate(withNormalizedOffset: CGVector(dx: toX, dy: y))
+        start.press(forDuration: 0.05, thenDragTo: end)
     }
 
     @MainActor

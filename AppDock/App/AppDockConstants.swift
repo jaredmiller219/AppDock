@@ -79,6 +79,7 @@ public enum AppDockConstants {
         public static let statusItemLabel = "AppDock"
         public static let uiTestWindow = "AppDock UI Test"
         public static let menuPageButtonPrefix = "MenuPage-"
+        public static let menuPageHeaderPrefix = "MenuPageHeader-"
     }
 
     // Timing constants for hover/remove behaviors.
