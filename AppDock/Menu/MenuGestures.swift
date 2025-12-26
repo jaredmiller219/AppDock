@@ -90,25 +90,25 @@ struct SwipeGestureCaptureView: NSViewRepresentable {
         }
 
         private func handleScrollEvent(_ event: NSEvent) {
+            let isFingerEvent = !event.phase.isEmpty
+
             if event.phase == .began {
                 accumulatedX = 0
                 accumulatedY = 0
                 isTracking = true
             }
 
-            if !isTracking && event.phase == .changed {
+            if isFingerEvent && !isTracking && event.phase == .changed {
                 isTracking = true
             }
 
-            accumulatedX += event.scrollingDeltaX
-            accumulatedY += event.scrollingDeltaY
-
-            if isTracking {
+            if isFingerEvent {
+                accumulatedX += event.scrollingDeltaX
+                accumulatedY += event.scrollingDeltaY
                 onScrollChanged?(accumulatedX, accumulatedY)
             }
 
-            if (event.phase == .ended || event.phase == .cancelled)
-                || (event.momentumPhase == .ended && event.phase == .none) {
+            if event.phase == .ended || event.phase == .cancelled {
                 if isTracking {
                     onScrollEnded?(accumulatedX, accumulatedY)
                 }

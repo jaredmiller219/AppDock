@@ -137,6 +137,7 @@ public enum AppDockConstants {
     public enum MenuGestures {
         public static let swipeThreshold: CGFloat = 30
         public static let dragMinimumDistance: CGFloat = 12
+        public static let swipePageThresholdFraction: CGFloat = 0.25
     }
 
     // Recents/favorites list spacing.

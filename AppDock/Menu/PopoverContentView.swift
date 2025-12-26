@@ -65,14 +65,21 @@ struct PopoverContentView: View {
     }
 
     private func handleInteractiveEnded(horizontal: CGFloat, vertical: CGFloat) {
-        guard abs(horizontal) > abs(vertical) else {
+        let isHorizontal = abs(horizontal) > abs(vertical)
+        guard isHorizontal else {
+            resetDrag()
+            return
+        }
+
+        let minDistance = max(AppDockConstants.MenuGestures.swipeThreshold,
+                              popoverWidth * AppDockConstants.MenuGestures.swipePageThresholdFraction)
+        guard abs(horizontal) >= minDistance else {
             resetDrag()
             return
         }
 
         let direction: SwipeDirection = horizontal < 0 ? .left : .right
-        guard abs(horizontal) >= AppDockConstants.MenuGestures.swipeThreshold,
-              let nextPage = neighborPage(for: direction) else {
+        guard let nextPage = neighborPage(for: direction) else {
             resetDrag()
             return
         }
