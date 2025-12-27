@@ -9,6 +9,7 @@ import Foundation
 /// Popover content for the menu bar window.
 struct PopoverContentView: View {
     @ObservedObject var appState: AppState
+    @ObservedObject var menuState: MenuState
     let settingsAction: () -> Void
     let aboutAction: () -> Void
     let quitAction: () -> Void
@@ -33,25 +34,23 @@ struct PopoverContentView: View {
         appState.reduceMotion ? nil : .easeInOut(duration: 0.22)
     }
 
-    private var pageTransition: AnyTransition {
-        guard !appState.reduceMotion else { return .opacity }
-        let moveForward = appState.menuPage.orderIndex >= previousPage.orderIndex
-        let insertion = AnyTransition.move(edge: moveForward ? .trailing : .leading)
-            .combined(with: .opacity)
-        let removal = AnyTransition.move(edge: moveForward ? .leading : .trailing)
-            .combined(with: .opacity)
-        return .asymmetric(insertion: insertion, removal: removal)
+    private var shouldAnimatePageSwap: Bool {
+        guard !appState.reduceMotion else { return false }
+        // Keep dock transitions snappy; animate between lighter pages.
+        return menuState.menuPage != .dock && previousPage != .dock
     }
 
     private func selectPage(_ page: MenuPage, animated: Bool = true) {
-        guard page != appState.menuPage else { return }
-        previousPage = appState.menuPage
-        if animated, let animation = pageAnimation {
-            withAnimation(animation) {
-                appState.menuPage = page
-            }
+        guard page != menuState.menuPage else { return }
+        previousPage = menuState.menuPage
+        if animated {
+            menuState.menuPage = page
         } else {
-            appState.menuPage = page
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                menuState.menuPage = page
+            }
         }
     }
 
@@ -64,8 +63,22 @@ struct PopoverContentView: View {
     }
 
     private func handleSwipeDirection(_ direction: SwipeDirection) {
-        guard let nextPage = MenuSwipeLogic.nextPage(from: appState.menuPage, direction: direction) else { return }
+        guard let nextPage = MenuSwipeLogic.nextPage(from: menuState.menuPage, direction: direction) else { return }
         selectPage(nextPage)
+    }
+
+    private func shouldUseInteractiveSwipe(
+        current: MenuPage,
+        direction: SwipeDirection
+    ) -> Bool {
+        if current == .dock {
+            return false
+        }
+        if let neighbor = neighborPage(for: direction),
+           neighbor == .dock {
+            return false
+        }
+        return true
     }
 
     private func handleInteractiveChanged(horizontal: CGFloat, vertical: CGFloat) {
@@ -73,6 +86,9 @@ struct PopoverContentView: View {
         let direction: SwipeDirection = horizontal < 0 ? .left : .right
         guard neighborPage(for: direction) != nil else {
             resetDrag()
+            return
+        }
+        guard shouldUseInteractiveSwipe(current: menuState.menuPage, direction: direction) else {
             return
         }
         isDragging = true
@@ -91,6 +107,14 @@ struct PopoverContentView: View {
             resetDrag()
             return
         }
+        guard shouldUseInteractiveSwipe(current: menuState.menuPage, direction: direction) else {
+            if MenuSwipeLogic.shouldCommit(horizontal: horizontal, vertical: vertical, width: popoverWidth),
+               let nextPage = neighborPage(for: direction) {
+                selectPage(nextPage, animated: false)
+            }
+            resetDrag()
+            return
+        }
 
         guard MenuSwipeLogic.shouldCommit(horizontal: horizontal, vertical: vertical, width: popoverWidth) else {
             resetDrag()
@@ -102,14 +126,15 @@ struct PopoverContentView: View {
             return
         }
 
-        let targetOffset = direction == .left ? -popoverWidth : popoverWidth
-        withAnimation(.easeOut(duration: dragCommitDuration)) {
-            dragOffset = targetOffset
+        suppressNextTransition = true
+        isDragging = true
+        let offsetAdjustment = direction == .left ? popoverWidth : -popoverWidth
+        dragOffset += offsetAdjustment
+        selectPage(nextPage, animated: false)
+        withAnimation(.easeInOut(duration: dragCommitDuration)) {
+            dragOffset = 0
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + dragCommitDuration) {
-            suppressNextTransition = true
-            selectPage(nextPage, animated: false)
-            dragOffset = 0
             isDragging = false
             showNeighborDuringDrag = true
             DispatchQueue.main.asyncAfter(deadline: .now() + dragCommitDuration) {
@@ -143,7 +168,7 @@ struct PopoverContentView: View {
     }
 
     private func neighborPage(for direction: SwipeDirection) -> MenuPage? {
-        guard let currentIndex = orderedPages.firstIndex(of: appState.menuPage) else { return nil }
+        guard let currentIndex = orderedPages.firstIndex(of: menuState.menuPage) else { return nil }
         let nextIndex = direction == .left ? currentIndex + 1 : currentIndex - 1
         guard orderedPages.indices.contains(nextIndex) else { return nil }
         return orderedPages[nextIndex]
@@ -162,7 +187,7 @@ struct PopoverContentView: View {
             NotificationCenter.default.post(name: .appDockDismissContextMenu, object: nil)
         })
         .onAppear {
-            previousPage = appState.menuPage
+            previousPage = menuState.menuPage
         }
     }
 }
@@ -179,6 +204,9 @@ private extension PopoverContentView {
                         .padding(.top, AppDockConstants.MenuLayout.dockPaddingTop)
                         .padding(.bottom, AppDockConstants.MenuLayout.dockPaddingBottom)
                 }
+                .onAppear {
+                    print("Menu page appeared: dock")
+                }
             case .recents:
                 ScrollView(showsIndicators: false) {
                     MenuAppListView(
@@ -192,6 +220,9 @@ private extension PopoverContentView {
                     .padding(.top, AppDockConstants.MenuLayout.recentsPaddingTop)
                     .padding(.bottom, AppDockConstants.MenuLayout.recentsPaddingBottom)
                 }
+                .onAppear {
+                    print("Menu page appeared: recents")
+                }
             case .favorites:
                 ScrollView(showsIndicators: false) {
                     MenuEmptyState(
@@ -202,6 +233,9 @@ private extension PopoverContentView {
                     .padding(.horizontal, AppDockConstants.MenuLayout.favoritesPaddingHorizontal)
                     .padding(.top, AppDockConstants.MenuLayout.favoritesPaddingTop)
                     .padding(.bottom, AppDockConstants.MenuLayout.favoritesPaddingBottom)
+                }
+                .onAppear {
+                    print("Menu page appeared: favorites")
                 }
             case .actions:
                 ScrollView(showsIndicators: false) {
@@ -215,6 +249,9 @@ private extension PopoverContentView {
                     .padding(.horizontal, AppDockConstants.MenuLayout.actionsPaddingHorizontal)
                     .padding(.top, AppDockConstants.MenuLayout.actionsPaddingTop)
                     .padding(.bottom, AppDockConstants.MenuLayout.actionsPaddingBottom)
+                }
+                .onAppear {
+                    print("Menu page appeared: actions")
                 }
             }
         }
@@ -260,10 +297,10 @@ private extension PopoverContentView {
     var advancedMenuContent: some View {
         VStack(spacing: 0) {
             Group {
-                if appState.menuPage == .dock {
+                if menuState.menuPage == .dock {
                     FilterMenuButton(appState: appState)
                 } else {
-                    MenuPageHeader(page: appState.menuPage)
+                    MenuPageHeader(page: menuState.menuPage)
                 }
             }
             .padding(.horizontal, AppDockConstants.MenuLayout.headerPaddingHorizontal)
@@ -279,11 +316,24 @@ private extension PopoverContentView {
                         pageContent(for: neighbor)
                             .offset(x: dragOffset + (direction == .left ? popoverWidth : -popoverWidth))
                     }
-                    pageContent(for: appState.menuPage)
+                    pageContent(for: menuState.menuPage)
                         .offset(x: dragOffset)
                 } else {
-                    pageContent(for: appState.menuPage)
-                        .transition(suppressNextTransition ? .identity : pageTransition)
+                    ZStack {
+                        pageContent(for: .dock)
+                            .opacity(menuState.menuPage == .dock ? 1 : 0)
+                            .allowsHitTesting(menuState.menuPage == .dock)
+                        pageContent(for: .recents)
+                            .opacity(menuState.menuPage == .recents ? 1 : 0)
+                            .allowsHitTesting(menuState.menuPage == .recents)
+                        pageContent(for: .favorites)
+                            .opacity(menuState.menuPage == .favorites ? 1 : 0)
+                            .allowsHitTesting(menuState.menuPage == .favorites)
+                        pageContent(for: .actions)
+                            .opacity(menuState.menuPage == .actions ? 1 : 0)
+                            .allowsHitTesting(menuState.menuPage == .actions)
+                    }
+                    .animation(shouldAnimatePageSwap ? pageAnimation : nil, value: menuState.menuPage)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -294,7 +344,7 @@ private extension PopoverContentView {
                 .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
                 .padding(.top, AppDockConstants.MenuLayout.bottomDividerPaddingTop)
 
-            MenuPageBar(selectedPage: appState.menuPage, onSelect: { selectPage($0) })
+            MenuPageBar(selectedPage: menuState.menuPage, onSelect: { selectPage($0) })
                 .padding(.horizontal, AppDockConstants.MenuLayout.bottomBarPaddingHorizontal)
                 .padding(.bottom, AppDockConstants.MenuLayout.bottomBarPaddingBottom)
         }

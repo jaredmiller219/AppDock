@@ -221,11 +221,11 @@ public enum AppDockConstants {
 
         // Recents + favorites
         /// Horizontal padding for the recents list content.
-        public static let recentsPaddingHorizontal: CGFloat = 12
+        public static let recentsPaddingHorizontal: CGFloat = 24
         /// Top padding for the recents list section.
         public static let recentsPaddingTop: CGFloat = 10
         /// Bottom padding for the recents list section.
-        public static let recentsPaddingBottom: CGFloat = 12
+        public static let recentsPaddingBottom: CGFloat = 10
         /// Horizontal padding for the favorites empty state content.
         public static let favoritesPaddingHorizontal: CGFloat = 12
         /// Top padding for the favorites empty state section.
@@ -235,7 +235,7 @@ public enum AppDockConstants {
 
         // Actions
         /// Horizontal padding for the actions menu rows.
-        public static let actionsPaddingHorizontal: CGFloat = 8
+        public static let actionsPaddingHorizontal: CGFloat = 24
         /// Top padding for the actions menu rows.
         public static let actionsPaddingTop: CGFloat = 8
         /// Bottom padding for the actions menu rows.
@@ -304,7 +304,7 @@ public enum AppDockConstants {
         public static let dragCancelDuration: TimeInterval = 0.35
         /// Duration for commit snap-forward.
         /// - Note: Keep shorter than cancel to maintain forward momentum.
-        public static let dragCommitDuration: TimeInterval = 0.28
+        public static let dragCommitDuration: TimeInterval = 0.25
     }
 
     // MARK: - Menu Content

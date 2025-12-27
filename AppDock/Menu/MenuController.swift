@@ -38,12 +38,14 @@ class MenuController: NSObject {
     /// Creates a popover controller for the dock and menu actions.
     func makePopoverController(
         appState: AppState,
+        menuState: MenuState,
         settingsAction: @escaping () -> Void,
         aboutAction: @escaping () -> Void,
         quitAction: @escaping () -> Void
     ) -> NSViewController {
         let contentView = PopoverContentView(
             appState: appState,
+            menuState: menuState,
             settingsAction: settingsAction,
             aboutAction: aboutAction,
             quitAction: quitAction

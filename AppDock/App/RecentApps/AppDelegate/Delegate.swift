@@ -18,6 +18,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Initialize the shared app state.
     @Published var appState = AppState()
+    /// Menu-only state to avoid re-rendering dock views on page switches.
+    @Published var menuState = MenuState()
 
     /// Create the status bar item with variable length.
     lazy var statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -70,6 +72,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Prepare popover content.
         popover.contentViewController = menu.makePopoverController(
             appState: appState,
+            menuState: menuState,
             settingsAction: { [weak self] in self?.openSettings() },
             aboutAction: { [weak self] in self?.about() },
             quitAction: { [weak self] in self?.quit() }

@@ -77,20 +77,12 @@ class AppState: ObservableObject {
             UserDefaults.standard.set(menuLayoutMode.rawValue, forKey: SettingsDefaults.menuLayoutModeKey)
         }
     }
-    /// Currently selected menu page in advanced layout.
-    @Published var menuPage = SettingsDefaults.menuPageDefault {
-        didSet {
-            UserDefaults.standard.set(menuPage.rawValue, forKey: SettingsDefaults.menuPageKey)
-        }
-    }
-
     // MARK: Initialization
 
     /// Initializes state from stored settings.
     ///
     /// - Note: Reads persisted values and applies them to the live state.
     init() {
-        menuPage = SettingsDefaults.menuPageValue()
         menuLayoutMode = SettingsDefaults.menuLayoutModeValue()
         applySettings(SettingsDraft.load())
     }

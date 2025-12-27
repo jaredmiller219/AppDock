@@ -16,7 +16,7 @@ extension AppDelegate {
         let arguments = ProcessInfo.processInfo.arguments
         guard arguments.contains(AppDockConstants.Testing.uiTestMode) else { return }
 
-        appState.menuPage = .dock
+        menuState.menuPage = .dock
         UserDefaults.standard.set(
             SettingsDefaults.simpleSettingsDefault,
             forKey: SettingsDefaults.simpleSettingsKey
@@ -88,6 +88,7 @@ extension AppDelegate {
 
         let controller = menu.makePopoverController(
             appState: appState,
+            menuState: menuState,
             settingsAction: { [weak self] in self?.openSettings() },
             aboutAction: { [weak self] in self?.about() },
             quitAction: { [weak self] in self?.quit() }
