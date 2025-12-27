@@ -7,6 +7,7 @@ import SwiftUI
 
 struct AdvancedSettingsTab: View {
     @Binding var draft: SettingsDraft
+
     private var useAdvancedLayout: Binding<Bool> {
         Binding(
             get: { !draft.simpleSettings },

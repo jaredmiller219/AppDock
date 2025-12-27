@@ -8,13 +8,6 @@ import SwiftUI
 struct GeneralSettingsTab: View {
     @Binding var draft: SettingsDraft
 
-    private var useAdvancedLayout: Binding<Bool> {
-        Binding(
-            get: { !draft.simpleSettings },
-            set: { draft.simpleSettings = !$0 }
-        )
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionSpacing) {
             GroupBox("General") {
