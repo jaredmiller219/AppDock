@@ -18,8 +18,16 @@ struct LayoutSettingsTab: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                    .accessibilityIdentifier(AppDockConstants.Accessibility.settingsMenuLayoutPicker)
+
+                    Text("Menu Layout Picker")
+                        .font(.caption2)
+                        .foregroundColor(.clear)
+                        .frame(width: 1, height: 1)
+                        .accessibilityIdentifier(AppDockConstants.Accessibility.settingsMenuLayoutPicker)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier(AppDockConstants.Accessibility.settingsMenuLayoutPicker)
             }
 
             GroupBox("Dock Layout") {

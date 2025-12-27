@@ -221,7 +221,9 @@ final class PopoverUITests: UITestBase {
         let activationLabel = anyElement(in: popoverWindow,
                                          id: UITestConstants.Accessibility.uiTestActivationRequest)
         XCTAssertTrue(activationLabel.waitForExistence(timeout: 2))
-        XCTAssertEqual(activationLabel.label, "com.example.alpha")
+        let activationPredicate = NSPredicate(format: "value == %@", "com.example.alpha")
+        expectation(for: activationPredicate, evaluatedWith: activationLabel)
+        waitForExpectations(timeout: 2)
     }
 
     @MainActor
@@ -234,14 +236,19 @@ final class PopoverUITests: UITestBase {
         let rightMode = anyElement(in: popoverWindow, id: UITestConstants.Accessibility.uiTestSwipeModeRight)
         XCTAssertTrue(leftMode.waitForExistence(timeout: 2))
         XCTAssertTrue(rightMode.waitForExistence(timeout: 2))
-        XCTAssertEqual(leftMode.label, "snap")
+        let leftSnapPredicate = NSPredicate(format: "value == %@", "snap")
+        expectation(for: leftSnapPredicate, evaluatedWith: leftMode)
+        waitForExpectations(timeout: 2)
 
         dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
         let recentsHeader = anyElement(in: popoverWindow,
                                        id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
         XCTAssertTrue(recentsHeader.waitForExistence(timeout: 4))
-        XCTAssertEqual(rightMode.label, "snap")
-        XCTAssertEqual(leftMode.label, "interactive")
+        let rightSnapPredicate = NSPredicate(format: "value == %@", "snap")
+        expectation(for: rightSnapPredicate, evaluatedWith: rightMode)
+        let leftInteractivePredicate = NSPredicate(format: "value == %@", "interactive")
+        expectation(for: leftInteractivePredicate, evaluatedWith: leftMode)
+        waitForExpectations(timeout: 2)
     }
 
     @MainActor

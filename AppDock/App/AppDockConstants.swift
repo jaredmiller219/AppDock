@@ -175,6 +175,8 @@ public enum AppDockConstants {
         public static let uiTestSwipeModeLeft = "UITestSwipeModeLeft"
         /// Identifier for the UI test swipe mode label (right).
         public static let uiTestSwipeModeRight = "UITestSwipeModeRight"
+        /// Identifier for the Settings menu layout picker.
+        public static let settingsMenuLayoutPicker = "SettingsMenuLayoutPicker"
     }
 
     // MARK: - Timing

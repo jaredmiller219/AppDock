@@ -67,10 +67,10 @@ final class SettingsUITests: UITestBase {
         XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
 
         settingsWindow.buttons["Layout"].click()
-        let segmented = settingsWindow.segmentedControls.firstMatch
-        XCTAssertTrue(segmented.waitForExistence(timeout: 2))
-        XCTAssertTrue(segmented.buttons["Simple"].exists)
-        XCTAssertTrue(segmented.buttons["Advanced"].exists)
+        let layoutPicker = anyElement(in: settingsWindow, id: UITestConstants.Accessibility.settingsMenuLayoutPicker)
+        XCTAssertTrue(layoutPicker.waitForExistence(timeout: 2))
+        XCTAssertTrue(settingsWindow.buttons["Simple"].exists)
+        XCTAssertTrue(settingsWindow.buttons["Advanced"].exists)
     }
 
     @MainActor
@@ -90,7 +90,7 @@ final class SettingsUITests: UITestBase {
         XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
 
         let applyButton = settingsWindow.buttons["Apply"]
-        let actionsButton = settingsWindow.buttons["Settings Actions"]
+        let actionsButton = anyElement(in: settingsWindow, id: "Settings Actions")
         XCTAssertTrue(actionsButton.waitForExistence(timeout: 2))
         actionsButton.click()
         XCTAssertTrue(app.menuItems["Restore Defaults"].waitForExistence(timeout: 1))

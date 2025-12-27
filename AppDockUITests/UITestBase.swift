@@ -23,6 +23,7 @@ class UITestBase: XCTestCase {
             static let uiTestActivationRequest = "UITestActivationRequest"
             static let uiTestSwipeModeLeft = "UITestSwipeModeLeft"
             static let uiTestSwipeModeRight = "UITestSwipeModeRight"
+            static let settingsMenuLayoutPicker = "SettingsMenuLayoutPicker"
         }
 
         enum TestingArgs {
