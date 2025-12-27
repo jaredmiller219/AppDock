@@ -30,11 +30,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		673484FD2D20C1FD007DD6F8 /* Video */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Video;
-			sourceTree = "<group>";
-		};
 		67C6BD9F2D0BE5B7000F25E5 /* AppDock */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = AppDock;
@@ -80,7 +75,6 @@
 		67C6BD942D0BE5B7000F25E5 = {
 			isa = PBXGroup;
 			children = (
-				673484FD2D20C1FD007DD6F8 /* Video */,
 				67C6BD9F2D0BE5B7000F25E5 /* AppDock */,
 				67C6BDB12D0BE5B9000F25E5 /* AppDockTests */,
 				67C6BDBB2D0BE5B9000F25E5 /* AppDockUITests */,
@@ -114,7 +108,6 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				673484FD2D20C1FD007DD6F8 /* Video */,
 				67C6BD9F2D0BE5B7000F25E5 /* AppDock */,
 			);
 			name = AppDock;
