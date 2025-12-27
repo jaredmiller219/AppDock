@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import AppKit
 
 struct MenuAppListView: View {
     let title: String
@@ -37,27 +38,69 @@ struct MenuAppListView: View {
 
 struct MenuAppRow: View {
     let app: AppState.AppEntry
+    @State private var isHovering = false
+
+    private func openApp(bundleId: String) {
+        guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleId) else {
+            return
+        }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = true
+        configuration.createsNewApplicationInstance = false
+        NSWorkspace.shared.openApplication(
+            at: appURL,
+            configuration: configuration,
+            completionHandler: nil
+        )
+    }
+
+    private func activateOrLaunchApp(bundleId: String) {
+        if ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestDisableActivation) {
+            return
+        }
+        guard !bundleId.isEmpty else { return }
+
+        if let targetApp = NSRunningApplication
+            .runningApplications(withBundleIdentifier: bundleId)
+            .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
+            targetApp.unhide()
+            targetApp.activate(options: [.activateAllWindows])
+            openApp(bundleId: bundleId)
+        } else {
+            openApp(bundleId: bundleId)
+        }
+    }
 
     var body: some View {
-        HStack(spacing: AppDockConstants.MenuAppRow.spacing) {
-            Image(nsImage: app.icon)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: AppDockConstants.MenuAppRow.iconSize, height: AppDockConstants.MenuAppRow.iconSize)
-                .cornerRadius(AppDockConstants.MenuAppRow.iconCornerRadius)
+        Button {
+            activateOrLaunchApp(bundleId: app.bundleid)
+        } label: {
+            HStack(spacing: AppDockConstants.MenuAppRow.spacing) {
+                Image(nsImage: app.icon)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: AppDockConstants.MenuAppRow.iconSize, height: AppDockConstants.MenuAppRow.iconSize)
+                    .cornerRadius(AppDockConstants.MenuAppRow.iconCornerRadius)
 
-            Text(app.name)
-                .font(.callout)
-                .lineLimit(1)
+                Text(app.name)
+                    .font(.callout)
+                    .lineLimit(1)
 
-            Spacer()
+                Spacer()
+            }
+            .padding(.horizontal, AppDockConstants.MenuAppRow.paddingHorizontal)
+            .padding(.vertical, AppDockConstants.MenuAppRow.paddingVertical)
+            .background(
+                RoundedRectangle(cornerRadius: AppDockConstants.MenuAppRow.cornerRadius)
+                    .fill(isHovering ? Color.primary.opacity(0.1) : Color.primary.opacity(0.05))
+            )
         }
-        .padding(.horizontal, AppDockConstants.MenuAppRow.paddingHorizontal)
-        .padding(.vertical, AppDockConstants.MenuAppRow.paddingVertical)
-        .background(
-            RoundedRectangle(cornerRadius: AppDockConstants.MenuAppRow.cornerRadius)
-                .fill(Color.primary.opacity(0.05))
-        )
+        .buttonStyle(.plain)
+        .contentShape(RoundedRectangle(cornerRadius: AppDockConstants.MenuAppRow.cornerRadius))
+        .onHover { hovering in
+            isHovering = hovering
+        }
+        .disabled(app.bundleid.isEmpty)
     }
 }
 
