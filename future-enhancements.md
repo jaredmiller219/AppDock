@@ -1,24 +1,12 @@
 # Future Enhancements
 
 - Optional removal of quit apps after a timeout or on next launch.
-- Accessibility-based window unminimize for consistent restoration.
-- User-configurable grid sizing and sorting.
 - Theming for icons, labels, and context menu appearance.
-- Theme packs with presets (Classic, Minimal, High-contrast, Custom).
-- Theme editor with live preview (colors, label styles, icon treatment).
-- Optional per-theme layouts (grid sizing, spacing, icon/label scale).
+- Theme packs with presets (Classic, Minimal, High-contrast).
 
 ## Quit App Cleanup
 
 Provide an optional cleanup policy for apps that have been quit. This keeps the dock tidy while still supporting workflows where users want a short-lived history of recent apps. The policy should be configurable (timeout vs. on next launch) and respect "Keep apps after quit" when enabled.
-
-## Accessibility Restore
-
-Improve app restoration using accessibility APIs to unminimize and re-focus windows consistently. This should be opt-in and fail gracefully when the app or window does not allow AX control, falling back to existing `unhide()` and activation behavior.
-
-## Grid Sizing and Sorting
-
-Expose grid sizing and sorting preferences directly to users, including column/row bounds and default sort order. Changes should update the live dock layout and persist in settings so the popover opens with the chosen layout.
 
 ## Theme System
 
@@ -26,7 +14,7 @@ Add a theme system that controls icon, label, and menu styling in one place. The
 
 ### Theme Packs
 
-Ship a set of preset themes (Classic, Minimal, High-contrast, Custom) to provide quick starts without manual customization. Each pack should define colors, label styles, and icon treatments.
+Ship a set of preset themes (Classic, Minimal, High-contrast) to provide quick starts without manual customization. Each pack should define colors, label styles, and icon treatments.
 
 ### Theme Editor
 
@@ -34,6 +22,7 @@ Offer a lightweight theme editor with live preview. Users should be able to twea
 
 ### Per-Theme Layouts
 
+"Probably not add this"
 Allow themes to optionally override layout values like grid size, spacing, and icon/label scale. This lets a compact theme differ materially from a spacious or accessibility-focused theme.
 
 ## Next Up: Paged Menu System
