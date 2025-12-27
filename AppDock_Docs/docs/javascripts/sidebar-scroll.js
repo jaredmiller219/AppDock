@@ -32,10 +32,19 @@
       return;
     }
 
-    restoreScroll(container);
+    // Defer restore to override theme auto-scrolling to the active item.
+    requestAnimationFrame(() => restoreScroll(container));
+    window.addEventListener(
+      "load",
+      () => {
+        setTimeout(() => restoreScroll(container), 0);
+      },
+      { once: true }
+    );
     container.addEventListener("scroll", () => saveScroll(container), {
       passive: true,
     });
+    window.addEventListener("beforeunload", () => saveScroll(container));
   };
 
   if (document.readyState === "loading") {
