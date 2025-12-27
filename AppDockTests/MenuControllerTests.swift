@@ -9,9 +9,11 @@ final class MenuControllerTests: XCTestCase {
     func testMakePopoverController_returnsHostingControllerWithSize() {
         let controller = MenuController()
         let appState = AppDock.AppState()
+        let menuState = MenuState()
         
         let popVC = controller.makePopoverController(
             appState: appState,
+            menuState: menuState,
             settingsAction: {},
             aboutAction: {},
             quitAction: {}
@@ -30,10 +32,12 @@ final class MenuControllerTests: XCTestCase {
     func testMakePopoverController_widthExpandsWithExtraColumns() {
         let controller = MenuController()
         let appState = AppDock.AppState()
+        let menuState = MenuState()
         appState.gridColumns = SettingsDefaults.gridColumnsDefault + 2
 
         let popVC = controller.makePopoverController(
             appState: appState,
+            menuState: menuState,
             settingsAction: {},
             aboutAction: {},
             quitAction: {}
@@ -51,10 +55,12 @@ final class MenuControllerTests: XCTestCase {
     func testMakePopoverController_widthStaysDefaultWhenColumnsBelowDefault() {
         let controller = MenuController()
         let appState = AppDock.AppState()
+        let menuState = MenuState()
         appState.gridColumns = max(0, SettingsDefaults.gridColumnsDefault - 2)
 
         let popVC = controller.makePopoverController(
             appState: appState,
+            menuState: menuState,
             settingsAction: {},
             aboutAction: {},
             quitAction: {}
@@ -71,11 +77,13 @@ final class MenuControllerTests: XCTestCase {
     func testMakePopoverController_heightAlwaysUsesPopoverSizingHeight() {
         let controller = MenuController()
         let appState = AppDock.AppState()
+        let menuState = MenuState()
         appState.gridColumns = SettingsDefaults.gridColumnsDefault + 3
         appState.iconSize = SettingsDefaults.iconSizeDefault + 12
 
         let popVC = controller.makePopoverController(
             appState: appState,
+            menuState: menuState,
             settingsAction: {},
             aboutAction: {},
             quitAction: {}
@@ -92,11 +100,13 @@ final class MenuControllerTests: XCTestCase {
     func testMakePopoverController_widthAccountsForIconSizeChanges() {
         let controller = MenuController()
         let appState = AppDock.AppState()
+        let menuState = MenuState()
         appState.gridColumns = SettingsDefaults.gridColumnsDefault + 1
         appState.iconSize = SettingsDefaults.iconSizeDefault + 10
 
         let popVC = controller.makePopoverController(
             appState: appState,
+            menuState: menuState,
             settingsAction: {},
             aboutAction: {},
             quitAction: {}
@@ -115,12 +125,14 @@ final class MenuControllerTests: XCTestCase {
     func testMakePopoverController_wiresActions() {
         let controller = MenuController()
         let appState = AppDock.AppState()
+        let menuState = MenuState()
         var settingsCalled = false
         var aboutCalled = false
         var quitCalled = false
         
         let popVC = controller.makePopoverController(
             appState: appState,
+            menuState: menuState,
             settingsAction: { settingsCalled = true },
             aboutAction: { aboutCalled = true },
             quitAction: { quitCalled = true }
