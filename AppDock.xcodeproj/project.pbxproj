@@ -35,6 +35,11 @@
 			path = AppDock;
 			sourceTree = "<group>";
 		};
+		67C6BDE02D0BE6A5000F25E5 /* AppDock_Docs */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = AppDock_Docs/docs;
+			sourceTree = "<group>";
+		};
 		67C6BDB12D0BE5B9000F25E5 /* AppDockTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = AppDockTests;
@@ -76,6 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				67C6BD9F2D0BE5B7000F25E5 /* AppDock */,
+				67C6BDE02D0BE6A5000F25E5 /* AppDock_Docs */,
 				67C6BDB12D0BE5B9000F25E5 /* AppDockTests */,
 				67C6BDBB2D0BE5B9000F25E5 /* AppDockUITests */,
 				67C6BD9E2D0BE5B7000F25E5 /* Products */,
