@@ -20,6 +20,9 @@ class UITestBase: XCTestCase {
             static let uiTestTrackpadSwipeLeft = "UITestTrackpadSwipeLeft"
             static let uiTestDismissContextMenu = "UITestDismissContextMenu"
             static let uiTestStatusItemProxy = "UITestStatusItemProxy"
+            static let uiTestActivationRequest = "UITestActivationRequest"
+            static let uiTestSwipeModeLeft = "UITestSwipeModeLeft"
+            static let uiTestSwipeModeRight = "UITestSwipeModeRight"
         }
 
         enum TestingArgs {

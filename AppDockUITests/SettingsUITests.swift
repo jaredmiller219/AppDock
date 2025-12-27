@@ -59,4 +59,61 @@ final class SettingsUITests: UITestBase {
         settingsWindow.buttons["Advanced"].click()
         XCTAssertTrue(settingsWindow.checkBoxes["Enable debug logging"].waitForExistence(timeout: 2))
     }
+
+    @MainActor
+    func testLayoutTabShowsMenuLayoutPicker() throws {
+        let app = launchAppForSettingsTests()
+        let settingsWindow = app.windows["AppDock Settings"]
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+
+        settingsWindow.buttons["Layout"].click()
+        let segmented = settingsWindow.segmentedControls.firstMatch
+        XCTAssertTrue(segmented.waitForExistence(timeout: 2))
+        XCTAssertTrue(segmented.buttons["Simple"].exists)
+        XCTAssertTrue(segmented.buttons["Advanced"].exists)
+    }
+
+    @MainActor
+    func testAdvancedTabShowsSettingsLayoutToggle() throws {
+        let app = launchAppForSettingsTests()
+        let settingsWindow = app.windows["AppDock Settings"]
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+
+        settingsWindow.buttons["Advanced"].click()
+        XCTAssertTrue(settingsWindow.checkBoxes["Use advanced settings layout"].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testApplyButtonDisabledUntilChangesMade() throws {
+        let app = launchAppForSettingsTests()
+        let settingsWindow = app.windows["AppDock Settings"]
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+
+        let applyButton = settingsWindow.buttons["Apply"]
+        let actionsButton = settingsWindow.buttons["Settings Actions"]
+        XCTAssertTrue(actionsButton.waitForExistence(timeout: 2))
+        actionsButton.click()
+        XCTAssertTrue(app.menuItems["Restore Defaults"].waitForExistence(timeout: 1))
+        app.menuItems["Restore Defaults"].click()
+        XCTAssertFalse(applyButton.isEnabled)
+
+        settingsWindow.buttons["Behavior"].click()
+        let labelToggle = settingsWindow.checkBoxes["Show app labels"]
+        XCTAssertTrue(labelToggle.waitForExistence(timeout: 2))
+        labelToggle.click()
+        XCTAssertTrue(applyButton.isEnabled)
+    }
+
+    @MainActor
+    func testSidebarButtonsRespondToFullRowClicks() throws {
+        let app = launchAppForSettingsTests()
+        let settingsWindow = app.windows["AppDock Settings"]
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+
+        let layoutButton = settingsWindow.buttons["Layout"]
+        XCTAssertTrue(layoutButton.waitForExistence(timeout: 2))
+        let rightEdge = layoutButton.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5))
+        rightEdge.click()
+        XCTAssertTrue(settingsWindow.staticTexts["Columns"].waitForExistence(timeout: 2))
+    }
 }

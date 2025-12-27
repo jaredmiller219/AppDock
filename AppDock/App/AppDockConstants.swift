@@ -169,6 +169,12 @@ public enum AppDockConstants {
         public static let uiTestDismissContextMenu = "UITestDismissContextMenu"
         /// Identifier for the UI test status item proxy button.
         public static let uiTestStatusItemProxy = "UITestStatusItemProxy"
+        /// Identifier for the UI test activation request label.
+        public static let uiTestActivationRequest = "UITestActivationRequest"
+        /// Identifier for the UI test swipe mode label (left).
+        public static let uiTestSwipeModeLeft = "UITestSwipeModeLeft"
+        /// Identifier for the UI test swipe mode label (right).
+        public static let uiTestSwipeModeRight = "UITestSwipeModeRight"
     }
 
     // MARK: - Timing

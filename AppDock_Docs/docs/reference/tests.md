@@ -7,6 +7,7 @@
 - `AppDockTests/MenuControllerTests.swift`: Popover controller creation and action wiring tests.
 - `AppDockTests/MenuGesturesTests.swift`: Menu gesture constants and thresholds coverage.
 - `AppDockTests/MenuSwipeLogicTests.swift`: Swipe threshold and commit logic coverage.
+- `AppDockTests/MenuStateTests.swift`: Menu page persistence in `MenuState`.
 - `AppDockTests/RecentAppsController.swift`: AppDelegate logic tests with mock workspace and running apps.
 - `AppDockTests/AppStateSettingsTests.swift`: AppState settings propagation and persistence tests.
 - `AppDockTests/SettingsDefaultsTests.swift`: Settings default values and restore behavior tests.

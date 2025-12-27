@@ -77,6 +77,8 @@ class AppState: ObservableObject {
             UserDefaults.standard.set(menuLayoutMode.rawValue, forKey: SettingsDefaults.menuLayoutModeKey)
         }
     }
+    /// UI-test-only: records last activation request for recents rows.
+    @Published var uiTestLastActivationBundleId: String = ""
     // MARK: Initialization
 
     /// Initializes state from stored settings.

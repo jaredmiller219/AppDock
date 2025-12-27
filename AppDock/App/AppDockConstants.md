@@ -13,6 +13,7 @@ Settings window sizing and layout behavior, used by the Settings window and its 
 - Defined in: `AppDock/App/AppDockConstants.swift#L11`
 - Used in:
   - `AppDock/Settings/SettingsView.swift`
+  - `AppDock/Settings/Views/SettingsSidebarView.swift`
   - `AppDock/App/RecentApps/AppDelegate/Delegate.swift`
 - Notes: Keeps the Settings window readable and prevents cramped layouts.
 
@@ -30,6 +31,11 @@ public enum SettingsUI {
 - Defined in: `AppDock/App/AppDockConstants.swift#L18`
 - Used in:
   - `AppDock/Settings/SettingsView.swift`
+  - `AppDock/Settings/Views/SettingsHeaderView.swift`
+  - `AppDock/Settings/Views/SettingsSidebarView.swift`
+  - `AppDock/Settings/Views/SettingsContentView.swift`
+  - `AppDock/Settings/Views/SettingsFooterView.swift`
+  - `AppDock/Settings/Tabs/*.swift`
 - Notes: Keeps section spacing, header sizing, and tab spacing consistent.
 
 ```swift
@@ -61,7 +67,7 @@ public enum SettingsLayout {
 - Purpose: Valid ranges for settings controls (steppers/sliders).
 - Defined in: `AppDock/App/AppDockConstants.swift#L41`
 - Used in:
-  - `AppDock/Settings/SettingsView.swift`
+  - `AppDock/Settings/Tabs/LayoutSettingsTab.swift`
 - Notes: Enforces valid ranges for user-facing controls.
 
 ```swift

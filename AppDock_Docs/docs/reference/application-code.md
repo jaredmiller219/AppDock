@@ -16,5 +16,7 @@
 - `AppDock/Dock/DockView.swift`: Dock grid UI and context menu overlay composition.
 - `AppDock/Dock/DockAppList.swift`: Pure helper for filtering, sorting, and padding dock entries.
 - `AppDock/Dock/Parts/`: Dock subviews and helpers (ButtonView, ContextMenuView, IconView, EmptySlot, VisualEffectBlur, notifications).
-- `AppDock/Settings/SettingsView.swift`: Settings UI with staged apply and `SettingsDefaults`/`SettingsDraft`.
+- `AppDock/Settings/SettingsView.swift`: Settings window shell, state, and apply actions.
+- `AppDock/Settings/Views/`: Settings header/sidebar/content/footer composition.
+- `AppDock/Settings/Tabs/`: Individual settings tab views and tab definitions.
 - `AppDock/Settings/SettingsSupport.swift`: Supporting types and helpers for settings behavior.

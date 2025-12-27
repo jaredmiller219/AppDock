@@ -12,6 +12,7 @@ struct MenuAppListView: View {
     let emptyTitle: String
     let emptyMessage: String
     let emptySystemImage: String
+    let appState: AppState
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppDockConstants.MenuAppList.spacing) {
@@ -28,7 +29,7 @@ struct MenuAppListView: View {
             } else {
                 VStack(spacing: AppDockConstants.MenuAppList.rowSpacing) {
                     ForEach(Array(apps.enumerated()), id: \.offset) { _, app in
-                        MenuAppRow(app: app)
+                        MenuAppRow(app: app, appState: appState)
                     }
                 }
             }
@@ -38,6 +39,7 @@ struct MenuAppListView: View {
 
 struct MenuAppRow: View {
     let app: AppState.AppEntry
+    let appState: AppState
     @State private var isHovering = false
 
     private func openApp(bundleId: String) {
@@ -56,6 +58,9 @@ struct MenuAppRow: View {
 
     private func activateOrLaunchApp(bundleId: String) {
         if ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestDisableActivation) {
+            if ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestMode) {
+                appState.uiTestLastActivationBundleId = bundleId
+            }
             return
         }
         guard !bundleId.isEmpty else { return }

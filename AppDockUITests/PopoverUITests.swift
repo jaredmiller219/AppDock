@@ -203,6 +203,48 @@ final class PopoverUITests: UITestBase {
     }
 
     @MainActor
+    func testPopoverRecentsClickRequestsActivation() throws {
+        let app = launchAppForPopoverTests()
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
+
+        let recentsHeader = anyElement(in: popoverWindow,
+                                       id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
+        XCTAssertTrue(recentsHeader.waitForExistence(timeout: 4))
+
+        let alphaButton = popoverWindow.buttons["Alpha"]
+        XCTAssertTrue(alphaButton.waitForExistence(timeout: 4))
+        alphaButton.click()
+
+        let activationLabel = anyElement(in: popoverWindow,
+                                         id: UITestConstants.Accessibility.uiTestActivationRequest)
+        XCTAssertTrue(activationLabel.waitForExistence(timeout: 2))
+        XCTAssertEqual(activationLabel.label, "com.example.alpha")
+    }
+
+    @MainActor
+    func testPopoverSwipeModeIndicators() throws {
+        let app = launchAppForPopoverTests()
+        let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
+        XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
+
+        let leftMode = anyElement(in: popoverWindow, id: UITestConstants.Accessibility.uiTestSwipeModeLeft)
+        let rightMode = anyElement(in: popoverWindow, id: UITestConstants.Accessibility.uiTestSwipeModeRight)
+        XCTAssertTrue(leftMode.waitForExistence(timeout: 2))
+        XCTAssertTrue(rightMode.waitForExistence(timeout: 2))
+        XCTAssertEqual(leftMode.label, "snap")
+
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
+        let recentsHeader = anyElement(in: popoverWindow,
+                                       id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
+        XCTAssertTrue(recentsHeader.waitForExistence(timeout: 4))
+        XCTAssertEqual(rightMode.label, "snap")
+        XCTAssertEqual(leftMode.label, "interactive")
+    }
+
+    @MainActor
     func testPopoverFavoritesShowsEmptyState() throws {
         let app = launchAppForPopoverTests()
         let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]

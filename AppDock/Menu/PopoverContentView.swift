@@ -81,6 +81,10 @@ struct PopoverContentView: View {
         return true
     }
 
+    private func swipeModeLabel(for direction: SwipeDirection) -> String {
+        shouldUseInteractiveSwipe(current: menuState.menuPage, direction: direction) ? "interactive" : "snap"
+    }
+
     private func handleInteractiveChanged(horizontal: CGFloat, vertical: CGFloat) {
         guard abs(horizontal) > abs(vertical) else { return }
         let direction: SwipeDirection = horizontal < 0 ? .left : .right
@@ -214,7 +218,8 @@ private extension PopoverContentView {
                         apps: appState.recentApps,
                         emptyTitle: "No Recent Apps",
                         emptyMessage: "Launch an app to see it here.",
-                        emptySystemImage: "clock.arrow.circlepath"
+                        emptySystemImage: "clock.arrow.circlepath",
+                        appState: appState
                     )
                     .padding(.horizontal, AppDockConstants.MenuLayout.recentsPaddingHorizontal)
                     .padding(.top, AppDockConstants.MenuLayout.recentsPaddingTop)
@@ -396,6 +401,24 @@ private extension PopoverContentView {
                     .accessibilityLabel("UI Test Dismiss Context Menu")
                     .accessibilityAddTraits(.isButton)
                     .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestDismissContextMenu)
+
+                    Text(appState.uiTestLastActivationBundleId)
+                        .font(.caption2)
+                        .foregroundColor(.clear)
+                        .frame(width: 1, height: 1)
+                        .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestActivationRequest)
+
+                    Text(swipeModeLabel(for: .left))
+                        .font(.caption2)
+                        .foregroundColor(.clear)
+                        .frame(width: 1, height: 1)
+                        .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestSwipeModeLeft)
+
+                    Text(swipeModeLabel(for: .right))
+                        .font(.caption2)
+                        .foregroundColor(.clear)
+                        .frame(width: 1, height: 1)
+                        .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestSwipeModeRight)
                 }
                 .zIndex(10)
             }
