@@ -198,8 +198,8 @@ final class PopoverUITests: UITestBase {
         let recentsHeader = anyElement(in: popoverWindow,
                                        id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
         XCTAssertTrue(recentsHeader.waitForExistence(timeout: 4))
-        XCTAssertTrue(app.staticTexts["Alpha"].waitForExistence(timeout: 4))
-        XCTAssertTrue(app.staticTexts["Bravo"].waitForExistence(timeout: 4))
+        XCTAssertTrue(popoverWindow.buttons["Alpha"].waitForExistence(timeout: 4))
+        XCTAssertTrue(popoverWindow.buttons["Bravo"].waitForExistence(timeout: 4))
     }
 
     @MainActor

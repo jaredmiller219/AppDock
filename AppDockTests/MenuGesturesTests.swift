@@ -7,7 +7,7 @@ final class MenuGesturesTests: XCTestCase {
         XCTAssertEqual(AppDockConstants.MenuGestures.dragMinimumDistance, 12)
         XCTAssertEqual(AppDockConstants.MenuGestures.swipePageThresholdFraction, 0.4)
         XCTAssertEqual(AppDockConstants.MenuGestures.dragCancelDuration, 0.35, accuracy: 0.001)
-        XCTAssertEqual(AppDockConstants.MenuGestures.dragCommitDuration, 0.28, accuracy: 0.001)
+        XCTAssertEqual(AppDockConstants.MenuGestures.dragCommitDuration, 0.25, accuracy: 0.001)
     }
 
     func testMenuGestureThresholdFractionIsValid() {
