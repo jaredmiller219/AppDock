@@ -288,7 +288,6 @@ private extension PopoverContentView {
                 Divider()
                 MenuRow(title: "Quit AppDock", action: quitAction)
             }
-            .padding(.horizontal, AppDockConstants.MenuLayout.actionsPaddingHorizontal)
             .padding(.top, AppDockConstants.MenuLayout.actionsPaddingTop)
             .padding(.bottom, AppDockConstants.MenuLayout.actionsPaddingBottom)
         }
