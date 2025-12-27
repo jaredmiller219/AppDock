@@ -17,13 +17,6 @@ struct GeneralSettingsTab: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionSpacing) {
-            GroupBox("Settings Layout") {
-                VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
-                    Toggle("Use advanced settings layout", isOn: useAdvancedLayout)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-
             GroupBox("General") {
                 VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
                     Toggle("Launch at login", isOn: $draft.launchAtLogin)
