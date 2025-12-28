@@ -37,14 +37,26 @@ private struct ShortcutRow: View {
     let title: String
     @Binding var shortcut: ShortcutDefinition?
 
+    private var displayValue: String {
+        guard let shortcut else { return "Record Shortcut" }
+        return ShortcutFormatter.string(for: shortcut)
+    }
+
     var body: some View {
         HStack {
             Text(title)
             Spacer()
-            ShortcutRecorder(shortcut: $shortcut)
+            ShortcutRecorder(
+                shortcut: $shortcut,
+                accessibilityIdentifier: AppDockConstants.Accessibility.shortcutRecorderPrefix + title
+            )
                 .frame(width: 160)
                 .accessibilityLabel(Text(title))
-                .accessibilityIdentifier(AppDockConstants.Accessibility.shortcutRecorderPrefix + title)
+            Text(displayValue)
+                .font(.caption2)
+                .foregroundColor(.clear)
+                .frame(width: 1, height: 1)
+                .accessibilityIdentifier(AppDockConstants.Accessibility.shortcutRecorderValuePrefix + title)
         }
     }
 }

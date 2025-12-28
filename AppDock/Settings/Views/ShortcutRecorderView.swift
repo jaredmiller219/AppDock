@@ -8,6 +8,7 @@ import AppKit
 
 struct ShortcutRecorder: NSViewRepresentable {
     @Binding var shortcut: ShortcutDefinition?
+    var accessibilityIdentifier: String?
 
     func makeCoordinator() -> Coordinator {
         Coordinator(shortcut: $shortcut)
@@ -19,11 +20,17 @@ struct ShortcutRecorder: NSViewRepresentable {
         field.onEditingStateChange = { isEditing in
             context.coordinator.isEditing = isEditing
         }
+        if let accessibilityIdentifier {
+            field.setAccessibilityIdentifier(accessibilityIdentifier)
+        }
         field.updateDisplay(with: shortcut, isEditing: false)
         return field
     }
 
     func updateNSView(_ nsView: ShortcutRecorderField, context: Context) {
+        if let accessibilityIdentifier {
+            nsView.setAccessibilityIdentifier(accessibilityIdentifier)
+        }
         nsView.updateDisplay(with: shortcut, isEditing: context.coordinator.isEditing)
     }
 
@@ -50,6 +57,7 @@ final class ShortcutRecorderField: NSTextField {
         bezelStyle = .roundedBezel
         focusRingType = .default
         alignment = .center
+        setAccessibilityElement(true)
     }
 
     required init?(coder: NSCoder) {
@@ -109,6 +117,8 @@ final class ShortcutRecorderField: NSTextField {
         if isEditing {
             stringValue = "Type Shortcut"
             setAccessibilityValue(stringValue)
+            setAccessibilityLabel(stringValue)
+            setAccessibilityTitle(stringValue)
             return
         }
         if let shortcut {
@@ -117,6 +127,8 @@ final class ShortcutRecorderField: NSTextField {
             stringValue = "Record Shortcut"
         }
         setAccessibilityValue(stringValue)
+        setAccessibilityLabel(stringValue)
+        setAccessibilityTitle(stringValue)
     }
 
     private func isModifierKey(_ keyCode: UInt16) -> Bool {

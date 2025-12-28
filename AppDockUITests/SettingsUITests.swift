@@ -89,23 +89,35 @@ final class SettingsUITests: UITestBase {
             id: UITestConstants.Accessibility.shortcutRecorderPrefix + "Toggle popover"
         )
         XCTAssertTrue(toggleRecorder.waitForExistence(timeout: 2))
+        let toggleRecorderValue = anyElement(
+            in: settingsWindow,
+            id: UITestConstants.Accessibility.shortcutRecorderValuePrefix + "Toggle popover"
+        )
+        XCTAssertTrue(toggleRecorderValue.waitForExistence(timeout: 2))
 
         toggleRecorder.click()
         app.typeKey("k", modifierFlags: [.command, .option])
-        XCTAssertTrue(waitForValueContaining(toggleRecorder, substring: "K", timeout: 2))
-        XCTAssertTrue(waitForValueContaining(toggleRecorder, substring: "⌘", timeout: 2))
+        settingsWindow.click()
+        XCTAssertTrue(waitForDisplayedTextContaining(toggleRecorderValue, substring: "K", timeout: 2))
+        XCTAssertTrue(waitForDisplayedTextContaining(toggleRecorderValue, substring: "⌘", timeout: 2))
 
         toggleRecorder.click()
         app.typeKey(XCUIKeyboardKey.delete.rawValue, modifierFlags: [])
-        XCTAssertTrue(waitForValueContaining(toggleRecorder, substring: "Record", timeout: 2))
+        settingsWindow.click()
+        XCTAssertTrue(waitForDisplayedTextContaining(toggleRecorderValue, substring: "Record", timeout: 2))
     }
 
-    private func waitForValueContaining(
+    private func waitForDisplayedTextContaining(
         _ element: XCUIElement,
         substring: String,
         timeout: TimeInterval
     ) -> Bool {
-        let predicate = NSPredicate(format: "value CONTAINS %@", substring)
+        let predicate = NSPredicate(
+            format: "value CONTAINS %@ OR label CONTAINS %@ OR title CONTAINS %@",
+            substring,
+            substring,
+            substring
+        )
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
         return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
     }

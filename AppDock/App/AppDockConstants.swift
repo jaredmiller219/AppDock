@@ -155,6 +155,8 @@ public enum AppDockConstants {
         public static let menuAppRowPrefix = "MenuAppRow-"
         /// Prefix for shortcut recorder identifiers.
         public static let shortcutRecorderPrefix = "ShortcutRecorder-"
+        /// Prefix for shortcut recorder value identifiers.
+        public static let shortcutRecorderValuePrefix = "ShortcutRecorderValue-"
         /// Identifier for the dock context menu container.
         public static let contextMenu = "DockContextMenu"
         /// Identifier for the favorites empty state.

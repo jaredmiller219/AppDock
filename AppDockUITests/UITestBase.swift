@@ -28,6 +28,7 @@ class UITestBase: XCTestCase {
             static let uiTestSwipeModeRight = "UITestSwipeModeRight"
             static let settingsMenuLayoutPicker = "SettingsMenuLayoutPicker"
             static let favoritesEmptyState = "FavoritesEmptyState"
+            static let shortcutRecorderValuePrefix = "ShortcutRecorderValue-"
         }
 
         enum ShortcutActions {
