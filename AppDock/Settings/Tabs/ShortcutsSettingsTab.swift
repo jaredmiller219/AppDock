@@ -68,5 +68,8 @@ private struct ShortcutRow: View {
                 .frame(width: 1, height: 1)
                 .accessibilityIdentifier(AppDockConstants.Accessibility.shortcutRecorderValuePrefix + title)
         }
+        .onAppear {
+            isEditing = false
+        }
     }
 }
