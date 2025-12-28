@@ -107,6 +107,39 @@ final class SettingsUITests: UITestBase {
         XCTAssertTrue(waitForDisplayedTextContaining(toggleRecorderValue, substring: "Record", timeout: 2))
     }
 
+    @MainActor
+    func testShortcutRecorderCancelExitsEditMode() throws {
+        let app = launchAppForSettingsTests()
+        let settingsWindow = app.windows["AppDock Settings"]
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+
+        settingsWindow.buttons["Shortcuts"].click()
+        let toggleRecorder = anyElement(
+            in: settingsWindow,
+            id: UITestConstants.Accessibility.shortcutRecorderPrefix + "Toggle popover"
+        )
+        let toggleRecorderValue = anyElement(
+            in: settingsWindow,
+            id: UITestConstants.Accessibility.shortcutRecorderValuePrefix + "Toggle popover"
+        )
+        XCTAssertTrue(toggleRecorder.waitForExistence(timeout: 2))
+        XCTAssertTrue(toggleRecorderValue.waitForExistence(timeout: 2))
+
+        toggleRecorder.click()
+        let cancelButton = settingsWindow.buttons["Cancel"]
+        XCTAssertTrue(cancelButton.waitForExistence(timeout: 2))
+        app.typeKey(XCUIKeyboardKey.escape.rawValue, modifierFlags: [])
+        settingsWindow.click()
+        XCTAssertTrue(waitForDisappearance(cancelButton, timeout: 2))
+        XCTAssertTrue(waitForDisplayedTextContaining(toggleRecorderValue, substring: "Record", timeout: 2))
+
+        toggleRecorder.click()
+        XCTAssertTrue(cancelButton.waitForExistence(timeout: 2))
+        cancelButton.click()
+        XCTAssertTrue(waitForDisappearance(cancelButton, timeout: 2))
+        XCTAssertTrue(waitForDisplayedTextContaining(toggleRecorderValue, substring: "Record", timeout: 2))
+    }
+
     private func waitForDisplayedTextContaining(
         _ element: XCUIElement,
         substring: String,

@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import AppKit
 
 struct ShortcutsSettingsTab: View {
     @Binding var draft: SettingsDraft
@@ -36,6 +37,7 @@ struct ShortcutsSettingsTab: View {
 private struct ShortcutRow: View {
     let title: String
     @Binding var shortcut: ShortcutDefinition?
+    @State private var isEditing = false
 
     private var displayValue: String {
         guard let shortcut else { return "Record Shortcut" }
@@ -48,10 +50,19 @@ private struct ShortcutRow: View {
             Spacer()
             ShortcutRecorder(
                 shortcut: $shortcut,
-                accessibilityIdentifier: AppDockConstants.Accessibility.shortcutRecorderPrefix + title
+                accessibilityIdentifier: AppDockConstants.Accessibility.shortcutRecorderPrefix + title,
+                isEditing: $isEditing
             )
             .frame(width: 160)
             .accessibilityLabel(Text(title))
+            if isEditing {
+                Button("Cancel") {
+                    isEditing = false
+                    shortcut = nil
+                    NSApp.keyWindow?.makeFirstResponder(nil)
+                }
+                .buttonStyle(.bordered)
+            }
             Text(displayValue)
                 .font(.caption2)
                 .foregroundColor(.clear)

@@ -9,16 +9,17 @@ import SwiftUI
 struct ShortcutRecorder: NSViewRepresentable {
     @Binding var shortcut: ShortcutDefinition?
     var accessibilityIdentifier: String?
+    @Binding var isEditing: Bool
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(shortcut: $shortcut)
+        Coordinator(shortcut: $shortcut, isEditing: $isEditing)
     }
 
     func makeNSView(context: Context) -> ShortcutRecorderField {
         let field = ShortcutRecorderField()
         field.onShortcutChange = { context.coordinator.shortcut.wrappedValue = $0 }
         field.onEditingStateChange = { isEditing in
-            context.coordinator.isEditing = isEditing
+            context.coordinator.isEditing.wrappedValue = isEditing
         }
         if let accessibilityIdentifier {
             field.setAccessibilityIdentifier(accessibilityIdentifier)
@@ -31,15 +32,16 @@ struct ShortcutRecorder: NSViewRepresentable {
         if let accessibilityIdentifier {
             nsView.setAccessibilityIdentifier(accessibilityIdentifier)
         }
-        nsView.updateDisplay(with: shortcut, isEditing: context.coordinator.isEditing)
+        nsView.updateDisplay(with: shortcut, isEditing: context.coordinator.isEditing.wrappedValue)
     }
 
     final class Coordinator {
         var shortcut: Binding<ShortcutDefinition?>
-        var isEditing = false
+        var isEditing: Binding<Bool>
 
-        init(shortcut: Binding<ShortcutDefinition?>) {
+        init(shortcut: Binding<ShortcutDefinition?>, isEditing: Binding<Bool>) {
             self.shortcut = shortcut
+            self.isEditing = isEditing
         }
     }
 }
@@ -93,6 +95,11 @@ final class ShortcutRecorderField: NSTextField {
 
     override func keyDown(with event: NSEvent) {
         let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        if event.keyCode == 53 {
+            onEditingStateChange?(false)
+            window?.makeFirstResponder(nil)
+            return
+        }
         if isClearKey(event.keyCode) {
             onShortcutChange?(nil)
             window?.makeFirstResponder(nil)
