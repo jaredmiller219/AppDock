@@ -1,28 +1,93 @@
-//
-//  PopoverAdvancedMenuContent.swift
-//  AppDock
-//
+/*
+ PopoverAdvancedMenuContent.swift
+ AppDock
+
+ PURPOSE:
+ This view provides the advanced/paged menu layout with interactive swipe gesture support.
+ It manages multi-page navigation with smooth animations and drag-based page transitions.
+
+ OVERVIEW:
+ PopoverAdvancedMenuContent is a container that displays multiple pages of menu content with:
+ - Interactive swipe/drag navigation between pages
+ - Neighbor page preview during drag
+ - Animated page transitions
+ - FilterMenuButton or MenuPageHeader based on current page
+ - MenuPageBar tab control at bottom
+ - Gesture capture via SwipeGestureCaptureView
+ - Optional UI test controls for gesture simulation
+
+ KEY FEATURES:
+ - Supports interactive (drag-based) and non-interactive (animated) page transitions
+ - Shows neighbor page during active drag if showNeighborDuringDrag is true
+ - Uses offset animation to preview page swipe before commit
+ - Clipping ensures neighbor page doesn't exceed bounds during drag
+ - Includes test overlay buttons for simulating swipe directions
+
+ INTEGRATION:
+ - Used by PopoverContentView in advanced (paged) menu layout mode
+ - Observes AppState for filter/sort settings
+ - Observes MenuState for current page selection
+ - Delegates gesture handling to PopoverContentView via callbacks
+*/
 
 import Foundation
 import SwiftUI
 
+/// Advanced menu layout with interactive swipe navigation, page transitions, and gesture handling.
+/// 
+/// Generic view that coordinates multi-page navigation with smooth animations and drag gesture support.
+/// Displays current page content with optional neighbor preview during drag, and provides test controls
+/// for gesture simulation in UI test mode.
 struct PopoverAdvancedMenuContent<PageContent: View>: View {
+    /// Shared app state for filter/sort settings
     @ObservedObject var appState: AppState
+    
+    /// Menu state tracking current page selection
     @ObservedObject var menuState: MenuState
+    
+    /// Width of the popover container for drag offset calculations
     let popoverWidth: CGFloat
+    
+    /// Animation to apply when swapping pages non-interactively
     let pageAnimation: Animation?
+    
+    /// Whether to animate page transitions (disable during interactive drag)
     let shouldAnimatePageSwap: Bool
+    
+    /// Whether user is currently dragging (interactive swipe in progress)
     let isDragging: Bool
+    
+    /// Whether to show neighbor page preview during active drag
     let showNeighborDuringDrag: Bool
+    
+    /// Horizontal offset distance during drag gesture (used to offset page views)
     let dragOffset: CGFloat
+    
+    /// Direction of current drag (left or right) if dragging, nil if not
     let dragDirection: SwipeDirection?
+    
+    /// Whether running in UI test mode (enables test gesture buttons)
     let isUITestMode: Bool
+    
+    /// Callback when user selects a page via tab bar or keyboard shortcut
     let onSelectPage: (MenuPage) -> Void
+    
+    /// Callback for UI test gesture simulation buttons
     let onSwipeDirection: (SwipeDirection) -> Void
+    
+    /// Callback for interactive drag position changes (totalX, totalY from gesture)
     let onInteractiveChanged: (CGFloat, CGFloat) -> Void
+    
+    /// Callback when interactive drag gesture ends (totalX, totalY at end position)
     let onInteractiveEnded: (CGFloat, CGFloat) -> Void
+    
+    /// Function to look up neighbor page in specified direction
     let neighborPage: (SwipeDirection) -> MenuPage?
+    
+    /// Function to get display label for swipe direction (for test buttons)
     let swipeModeLabel: (SwipeDirection) -> String
+    
+    /// ViewBuilder closure providing page content view for any MenuPage
     @ViewBuilder let pageContent: (MenuPage) -> PageContent
 
     var body: some View {

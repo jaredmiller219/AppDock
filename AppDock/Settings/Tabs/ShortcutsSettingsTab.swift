@@ -1,12 +1,49 @@
-//
-//  ShortcutsSettingsTab.swift
-//  AppDock
-//
+/*
+ ShortcutsSettingsTab.swift
+ AppDock
+
+ PURPOSE:
+ This view displays and manages global keyboard shortcut configuration.
+ Allows users to set custom hotkeys for controlling AppDock without using the mouse.
+
+ OVERVIEW:
+ ShortcutsSettingsTab contains seven keyboard shortcut recorders:
+ 
+ Menu Control Shortcuts:
+ - Toggle popover: Show/hide the menu popover
+ - Next page: Swipe to the next menu page
+ - Previous page: Swipe to the previous menu page
+ 
+ Direct Page Access Shortcuts:
+ - Open Dock: Jump directly to dock/apps page
+ - Open Recents: Jump directly to recent apps page
+ - Open Favorites: Jump directly to favorites page
+ - Open Menu: Jump directly to actions page
+ 
+ Each shortcut row uses ShortcutRecorder component with live editing and display formatting.
+ Helper text explains how to record new shortcuts (press key combo, Delete to clear).
+
+ STYLING:
+ - ShortcutRow subcomponents with title + recorder + display value
+ - Cancel (X) button appears when actively recording a shortcut
+ - Display values use ShortcutFormatter for consistent formatting
+ - Divider separates control shortcuts from direct page access shortcuts
+
+ INTEGRATION:
+ - ShortcutRecorder: Component for capturing keyboard input
+ - ShortcutFormatter: Converts ShortcutDefinition to display strings
+ - Carbon API for actual global hotkey registration (in ShortcutManager)
+*/
 
 import SwiftUI
 import AppKit
 
+/// Settings tab for keyboard shortcut customization and management.
+/// 
+/// Displays recorders for seven global shortcuts: Toggle Popover, Next/Previous Page,
+/// and direct shortcuts to Dock, Recents, Favorites, and Actions pages.
 struct ShortcutsSettingsTab: View {
+    /// Binding to settings draft being edited
     @Binding var draft: SettingsDraft
 
     var body: some View {

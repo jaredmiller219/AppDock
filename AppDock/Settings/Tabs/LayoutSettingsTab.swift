@@ -1,11 +1,39 @@
-//
-//  LayoutSettingsTab.swift
-//  AppDock
-//
+/*
+ LayoutSettingsTab.swift
+ AppDock
+
+ PURPOSE:
+ This view displays layout configuration for the dock menu and app grid.
+ Allows users to customize how the dock appears and how apps are sized.
+
+ OVERVIEW:
+ LayoutSettingsTab contains two main sections:
+
+ 1. Menu Layout
+ - Segmented picker to choose between Simple (single-page) and Advanced (paged) menu modes
+ 
+ 2. Dock Layout
+ - Stepper to adjust grid columns (min/max defined in constants)
+ - Stepper to adjust grid rows
+ - Slider for app icon size with numeric display
+ - Slider for app label size with numeric display
+ 
+ All changes update the SettingsDraft binding and are applied when Apply is pressed.
+
+ STYLING:
+ - Segmented picker for mode selection (simple/advanced)
+ - Stepper controls for discrete values
+ - Sliders with trailing numeric value display for continuous sizing
+*/
 
 import SwiftUI
 
+/// Settings tab for menu layout and dock grid customization.
+/// 
+/// Provides controls for choosing menu layout mode (Simple/Advanced) and adjusting
+/// grid dimensions and icon/label sizing.
 struct LayoutSettingsTab: View {
+    /// Binding to settings draft being edited
     @Binding var draft: SettingsDraft
 
     var body: some View {
