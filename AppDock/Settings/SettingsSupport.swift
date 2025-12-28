@@ -64,29 +64,6 @@ enum SettingsDefaults {
         shortcutOpenActionsKey,
     ]
 
-    static func defaultsDictionary() -> [String: Any] {
-        [
-            launchAtLoginKey: launchAtLoginDefault,
-            openOnStartupKey: openOnStartupDefault,
-            autoUpdatesKey: autoUpdatesDefault,
-            showAppLabelsKey: showAppLabelsDefault,
-            showRunningIndicatorKey: showRunningIndicatorDefault,
-            enableHoverRemoveKey: enableHoverRemoveDefault,
-            confirmBeforeQuitKey: confirmBeforeQuitDefault,
-            keepQuitAppsKey: keepQuitAppsDefault,
-            defaultFilterKey: defaultFilterDefault.rawValue,
-            defaultSortKey: defaultSortDefault.rawValue,
-            gridColumnsKey: gridColumnsDefault,
-            gridRowsKey: gridRowsDefault,
-            iconSizeKey: iconSizeDefault,
-            labelSizeKey: labelSizeDefault,
-            reduceMotionKey: reduceMotionDefault,
-            debugLoggingKey: debugLoggingDefault,
-            menuPageKey: menuPageDefault.rawValue,
-            simpleSettingsKey: simpleSettingsDefault,
-            menuLayoutModeKey: menuLayoutModeDefault.rawValue,
-        ]
-    }
     /// Returns the dictionary of default setting keys/values to register.
     static func defaultsDictionary() -> [String: Any] {
         [
