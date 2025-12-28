@@ -31,6 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var settingsWindowController: NSWindowController?
     var uiTestWindow: NSWindow?
     var uiTestStatusItemWindow: NSWindow?
+    var uiTestShortcutsWindow: NSWindow?
 
     private lazy var shortcutManager = ShortcutManager { [weak self] action in
         self?.handleShortcut(action)
@@ -245,7 +246,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         shortcutManager.refreshShortcuts()
     }
 
-    private func handleShortcut(_ action: ShortcutAction) {
+    func handleShortcut(_ action: ShortcutAction) {
         switch action {
         case .togglePopover:
             togglePopover(nil)

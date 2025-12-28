@@ -21,10 +21,22 @@ class UITestBase: XCTestCase {
             static let uiTestTrackpadSwipeLeft = "UITestTrackpadSwipeLeft"
             static let uiTestDismissContextMenu = "UITestDismissContextMenu"
             static let uiTestStatusItemProxy = "UITestStatusItemProxy"
+            static let uiTestShortcutsWindow = "AppDock Shortcuts Panel"
+            static let uiTestShortcutPrefix = "UITestShortcut-"
             static let uiTestActivationRequest = "UITestActivationRequest"
             static let uiTestSwipeModeLeft = "UITestSwipeModeLeft"
             static let uiTestSwipeModeRight = "UITestSwipeModeRight"
             static let settingsMenuLayoutPicker = "SettingsMenuLayoutPicker"
+        }
+
+        enum ShortcutActions {
+            static let togglePopover = "togglePopover"
+            static let nextPage = "nextPage"
+            static let previousPage = "previousPage"
+            static let openDock = "openDock"
+            static let openRecents = "openRecents"
+            static let openFavorites = "openFavorites"
+            static let openActions = "openActions"
         }
 
         enum TestingArgs {
@@ -36,6 +48,7 @@ class UITestBase: XCTestCase {
             static let uiTestOpenPopovers = "--ui-test-open-popovers"
             static let uiTestMenuSimple = "--ui-test-menu-simple"
             static let uiTestStatusItemProxy = "--ui-test-status-item-proxy"
+            static let uiTestShortcutsPanel = "--ui-test-shortcuts-panel"
         }
     }
 
@@ -105,6 +118,21 @@ class UITestBase: XCTestCase {
             UITestConstants.TestingArgs.uiTestMode,
             UITestConstants.TestingArgs.uiTestSeedDock,
             UITestConstants.TestingArgs.uiTestStatusItemProxy
+        ]
+        app.launch()
+        app.activate()
+        return app
+    }
+
+    @MainActor
+    func launchAppForShortcutTests() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            UITestConstants.TestingArgs.uiTestMode,
+            UITestConstants.TestingArgs.uiTestOpenPopover,
+            UITestConstants.TestingArgs.uiTestSeedDock,
+            UITestConstants.TestingArgs.uiTestDisableActivation,
+            UITestConstants.TestingArgs.uiTestShortcutsPanel
         ]
         app.launch()
         app.activate()

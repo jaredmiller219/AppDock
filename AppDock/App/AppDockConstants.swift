@@ -173,6 +173,10 @@ public enum AppDockConstants {
         public static let uiTestDismissContextMenu = "UITestDismissContextMenu"
         /// Identifier for the UI test status item proxy button.
         public static let uiTestStatusItemProxy = "UITestStatusItemProxy"
+        /// Window title used when opening the UI test shortcuts panel.
+        public static let uiTestShortcutsWindow = "AppDock Shortcuts Panel"
+        /// Prefix for UI test shortcut action buttons.
+        public static let uiTestShortcutPrefix = "UITestShortcut-"
         /// Identifier for the UI test activation request label.
         public static let uiTestActivationRequest = "UITestActivationRequest"
         /// Identifier for the UI test swipe mode label (left).
@@ -564,5 +568,7 @@ public enum AppDockConstants {
         public static let uiTestMenuSimple = "--ui-test-menu-simple"
         /// Launch argument to show the status item proxy window during UI tests.
         public static let uiTestStatusItemProxy = "--ui-test-status-item-proxy"
+        /// Launch argument to show the shortcuts panel during UI tests.
+        public static let uiTestShortcutsPanel = "--ui-test-shortcuts-panel"
     }
 }

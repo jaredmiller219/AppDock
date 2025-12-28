@@ -56,6 +56,12 @@ extension AppDelegate {
             }
         }
 
+        if arguments.contains(AppDockConstants.Testing.uiTestShortcutsPanel) {
+            DispatchQueue.main.async { [weak self] in
+                self?.showUITestShortcutsPanel()
+            }
+        }
+
         if arguments.contains(AppDockConstants.Testing.uiTestMenuSimple) {
             UserDefaults.standard.set(
                 MenuLayoutMode.simple.rawValue,
@@ -120,6 +126,25 @@ extension AppDelegate {
         window.makeKeyAndOrderFront(nil)
         uiTestStatusItemWindow = window
     }
+
+    /// Opens a UI test window with shortcut action triggers.
+    func showUITestShortcutsPanel() {
+        if let window = uiTestShortcutsWindow {
+            window.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let view = ShortcutTestPanelView { [weak self] action in
+            self?.handleShortcut(action)
+        }
+        let controller = NSHostingController(rootView: view)
+        let window = NSWindow(contentViewController: controller)
+        window.title = AppDockConstants.Accessibility.uiTestShortcutsWindow
+        window.setContentSize(NSSize(width: 260, height: 260))
+        window.isReleasedWhenClosed = false
+        window.makeKeyAndOrderFront(nil)
+        uiTestShortcutsWindow = window
+    }
 }
 
 private struct StatusItemProxyView: View {
@@ -131,6 +156,33 @@ private struct StatusItemProxyView: View {
         }
         .buttonStyle(.borderedProminent)
         .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestStatusItemProxy)
+        .padding()
+    }
+}
+
+private struct ShortcutTestPanelView: View {
+    let onTrigger: (ShortcutAction) -> Void
+
+    private let actions: [ShortcutAction] = [
+        .togglePopover,
+        .nextPage,
+        .previousPage,
+        .openDock,
+        .openRecents,
+        .openFavorites,
+        .openActions
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(actions) { action in
+                Button(action.title) {
+                    onTrigger(action)
+                }
+                .buttonStyle(.bordered)
+                .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestShortcutPrefix + action.rawValue)
+            }
+        }
         .padding()
     }
 }

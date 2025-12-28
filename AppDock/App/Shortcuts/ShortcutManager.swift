@@ -7,16 +7,62 @@ import Cocoa
 import Carbon
 import os
 
+protocol HotKeyRegistrar {
+    func registerHotKey(
+        keyCode: UInt32,
+        modifiers: UInt32,
+        hotKeyId: EventHotKeyID
+    ) -> EventHotKeyRef?
+    func unregisterHotKey(_ hotKeyRef: EventHotKeyRef)
+}
+
+final class CarbonHotKeyRegistrar: HotKeyRegistrar {
+    func registerHotKey(
+        keyCode: UInt32,
+        modifiers: UInt32,
+        hotKeyId: EventHotKeyID
+    ) -> EventHotKeyRef? {
+        var hotKeyRef: EventHotKeyRef?
+        let status = RegisterEventHotKey(
+            keyCode,
+            modifiers,
+            hotKeyId,
+            GetApplicationEventTarget(),
+            0,
+            &hotKeyRef
+        )
+        guard status == noErr else { return nil }
+        return hotKeyRef
+    }
+
+    func unregisterHotKey(_ hotKeyRef: EventHotKeyRef) {
+        UnregisterEventHotKey(hotKeyRef)
+    }
+}
+
 final class ShortcutManager {
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "AppDock", category: "Shortcuts")
     private let actionHandler: (ShortcutAction) -> Void
+    private let shortcutProvider: (ShortcutAction) -> ShortcutDefinition?
+    private let registrar: HotKeyRegistrar
     private var hotKeyRefs: [ShortcutAction: EventHotKeyRef] = [:]
     private var hotKeyIdMap: [UInt32: ShortcutAction] = [:]
     private var eventHandlerRef: EventHandlerRef?
 
-    init(actionHandler: @escaping (ShortcutAction) -> Void) {
+    init(
+        actionHandler: @escaping (ShortcutAction) -> Void,
+        shortcutProvider: @escaping (ShortcutAction) -> ShortcutDefinition? = {
+            SettingsDefaults.shortcutValue(forKey: $0.settingsKey)
+        },
+        registrar: HotKeyRegistrar = CarbonHotKeyRegistrar(),
+        installEventHandler: Bool = true
+    ) {
         self.actionHandler = actionHandler
-        installHandlerIfNeeded()
+        self.shortcutProvider = shortcutProvider
+        self.registrar = registrar
+        if installEventHandler {
+            installHandlerIfNeeded()
+        }
     }
 
     deinit {
@@ -34,7 +80,7 @@ final class ShortcutManager {
     private func registerShortcuts() {
         var registeredCombos = Set<String>()
         for (index, action) in ShortcutAction.allCases.enumerated() {
-            guard let shortcut = SettingsDefaults.shortcutValue(forKey: action.settingsKey) else { continue }
+            guard let shortcut = shortcutProvider(action) else { continue }
             let comboKey = "\(shortcut.keyCode)-\(shortcut.modifierMask.rawValue)"
             guard !registeredCombos.contains(comboKey) else {
                 log("Skipping duplicate shortcut for \(action.rawValue)")
@@ -42,20 +88,15 @@ final class ShortcutManager {
             }
             registeredCombos.insert(comboKey)
 
-            var hotKeyRef: EventHotKeyRef?
             let hotKeyId = EventHotKeyID(
                 signature: ShortcutManager.hotKeySignature,
                 id: UInt32(index + 1)
             )
-            let status = RegisterEventHotKey(
-                UInt32(shortcut.keyCode),
-                shortcut.carbonModifiers,
-                hotKeyId,
-                GetApplicationEventTarget(),
-                0,
-                &hotKeyRef
-            )
-            guard status == noErr, let hotKeyRef else {
+            guard let hotKeyRef = registrar.registerHotKey(
+                keyCode: UInt32(shortcut.keyCode),
+                modifiers: shortcut.carbonModifiers,
+                hotKeyId: hotKeyId
+            ) else {
                 log("Failed to register shortcut for \(action.rawValue)")
                 continue
             }
@@ -65,7 +106,7 @@ final class ShortcutManager {
     }
 
     private func unregisterAll() {
-        hotKeyRefs.values.forEach { UnregisterEventHotKey($0) }
+        hotKeyRefs.values.forEach { registrar.unregisterHotKey($0) }
         hotKeyRefs.removeAll()
         hotKeyIdMap.removeAll()
     }

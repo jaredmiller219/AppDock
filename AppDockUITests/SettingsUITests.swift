@@ -78,6 +78,34 @@ final class SettingsUITests: UITestBase {
     }
 
     @MainActor
+    func testShortcutRecorderRecordsAndClears() throws {
+        let app = launchAppForSettingsTests()
+        let settingsWindow = app.windows["AppDock Settings"]
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+
+        settingsWindow.buttons["Shortcuts"].click()
+        let toggleRecorder = anyElement(
+            in: settingsWindow,
+            id: UITestConstants.Accessibility.shortcutRecorderPrefix + "Toggle popover"
+        )
+        XCTAssertTrue(toggleRecorder.waitForExistence(timeout: 2))
+
+        toggleRecorder.click()
+        app.typeKey("k", modifierFlags: [.command, .option])
+        XCTAssertTrue(waitForValue(toggleRecorder, equals: "⌥⌘K", timeout: 2))
+
+        toggleRecorder.click()
+        app.typeKey(XCUIKeyboardKey.delete.rawValue, modifierFlags: [])
+        XCTAssertTrue(waitForValue(toggleRecorder, equals: "Record Shortcut", timeout: 2))
+    }
+
+    private func waitForValue(_ element: XCUIElement, equals expected: String, timeout: TimeInterval) -> Bool {
+        let predicate = NSPredicate(format: "value == %@", expected)
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
+        return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
+    }
+
+    @MainActor
     func testLayoutTabShowsMenuLayoutPicker() throws {
         let app = launchAppForSettingsTests()
         let settingsWindow = app.windows["AppDock Settings"]
