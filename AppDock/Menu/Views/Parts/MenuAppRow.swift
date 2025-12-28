@@ -1,41 +1,10 @@
 //
-//  MenuPages.swift
+//  MenuAppRow.swift
 //  AppDock
 //
 
 import AppKit
 import SwiftUI
-
-struct MenuAppListView: View {
-    let title: String
-    let apps: [AppState.AppEntry]
-    let emptyTitle: String
-    let emptyMessage: String
-    let emptySystemImage: String
-    let appState: AppState
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: AppDockConstants.MenuAppList.spacing) {
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-
-            if apps.isEmpty {
-                MenuEmptyState(
-                    title: emptyTitle,
-                    message: emptyMessage,
-                    systemImage: emptySystemImage
-                )
-            } else {
-                VStack(spacing: AppDockConstants.MenuAppList.rowSpacing) {
-                    ForEach(Array(apps.enumerated()), id: \.offset) { _, app in
-                        MenuAppRow(app: app, appState: appState)
-                    }
-                }
-            }
-        }
-    }
-}
 
 struct MenuAppRow: View {
     let app: AppState.AppEntry
@@ -114,64 +83,5 @@ struct MenuAppRow: View {
             isHovering = hovering
         }
         .disabled(app.bundleid.isEmpty)
-    }
-}
-
-struct MenuEmptyState: View {
-    let title: String
-    let message: String
-    let systemImage: String
-
-    var body: some View {
-        VStack(spacing: AppDockConstants.MenuEmptyState.spacing) {
-            Image(systemName: systemImage)
-                .font(.title2)
-                .foregroundColor(.secondary)
-                .accessibilityHidden(true)
-            Text(title)
-                .font(.headline)
-            Text(message)
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, AppDockConstants.MenuEmptyState.paddingVertical)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text("\(title). \(message)"))
-    }
-}
-
-/// Single menu row with hover feedback.
-struct MenuRow: View {
-    let title: String
-    let action: () -> Void
-    @State private var isHovering = false
-    private var accessibilityHintText: String {
-        "Activate \(title)"
-    }
-
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                Text(title)
-                    .foregroundColor(.primary)
-                Spacer()
-            }
-            .padding(.horizontal, AppDockConstants.MenuRow.paddingHorizontal)
-            .padding(.vertical, AppDockConstants.MenuRow.paddingVertical)
-            .background(
-                RoundedRectangle(cornerRadius: AppDockConstants.MenuRow.cornerRadius)
-                    .fill(isHovering ? Color.primary.opacity(0.08) : Color.clear)
-            )
-        }
-        .buttonStyle(.plain)
-        .frame(maxWidth: .infinity)
-        .contentShape(RoundedRectangle(cornerRadius: AppDockConstants.MenuRow.cornerRadius))
-        .accessibilityIdentifier(AppDockConstants.Accessibility.menuRowPrefix + title)
-        .accessibilityLabel(Text(title))
-        .accessibilityHint(Text(accessibilityHintText))
-        .onHover { hovering in
-            isHovering = hovering
-        }
     }
 }

@@ -187,12 +187,46 @@ struct PopoverContentView: View {
         return orderedPages[nextIndex]
     }
 
+    private func pageContentView(for page: MenuPage) -> some View {
+        PopoverPageContent(
+            page: page,
+            appState: appState,
+            settingsAction: settingsAction,
+            aboutAction: aboutAction,
+            quitAction: quitAction,
+            onPageAppear: logPageAppearance
+        )
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             if appState.menuLayoutMode == .simple {
-                simpleMenuContent
+                PopoverSimpleMenuContent(
+                    appState: appState,
+                    settingsAction: settingsAction,
+                    aboutAction: aboutAction,
+                    quitAction: quitAction
+                )
             } else {
-                advancedMenuContent
+                PopoverAdvancedMenuContent(
+                    appState: appState,
+                    menuState: menuState,
+                    popoverWidth: popoverWidth,
+                    pageAnimation: pageAnimation,
+                    shouldAnimatePageSwap: shouldAnimatePageSwap,
+                    isDragging: isDragging,
+                    showNeighborDuringDrag: showNeighborDuringDrag,
+                    dragOffset: dragOffset,
+                    dragDirection: dragDirection,
+                    isUITestMode: isUITestMode,
+                    onSelectPage: { selectPage($0) },
+                    onSwipeDirection: handleSwipeDirection,
+                    onInteractiveChanged: handleInteractiveChanged,
+                    onInteractiveEnded: handleInteractiveEnded,
+                    neighborPage: neighborPage,
+                    swipeModeLabel: swipeModeLabel,
+                    pageContent: { pageContentView(for: $0) }
+                )
             }
         }
         .frame(width: popoverWidth, height: AppDockConstants.MenuPopover.height, alignment: .top)
@@ -202,312 +236,5 @@ struct PopoverContentView: View {
         .onAppear {
             previousPage = menuState.menuPage
         }
-    }
-}
-
-private extension PopoverContentView {
-    @ViewBuilder
-    func pageContent(for page: MenuPage) -> some View {
-        Group {
-            switch page {
-            case .dock:
-                ScrollView(showsIndicators: false) {
-                    DockView(appState: appState)
-                        .padding(.horizontal, AppDockConstants.MenuLayout.dockPaddingHorizontal)
-                        .padding(.top, AppDockConstants.MenuLayout.dockPaddingTop)
-                        .padding(.bottom, AppDockConstants.MenuLayout.dockPaddingBottom)
-                }
-                .onAppear {
-                    logPageAppearance(.dock)
-                }
-            case .recents:
-                ScrollView(showsIndicators: false) {
-                    MenuAppListView(
-                        title: "Recent Apps",
-                        apps: appState.recentApps,
-                        emptyTitle: "No Recent Apps",
-                        emptyMessage: "Launch an app to see it here.",
-                        emptySystemImage: "clock.arrow.circlepath",
-                        appState: appState
-                    )
-                    .padding(.horizontal, AppDockConstants.MenuLayout.recentsPaddingHorizontal)
-                    .padding(.top, AppDockConstants.MenuLayout.recentsPaddingTop)
-                    .padding(.bottom, AppDockConstants.MenuLayout.recentsPaddingBottom)
-                }
-                .onAppear {
-                    logPageAppearance(.recents)
-                }
-            case .favorites:
-                ScrollView(showsIndicators: false) {
-                    MenuEmptyState(
-                        title: "No Favorites Yet",
-                        message: "Pin apps to keep them on this page.",
-                        systemImage: "star"
-                    )
-                    .accessibilityIdentifier(AppDockConstants.Accessibility.favoritesEmptyState)
-                    .padding(.horizontal, AppDockConstants.MenuLayout.favoritesPaddingHorizontal)
-                    .padding(.top, AppDockConstants.MenuLayout.favoritesPaddingTop)
-                    .padding(.bottom, AppDockConstants.MenuLayout.favoritesPaddingBottom)
-                }
-                .onAppear {
-                    logPageAppearance(.favorites)
-                }
-            case .actions:
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 0) {
-                        MenuRow(title: "Settings", action: settingsAction)
-                        Divider()
-                        MenuRow(title: "About", action: aboutAction)
-                        Divider()
-                        MenuRow(title: "Quit AppDock", action: quitAction)
-                    }
-                    .padding(.horizontal, AppDockConstants.MenuLayout.actionsPaddingHorizontal)
-                    .padding(.top, AppDockConstants.MenuLayout.actionsPaddingTop)
-                    .padding(.bottom, AppDockConstants.MenuLayout.actionsPaddingBottom)
-                }
-                .onAppear {
-                    logPageAppearance(.actions)
-                }
-            }
-        }
-        .frame(maxHeight: .infinity)
-    }
-
-    var simpleMenuContent: some View {
-        VStack(spacing: 0) {
-            FilterMenuButton(appState: appState)
-                .padding(.horizontal, AppDockConstants.MenuLayout.headerPaddingHorizontal)
-                .padding(.top, AppDockConstants.MenuLayout.headerPaddingTop)
-                .padding(.bottom, AppDockConstants.MenuLayout.headerPaddingBottom)
-
-            Divider()
-                .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
-
-            ScrollView(showsIndicators: false) {
-                DockView(appState: appState)
-                    .padding(.horizontal, AppDockConstants.MenuLayout.dockPaddingHorizontal)
-                    .padding(.top, AppDockConstants.MenuLayout.dockPaddingTop)
-                    .padding(.bottom, AppDockConstants.MenuLayout.dockPaddingBottom)
-            }
-            .frame(maxHeight: .infinity)
-            .layoutPriority(1)
-
-            Divider()
-                .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
-                .padding(.top, AppDockConstants.MenuLayout.bottomDividerPaddingTop)
-
-            VStack(spacing: 0) {
-                MenuRow(title: "Settings", action: settingsAction)
-                Divider()
-                MenuRow(title: "About", action: aboutAction)
-                Divider()
-                MenuRow(title: "Quit AppDock", action: quitAction)
-            }
-            .padding(.top, AppDockConstants.MenuLayout.actionsPaddingTop)
-            .padding(.bottom, AppDockConstants.MenuLayout.actionsPaddingBottom)
-        }
-    }
-
-    var advancedMenuContent: some View {
-        VStack(spacing: 0) {
-            Group {
-                if menuState.menuPage == .dock {
-                    FilterMenuButton(appState: appState)
-                } else {
-                    MenuPageHeader(page: menuState.menuPage)
-                }
-            }
-            .padding(.horizontal, AppDockConstants.MenuLayout.headerPaddingHorizontal)
-            .padding(.top, AppDockConstants.MenuLayout.headerPaddingTop)
-            .padding(.bottom, AppDockConstants.MenuLayout.headerPaddingBottom)
-
-            Divider()
-                .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
-
-            ZStack {
-                if isDragging {
-                    if showNeighborDuringDrag, let direction = dragDirection, let neighbor = neighborPage(for: direction) {
-                        pageContent(for: neighbor)
-                            .offset(x: dragOffset + (direction == .left ? popoverWidth : -popoverWidth))
-                    }
-                    pageContent(for: menuState.menuPage)
-                        .offset(x: dragOffset)
-                } else {
-                    ZStack {
-                        pageContent(for: .dock)
-                            .opacity(menuState.menuPage == .dock ? 1 : 0)
-                            .allowsHitTesting(menuState.menuPage == .dock)
-                        pageContent(for: .recents)
-                            .opacity(menuState.menuPage == .recents ? 1 : 0)
-                            .allowsHitTesting(menuState.menuPage == .recents)
-                        pageContent(for: .favorites)
-                            .opacity(menuState.menuPage == .favorites ? 1 : 0)
-                            .allowsHitTesting(menuState.menuPage == .favorites)
-                        pageContent(for: .actions)
-                            .opacity(menuState.menuPage == .actions ? 1 : 0)
-                            .allowsHitTesting(menuState.menuPage == .actions)
-                    }
-                    .animation(shouldAnimatePageSwap ? pageAnimation : nil, value: menuState.menuPage)
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .layoutPriority(1)
-            .clipped()
-
-            Divider()
-                .padding(.horizontal, AppDockConstants.MenuLayout.dividerPaddingHorizontal)
-                .padding(.top, AppDockConstants.MenuLayout.bottomDividerPaddingTop)
-
-            MenuPageBar(selectedPage: menuState.menuPage, onSelect: { selectPage($0) })
-                .padding(.horizontal, AppDockConstants.MenuLayout.bottomBarPaddingHorizontal)
-                .padding(.bottom, AppDockConstants.MenuLayout.bottomBarPaddingBottom)
-        }
-        .contentShape(Rectangle())
-        .background(SwipeGestureCaptureView(
-            swipeThreshold: AppDockConstants.MenuGestures.swipeThreshold,
-            onSwipe: { _ in },
-            onScrollChanged: { totalX, totalY in
-                handleInteractiveChanged(horizontal: totalX, vertical: totalY)
-            },
-            onScrollEnded: { totalX, totalY in
-                handleInteractiveEnded(horizontal: totalX, vertical: totalY)
-            }
-        ))
-        .overlay(alignment: .topLeading) {
-            if isUITestMode {
-                HStack(spacing: 8) {
-                    Button(action: {
-                        handleSwipeDirection(.left)
-                    }) {
-                        Text("Swipe Left")
-                            .font(.caption2)
-                            .foregroundColor(.clear)
-                            .padding(2)
-                    }
-                    .buttonStyle(.plain)
-                    .frame(width: 32, height: 24)
-                    .background(Color.white.opacity(0.001))
-                    .contentShape(Rectangle())
-                    .opacity(0.05)
-                    .allowsHitTesting(true)
-                    .accessibilityLabel("UI Test Swipe Left")
-                    .accessibilityAddTraits(.isButton)
-                    .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestTrackpadSwipeLeft)
-
-                    Button(action: {
-                        NotificationCenter.default.post(name: .appDockDismissContextMenu, object: nil)
-                    }) {
-                        Text("Dismiss Menu")
-                            .font(.caption2)
-                            .foregroundColor(.clear)
-                            .padding(2)
-                    }
-                    .buttonStyle(.plain)
-                    .frame(width: 32, height: 24)
-                    .background(Color.white.opacity(0.001))
-                    .contentShape(Rectangle())
-                    .opacity(0.05)
-                    .allowsHitTesting(true)
-                    .accessibilityLabel("UI Test Dismiss Context Menu")
-                    .accessibilityAddTraits(.isButton)
-                    .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestDismissContextMenu)
-
-                    Text(" ")
-                        .font(.caption2)
-                        .foregroundColor(.clear)
-                        .frame(width: 1, height: 1)
-                        .accessibilityLabel(appState.uiTestLastActivationBundleId)
-                        .accessibilityValue(appState.uiTestLastActivationBundleId)
-                        .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestActivationRequest)
-
-                    Text(" ")
-                        .font(.caption2)
-                        .foregroundColor(.clear)
-                        .frame(width: 1, height: 1)
-                        .accessibilityLabel(swipeModeLabel(for: .left))
-                        .accessibilityValue(swipeModeLabel(for: .left))
-                        .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestSwipeModeLeft)
-
-                    Text(" ")
-                        .font(.caption2)
-                        .foregroundColor(.clear)
-                        .frame(width: 1, height: 1)
-                        .accessibilityLabel(swipeModeLabel(for: .right))
-                        .accessibilityValue(swipeModeLabel(for: .right))
-                        .accessibilityIdentifier(AppDockConstants.Accessibility.uiTestSwipeModeRight)
-                }
-                .zIndex(10)
-            }
-        }
-        .simultaneousGesture(
-            DragGesture(minimumDistance: AppDockConstants.MenuGestures.dragMinimumDistance,
-                        coordinateSpace: .local)
-                .onChanged { value in
-                    handleInteractiveChanged(horizontal: value.translation.width,
-                                             vertical: value.translation.height)
-                }
-                .onEnded { value in
-                    handleInteractiveEnded(horizontal: value.translation.width,
-                                           vertical: value.translation.height)
-                }
-        )
-    }
-}
-
-private struct MenuPageHeader: View {
-    let page: MenuPage
-
-    var body: some View {
-        HStack {
-            Label(page.title, systemImage: page.systemImage)
-                .font(.caption)
-            Spacer()
-        }
-        .padding(.horizontal, AppDockConstants.MenuHeader.paddingHorizontal)
-        .padding(.vertical, AppDockConstants.MenuHeader.paddingVertical)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: AppDockConstants.MenuHeader.cornerRadius)
-                .fill(Color.primary.opacity(0.08))
-        )
-        .accessibilityIdentifier(AppDockConstants.Accessibility.menuPageHeaderPrefix + page.rawValue)
-        .accessibilityLabel(Text(page.title))
-        .accessibilityHint(Text("Current menu page"))
-    }
-}
-
-private struct FilterMenuButton: View {
-    @ObservedObject var appState: AppState
-
-    var body: some View {
-        Menu {
-            Picker("Show", selection: $appState.filterOption) {
-                ForEach(AppFilterOption.allCases) { option in
-                    Text(option.title).tag(option)
-                }
-            }
-            Divider()
-            Picker("Sort", selection: $appState.sortOption) {
-                ForEach(AppSortOption.allCases) { option in
-                    Text(option.title).tag(option)
-                }
-            }
-        } label: {
-            HStack {
-                Label("Filter & Sort", systemImage: "line.3.horizontal.decrease.circle")
-                    .font(.caption)
-                Spacer()
-            }
-            .padding(.horizontal, AppDockConstants.MenuHeader.paddingHorizontal)
-            .padding(.vertical, AppDockConstants.MenuHeader.paddingVertical)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: AppDockConstants.MenuHeader.cornerRadius)
-                    .fill(Color.primary.opacity(0.08))
-            )
-        }
-        .accessibilityIdentifier(AppDockConstants.Accessibility.dockFilterMenu)
-        .accessibilityLabel(Text("Filter and sort"))
-        .accessibilityHint(Text("Choose which apps to show and how to sort them"))
     }
 }
