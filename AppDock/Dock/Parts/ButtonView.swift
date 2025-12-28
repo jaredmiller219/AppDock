@@ -3,8 +3,8 @@
 //  AppDock
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 // MARK: - ButtonView
 
@@ -70,7 +70,8 @@ struct ButtonView: View {
 
         if let targetApp = NSRunningApplication
             .runningApplications(withBundleIdentifier: bundleId)
-            .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
+            .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier })
+        {
             // Unhide and activate all windows to restore minimized apps.
             targetApp.unhide()
             targetApp.activate(options: [.activateAllWindows])

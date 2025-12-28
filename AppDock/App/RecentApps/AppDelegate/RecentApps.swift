@@ -9,6 +9,7 @@ import Cocoa
 
 extension AppDelegate {
     // MARK: App List Updates
+
     /// Loads the current list of running user apps and publishes them.
     ///
     /// - Note: Filters to user-facing apps and sorts by launch time.
@@ -78,8 +79,8 @@ extension AppDelegate {
     func fetchUserApps(from workspace: NSWorkspace) -> [NSRunningApplication] {
         workspace.runningApplications.filter { app in
             app.activationPolicy == .regular &&
-            app.bundleIdentifier != nil &&
-            app.launchDate != nil
+                app.bundleIdentifier != nil &&
+                app.launchDate != nil
         }
     }
 

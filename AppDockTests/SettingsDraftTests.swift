@@ -1,5 +1,5 @@
-import XCTest
 @testable import AppDock
+import XCTest
 
 /// Verifies SettingsDraft loading and persistence behavior.
 final class SettingsDraftTests: XCTestCase {

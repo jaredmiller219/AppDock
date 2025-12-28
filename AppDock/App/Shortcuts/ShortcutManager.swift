@@ -3,8 +3,8 @@
 //  AppDock
 //
 
-import Cocoa
 import Carbon
+import Cocoa
 import os
 
 protocol HotKeyRegistrar {
@@ -166,5 +166,5 @@ final class ShortcutManager {
         logger.debug("\(message, privacy: .public)")
     }
 
-    private static let hotKeySignature = OSType(0x4150444B) // "APDK"
+    private static let hotKeySignature = OSType(0x4150_444B) // "APDK"
 }

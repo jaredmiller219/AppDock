@@ -10,7 +10,7 @@ import SwiftUI
 enum AppFilterOption: String, CaseIterable, Identifiable {
     /// Shows every app in the dock list, regardless of running state.
     case all
-    
+
     /// Restricts the dock list to currently running apps.
     case runningOnly
 
@@ -23,11 +23,11 @@ enum AppFilterOption: String, CaseIterable, Identifiable {
     // - Running Only: "Running Only"
     var title: String {
         switch self {
-            // All apps label.
-            case .all: return "All Apps"
-            
-            // Running-only label.
-            case .runningOnly: return "Running Only"
+        // All apps label.
+        case .all: return "All Apps"
+
+        // Running-only label.
+        case .runningOnly: return "Running Only"
         }
     }
 }
@@ -36,10 +36,10 @@ enum AppFilterOption: String, CaseIterable, Identifiable {
 enum AppSortOption: String, CaseIterable, Identifiable {
     /// Orders apps by most recent launch time.
     case recent
-    
+
     /// Orders apps alphabetically A–Z.
     case nameAscending
-    
+
     /// Orders apps alphabetically Z–A.
     case nameDescending
 
@@ -53,14 +53,14 @@ enum AppSortOption: String, CaseIterable, Identifiable {
     // - Name Z-A: "Name Z-A"
     var title: String {
         switch self {
-            // Recent sort label.
-            case .recent: return "Recently Opened"
-            
-            // A-Z sort label.
-            case .nameAscending: return "Name A-Z"
-            
-            // Z-A sort label.
-            case .nameDescending: return "Name Z-A"
+        // Recent sort label.
+        case .recent: return "Recently Opened"
+
+        // A-Z sort label.
+        case .nameAscending: return "Name A-Z"
+
+        // Z-A sort label.
+        case .nameDescending: return "Name Z-A"
         }
     }
 }
@@ -69,13 +69,13 @@ enum AppSortOption: String, CaseIterable, Identifiable {
 enum MenuPage: String, CaseIterable, Identifiable {
     /// Primary dock grid page.
     case dock
-    
+
     /// Recent apps list page.
     case recents
-    
+
     /// Favorites page (empty state if none).
     case favorites
-    
+
     /// Menu actions page (Settings/About/Quit).
     case actions
 
@@ -90,17 +90,17 @@ enum MenuPage: String, CaseIterable, Identifiable {
     // - Actions: "Menu"
     var title: String {
         switch self {
-            // Dock page label.
-            case .dock: return "Dock"
-            
-            // Recents page label.
-            case .recents: return "Recents"
-            
-            // Favorites page label.
-            case .favorites: return "Favorites"
-           
-            // Actions page label.
-            case .actions: return "Menu"
+        // Dock page label.
+        case .dock: return "Dock"
+
+        // Recents page label.
+        case .recents: return "Recents"
+
+        // Favorites page label.
+        case .favorites: return "Favorites"
+
+        // Actions page label.
+        case .actions: return "Menu"
         }
     }
 
@@ -112,17 +112,17 @@ enum MenuPage: String, CaseIterable, Identifiable {
     // - Actions: `ellipsis.circle`
     var systemImage: String {
         switch self {
-            // Dock grid icon.
-            case .dock: return "square.grid.3x3"
-            
-            // Recents icon.
-            case .recents: return "clock.arrow.circlepath"
-            
-            // Favorites icon.
-            case .favorites: return "star"
-            
-            // Actions/menu icon.
-            case .actions: return "ellipsis.circle"
+        // Dock grid icon.
+        case .dock: return "square.grid.3x3"
+
+        // Recents icon.
+        case .recents: return "clock.arrow.circlepath"
+
+        // Favorites icon.
+        case .favorites: return "star"
+
+        // Actions/menu icon.
+        case .actions: return "ellipsis.circle"
         }
     }
 
@@ -134,17 +134,17 @@ enum MenuPage: String, CaseIterable, Identifiable {
     // - Actions: 3
     var orderIndex: Int {
         switch self {
-            // Dock is first in the tab order.
-            case .dock: return 0
-            
-            // Recents follows Dock.
-            case .recents: return 1
-            
-            // Favorites sits between Recents and Actions.
-            case .favorites: return 2
-            
-            // Actions is last in the tab order.
-            case .actions: return 3
+        // Dock is first in the tab order.
+        case .dock: return 0
+
+        // Recents follows Dock.
+        case .recents: return 1
+
+        // Favorites sits between Recents and Actions.
+        case .favorites: return 2
+
+        // Actions is last in the tab order.
+        case .actions: return 3
         }
     }
 
@@ -153,7 +153,7 @@ enum MenuPage: String, CaseIterable, Identifiable {
     var shortcutKey: KeyEquivalent {
         /// Convert the numeric order to a single character so we can build a KeyEquivalent.
         let keyValue = String(orderIndex + 1).first ?? "1"
-        
+
         // Use the derived character as the command shortcut (e.g., 1–4).
         return KeyEquivalent(keyValue)
     }
@@ -163,7 +163,7 @@ enum MenuPage: String, CaseIterable, Identifiable {
 enum MenuLayoutMode: String, CaseIterable, Identifiable {
     /// Single-page menu layout without tabs.
     case simple
-    
+
     /// Tabbed menu layout with paging and gestures.
     case advanced
 
@@ -176,11 +176,11 @@ enum MenuLayoutMode: String, CaseIterable, Identifiable {
     // - Advanced: "Advanced"
     var title: String {
         switch self {
-            // Simple layout label.
-            case .simple: return "Simple"
-            
-            // Advanced layout label.
-            case .advanced: return "Advanced"
+        // Simple layout label.
+        case .simple: return "Simple"
+
+        // Advanced layout label.
+        case .advanced: return "Advanced"
         }
     }
 }

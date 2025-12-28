@@ -14,5 +14,8 @@ AppDock.xcodeproj/project.xcworkspace/xcuserdata/
 .swiftpm/
 Package.resolved
 
+# SwiftLint
+.swiftlint_cache/
+
 # MkDocs site output
 AppDock_Docs/site/

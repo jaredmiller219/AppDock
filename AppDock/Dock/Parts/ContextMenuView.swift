@@ -3,9 +3,9 @@
 //  AppDock
 //
 
-import SwiftUI
 import AppKit
 import os
+import SwiftUI
 
 // MARK: - ContextMenuView
 
@@ -56,7 +56,8 @@ struct ContextMenuView: View {
             Button("Hide App") {
                 if let app = NSRunningApplication
                     .runningApplications(withBundleIdentifier: bundleId)
-                    .first {
+                    .first
+                {
                     log("Hiding app with bundle ID: \(bundleId)")
                     app.hide()
                 }
@@ -68,7 +69,8 @@ struct ContextMenuView: View {
                 guard shouldQuitApp() else { return }
                 if let targetApp = NSRunningApplication
                     .runningApplications(withBundleIdentifier: bundleId)
-                    .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
+                    .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier })
+                {
                     log("Quitting app with bundle ID: \(bundleId)")
                     let terminated = targetApp.terminate()
                     if !terminated {

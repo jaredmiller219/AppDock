@@ -1,5 +1,5 @@
-import XCTest
 @testable import AppDock
+import XCTest
 
 final class MenuStateTests: XCTestCase {
     private let menuPageKey = SettingsDefaults.menuPageKey

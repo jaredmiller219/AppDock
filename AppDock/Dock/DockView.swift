@@ -5,8 +5,8 @@
 //  Created by Jared Miller on 12/12/24.
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 // MARK: - DockView
 
@@ -94,7 +94,7 @@ struct DockView: View {
         VStack {
             if totalPages > 1 {
                 TabView(selection: $pageIndex) {
-                    ForEach(0..<totalPages, id: \.self) { page in
+                    ForEach(0 ..< totalPages, id: \.self) { page in
                         dockPageView(
                             page: page,
                             totalSlots: totalSlots,
@@ -149,7 +149,8 @@ struct DockView: View {
         // Centered context menu overlay for the currently active app.
         .overlay(alignment: .center) {
             if let active = activeContextMenuIndex,
-               active < paddedApps.count {
+               active < paddedApps.count
+            {
                 let (appName, bundleId, _) = paddedApps[active]
 
                 if !bundleId.isEmpty {
@@ -206,7 +207,8 @@ struct DockView: View {
         }
         .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didActivateApplicationNotification)) { notification in
             if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
-               app.bundleIdentifier != Bundle.main.bundleIdentifier {
+               app.bundleIdentifier != Bundle.main.bundleIdentifier
+            {
                 dismissContextMenus()
             }
         }
@@ -216,7 +218,7 @@ struct DockView: View {
 private extension DockView {
     func pageIndicator(totalPages: Int) -> some View {
         HStack(spacing: AppDockConstants.DockPageIndicator.spacing) {
-            ForEach(0..<totalPages, id: \.self) { index in
+            ForEach(0 ..< totalPages, id: \.self) { index in
                 Circle()
                     .fill(
                         index == pageIndex
@@ -252,12 +254,12 @@ private extension DockView {
     ) -> some View {
         let startIndex = page * totalSlots
         let endIndex = min(startIndex + totalSlots, paddedApps.count)
-        let pageApps = Array(paddedApps[startIndex..<endIndex])
+        let pageApps = Array(paddedApps[startIndex ..< endIndex])
 
         VStack {
-            ForEach(0..<numberOfRows, id: \.self) { rowIndex in
+            ForEach(0 ..< numberOfRows, id: \.self) { rowIndex in
                 HStack(alignment: .center, spacing: columnSpacing) {
-                    ForEach(0..<numberOfColumns, id: \.self) { columnIndex in
+                    ForEach(0 ..< numberOfColumns, id: \.self) { columnIndex in
                         let slotIndex = (rowIndex * numberOfColumns) + columnIndex
                         let appIndex = startIndex + slotIndex
                         let (appName, bundleId, appIcon) = pageApps[slotIndex]
@@ -324,6 +326,6 @@ private extension DockView {
     }
 }
 
-//#Preview {
+// #Preview {
 //    DockView(appState: .init())
-//}
+// }

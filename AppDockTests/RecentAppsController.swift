@@ -1,15 +1,14 @@
 //
-//  MockRunningApplication.swift
+//  RecentAppsController.swift
 //  AppDock
 //
 //  Created by Jared Miller on 12/5/25.
 //
 
-
-import XCTest
-import SwiftUI
-import AppKit
 @testable import AppDock
+import AppKit
+import SwiftUI
+import XCTest
 
 // MARK: - MOCK DEPENDENCIES
 
@@ -38,15 +37,15 @@ class MockRunningApplication: NSRunningApplication, @unchecked Sendable {
 
     // Custom initializer to set all required properties
     init(name: String?, id: String?, urlPath: String?, policy: NSApplication.ActivationPolicy, launchDate: Date?) {
-        self._localizedName = name
-        self._bundleIdentifier = id
+        _localizedName = name
+        _bundleIdentifier = id
         if let urlPath {
-            self._bundleURL = URL(fileURLWithPath: urlPath)
+            _bundleURL = URL(fileURLWithPath: urlPath)
         } else {
-            self._bundleURL = nil
+            _bundleURL = nil
         }
-        self._activationPolicy = policy
-        self._launchDate = launchDate
+        _activationPolicy = policy
+        _launchDate = launchDate
         // Call the superclass init, even though we override all accessors
         super.init()
     }
@@ -67,7 +66,7 @@ class MockWorkspace: TestableWorkspace {
         return appsToReturn
     }
 
-    func icon(forFile fullPath: String) -> NSImage {
+    func icon(forFile _: String) -> NSImage {
         // Return a dummy image instance
         return createDummyImage()
     }
@@ -88,40 +87,38 @@ class TestableAppState: ObservableObject {
 /// Testable AppDelegate, modified to accept a mock workspace.
 // NOTE: This testable class must replicate the logic of the original AppDelegate
 class TestableAppDelegate: NSObject, NSApplicationDelegate {
-    
     // We override the singleton pattern for testing isolation
     static var instance: TestableAppDelegate!
-    
+
     // We use our TestableAppState
     @Published var appState = TestableAppState()
-    
+
     // Injection points for testing
     var workspace: TestableWorkspace
     var menuController: MockMenuController
 
     /// Convenience alias matching production app state tuples.
     typealias AppDetail = (name: String, bundleid: String, icon: NSImage)
-    
+
     // NSStatusBar setup is complex to mock, we'll focus on testing that
     // the core logic (getRecentApplications) is called and functions correctly.
-    
+
     init(workspace: TestableWorkspace, menuController: MockMenuController) {
         self.workspace = workspace
         self.menuController = menuController
         super.init()
         TestableAppDelegate.instance = self // Set the singleton pointer for the test
     }
-    
+
     /// Replication of the original method, but using injected dependencies.
     func getRecentApplications() {
-        
-        let recentApps = self.workspace.runningApplications()
+        let recentApps = workspace.runningApplications()
 
         let userApps = recentApps.filter { app in
             // Filter out apps that are not .regular and don't have bundle IDs
             app.activationPolicy == .regular &&
-            app.bundleIdentifier != nil &&
-            app.launchDate != nil
+                app.bundleIdentifier != nil &&
+                app.launchDate != nil
         }
 
         let sortedApps = userApps.sorted { app1, app2 in
@@ -136,7 +133,7 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
         }
 
         // Update the state of this test instance (skipping DispatchQueue.main.async for sync testing).
-        self.appState.recentApps = appDetails
+        appState.recentApps = appDetails
     }
 
     /// Replicates the production behavior for newly launched apps (front insert, de-dupe).
@@ -144,10 +141,10 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
         guard app.bundleIdentifier != Bundle.main.bundleIdentifier else { return }
         guard let appEntry = makeAppEntry(from: app) else { return }
 
-        var updated = self.appState.recentApps
+        var updated = appState.recentApps
         updated.removeAll { $0.bundleid == appEntry.bundleid }
         updated.insert(appEntry, at: 0)
-        self.appState.recentApps = updated
+        appState.recentApps = updated
     }
 
     /// Converts a running app into a tuple matching the production `AppState`.
@@ -157,7 +154,7 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
               let appPath = app.bundleURL?.path else { return nil }
 
         // Use the injected workspace for icon
-        let appIcon = self.workspace.icon(forFile: appPath)
+        let appIcon = workspace.icon(forFile: appPath)
         appIcon.size = NSSize(
             width: AppDockConstants.AppIcon.size,
             height: AppDockConstants.AppIcon.size
@@ -169,22 +166,20 @@ class TestableAppDelegate: NSObject, NSApplicationDelegate {
     func makeAppEntryForTest(from app: NSRunningApplication) -> AppDetail? {
         makeAppEntry(from: app)
     }
-    
+
     /// Mimic the original method to check if getRecentApplications is called.
-    func applicationDidFinishLaunching(_ notification: Notification) {
+    func applicationDidFinishLaunching(_: Notification) {
         // Set the instance (already done in init for testing)
         // In a real app, NSStatusBar/Menu setup happens here, but we skip it.
-        
+
         getRecentApplications()
     }
 }
-
 
 // MARK: - UNIT TESTS
 
 /// Tests for the recent-apps filtering, sorting, and icon sizing logic.
 final class AppDelegateLogicTests: XCTestCase {
-
     var mockWorkspace: MockWorkspace!
     var mockMenuController: MockMenuController!
     var sut: TestableAppDelegate! // System Under Test
@@ -205,19 +200,19 @@ final class AppDelegateLogicTests: XCTestCase {
     // Test 1: Verify filtering by activationPolicy and bundleIdentifier
     func testGetRecentApplications_filtersCorrectly() {
         let now = Date()
-        
+
         // 1. Valid user app
         let app1 = MockRunningApplication(name: "App A", id: "com.app.a", urlPath: "/a.app", policy: .regular, launchDate: now.addingTimeInterval(-100))
-        
+
         // 2. System/background app (should be filtered out)
         let app2 = MockRunningApplication(name: "App B", id: "com.app.b", urlPath: "/b.app", policy: .accessory, launchDate: now.addingTimeInterval(-50))
-        
+
         // 3. App missing bundle ID (should be filtered out)
         let app3 = MockRunningApplication(name: "App C", id: nil, urlPath: "/c.app", policy: .regular, launchDate: now.addingTimeInterval(-200))
-        
+
         // 4. Valid user app
         let app4 = MockRunningApplication(name: "App D", id: "com.app.d", urlPath: "/d.app", policy: .regular, launchDate: now.addingTimeInterval(-150))
-        
+
         mockWorkspace.appsToReturn = [app1, app2, app3, app4]
 
         sut.getRecentApplications()
@@ -231,16 +226,16 @@ final class AppDelegateLogicTests: XCTestCase {
     // Test 2: Verify sorting by launchDate (most recent first)
     func testGetRecentApplications_sortsByLaunchDate() {
         let now = Date()
-        
+
         // App 1: Oldest
         let app1 = MockRunningApplication(name: "Oldest App", id: "com.oldest.app", urlPath: "/oldest.app", policy: .regular, launchDate: now.addingTimeInterval(-300))
-        
+
         // App 2: Newest
         let app2 = MockRunningApplication(name: "Newest App", id: "com.newest.app", urlPath: "/newest.app", policy: .regular, launchDate: now.addingTimeInterval(-50))
-        
+
         // App 3: Middle
         let app3 = MockRunningApplication(name: "Middle App", id: "com.middle.app", urlPath: "/middle.app", policy: .regular, launchDate: now.addingTimeInterval(-150))
-        
+
         mockWorkspace.appsToReturn = [app1, app2, app3] // Input in random order
 
         sut.getRecentApplications()
@@ -251,23 +246,23 @@ final class AppDelegateLogicTests: XCTestCase {
         XCTAssertEqual(sut.appState.recentApps[1].name, "Middle App")
         XCTAssertEqual(sut.appState.recentApps[2].name, "Oldest App", "The last app should be the least recently launched.")
     }
-    
+
     // Test 3: Verify the icon is resized to the standard app icon size
     func testGetRecentApplications_resizesIcon() {
         let now = Date()
-        
+
         let app = MockRunningApplication(name: "Test App", id: "com.test.app", urlPath: "/test.app", policy: .regular, launchDate: now)
-        
+
         mockWorkspace.appsToReturn = [app]
 
         sut.getRecentApplications()
-        
+
         XCTAssertEqual(sut.appState.recentApps.count, 1)
-        
+
         // The mock workspace returns a dummy image with size 1x1 initially.
         // We verify that the AppDelegate logic resized it to the standard size.
         let processedIcon = sut.appState.recentApps[0].icon
-        
+
         XCTAssertEqual(
             processedIcon.size.width,
             AppDockConstants.AppIcon.size,
@@ -279,41 +274,41 @@ final class AppDelegateLogicTests: XCTestCase {
             "The app icon height should be resized to the standard size."
         )
     }
-    
+
     // Test 4: Verify applicationDidFinishLaunching calls the data retrieval method
     func testApplicationDidFinishLaunching_callsGetRecentApplications() {
         // Since getRecentApplications updates appState, we can check the state change
         // by making the workspace return an app.
         let app = MockRunningApplication(name: "App X", id: "com.app.x", urlPath: "/x.app", policy: .regular, launchDate: Date())
         mockWorkspace.appsToReturn = [app]
-        
+
         // State should be empty before launch
         XCTAssertTrue(sut.appState.recentApps.isEmpty)
-        
+
         // Call the setup method
         sut.applicationDidFinishLaunching(Notification(name: NSApplication.didFinishLaunchingNotification))
-        
+
         // State should now contain the app, proving getRecentApplications was called
         XCTAssertEqual(sut.appState.recentApps.count, 1, "AppDelegate should call getRecentApplications during launch.")
         XCTAssertEqual(sut.appState.recentApps.first?.name, "App X")
     }
-    
+
     // Test 5: Verify empty workspace yields empty state
     func testGetRecentApplications_handlesEmptyWorkspace() {
         mockWorkspace.appsToReturn = []
         sut.getRecentApplications()
         XCTAssertTrue(sut.appState.recentApps.isEmpty, "No apps should be returned when workspace is empty.")
     }
-    
+
     // Test 6: Verify apps missing launchDate are skipped in sort logic (guard returns false)
     func testGetRecentApplications_skipsAppsMissingLaunchDate() {
         let now = Date()
         let validApp = MockRunningApplication(name: "Valid", id: "com.valid", urlPath: "/valid.app", policy: .regular, launchDate: now)
         let missingDate = MockRunningApplication(name: "NoDate", id: "com.nodate", urlPath: "/nodate.app", policy: .regular, launchDate: nil)
-        
+
         mockWorkspace.appsToReturn = [validApp, missingDate]
         sut.getRecentApplications()
-        
+
         XCTAssertEqual(sut.appState.recentApps.count, 1, "Apps missing launchDate should not survive sorting.")
         XCTAssertEqual(sut.appState.recentApps.first?.name, "Valid")
     }
@@ -351,7 +346,7 @@ final class AppDelegateLogicTests: XCTestCase {
 
         sut.appState.recentApps = [
             ("App One", "com.app.one", createDummyImage()),
-            ("App Two", "com.app.two", createDummyImage())
+            ("App Two", "com.app.two", createDummyImage()),
         ]
 
         sut.handleLaunchedApp(app2)
@@ -398,5 +393,4 @@ final class AppDelegateLogicTests: XCTestCase {
 
         XCTAssertTrue(sut.appState.recentApps.isEmpty)
     }
-
 }

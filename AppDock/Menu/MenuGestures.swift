@@ -3,8 +3,8 @@
 //  AppDock
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 enum SwipeDirection {
     case left
@@ -17,7 +17,7 @@ struct SwipeGestureCaptureView: NSViewRepresentable {
     let onScrollChanged: (CGFloat, CGFloat) -> Void
     let onScrollEnded: (CGFloat, CGFloat) -> Void
 
-    func makeNSView(context: Context) -> SwipeCaptureNSView {
+    func makeNSView(context _: Context) -> SwipeCaptureNSView {
         let view = SwipeCaptureNSView()
         view.swipeThreshold = swipeThreshold
         view.onSwipe = onSwipe
@@ -26,7 +26,7 @@ struct SwipeGestureCaptureView: NSViewRepresentable {
         return view
     }
 
-    func updateNSView(_ nsView: SwipeCaptureNSView, context: Context) {
+    func updateNSView(_ nsView: SwipeCaptureNSView, context _: Context) {
         nsView.swipeThreshold = swipeThreshold
         nsView.onSwipe = onSwipe
         nsView.onScrollChanged = onScrollChanged
@@ -91,7 +91,8 @@ struct SwipeGestureCaptureView: NSViewRepresentable {
 
             if !isFingerEvent,
                event.momentumPhase.isEmpty,
-               ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestMode) {
+               ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestMode)
+            {
                 let deltaX = event.scrollingDeltaX
                 let deltaY = event.scrollingDeltaY
                 guard deltaX != 0 || deltaY != 0 else { return }
@@ -119,7 +120,8 @@ struct SwipeGestureCaptureView: NSViewRepresentable {
             if isFingerEvent,
                event.phase == .changed,
                event.momentumPhase.isEmpty,
-               ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestMode) {
+               ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestMode)
+            {
                 onScrollEnded?(accumulatedX, accumulatedY)
                 accumulatedX = 0
                 accumulatedY = 0

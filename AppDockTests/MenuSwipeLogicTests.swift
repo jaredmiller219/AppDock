@@ -1,5 +1,5 @@
-import XCTest
 @testable import AppDock
+import XCTest
 
 final class MenuSwipeLogicTests: XCTestCase {
     func testCommitThresholdUsesPopoverWidthFraction() {
@@ -42,7 +42,8 @@ final class MenuSwipeLogicTests: XCTestCase {
 
         var currentPage: MenuPage = .dock
         if MenuSwipeLogic.shouldCommit(horizontal: horizontal, vertical: vertical, width: width),
-           let next = MenuSwipeLogic.nextPage(from: currentPage, direction: .left) {
+           let next = MenuSwipeLogic.nextPage(from: currentPage, direction: .left)
+        {
             currentPage = next
         }
 

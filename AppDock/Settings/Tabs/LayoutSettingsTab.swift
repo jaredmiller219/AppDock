@@ -27,14 +27,13 @@ struct LayoutSettingsTab: View {
                         .accessibilityIdentifier(AppDockConstants.Accessibility.settingsMenuLayoutPicker)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityIdentifier(AppDockConstants.Accessibility.settingsMenuLayoutPicker)
             }
 
             GroupBox("Dock Layout") {
                 VStack(alignment: .leading, spacing: AppDockConstants.SettingsLayout.sectionInnerSpacing) {
                     Stepper(
                         value: $draft.gridColumns,
-                        in: AppDockConstants.SettingsRanges.gridColumnsMin...AppDockConstants.SettingsRanges.gridColumnsMax
+                        in: AppDockConstants.SettingsRanges.gridColumnsMin ... AppDockConstants.SettingsRanges.gridColumnsMax
                     ) {
                         HStack {
                             Text("Columns")
@@ -45,7 +44,7 @@ struct LayoutSettingsTab: View {
                     }
                     Stepper(
                         value: $draft.gridRows,
-                        in: AppDockConstants.SettingsRanges.gridRowsMin...AppDockConstants.SettingsRanges.gridRowsMax
+                        in: AppDockConstants.SettingsRanges.gridRowsMin ... AppDockConstants.SettingsRanges.gridRowsMax
                     ) {
                         HStack {
                             Text("Rows")
@@ -58,7 +57,7 @@ struct LayoutSettingsTab: View {
                         Text("Icon size")
                         Slider(
                             value: $draft.iconSize,
-                            in: AppDockConstants.SettingsRanges.iconSizeMin...AppDockConstants.SettingsRanges.iconSizeMax,
+                            in: AppDockConstants.SettingsRanges.iconSizeMin ... AppDockConstants.SettingsRanges.iconSizeMax,
                             step: AppDockConstants.SettingsRanges.iconSizeStep
                         )
                         Text("\(Int(draft.iconSize))")
@@ -69,7 +68,7 @@ struct LayoutSettingsTab: View {
                         Text("Label size")
                         Slider(
                             value: $draft.labelSize,
-                            in: AppDockConstants.SettingsRanges.labelSizeMin...AppDockConstants.SettingsRanges.labelSizeMax,
+                            in: AppDockConstants.SettingsRanges.labelSizeMin ... AppDockConstants.SettingsRanges.labelSizeMax,
                             step: AppDockConstants.SettingsRanges.labelSizeStep
                         )
                         Text("\(Int(draft.labelSize))")

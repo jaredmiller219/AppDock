@@ -79,7 +79,7 @@ extension AppDelegate {
         appState.recentApps = [
             (name: "Alpha", bundleid: "com.example.alpha", icon: placeholderIcon),
             (name: "Bravo", bundleid: "com.example.bravo", icon: placeholderIcon),
-            (name: "Charlie", bundleid: "com.example.charlie", icon: placeholderIcon)
+            (name: "Charlie", bundleid: "com.example.charlie", icon: placeholderIcon),
         ]
     }
 
@@ -170,7 +170,7 @@ private struct ShortcutTestPanelView: View {
         .openDock,
         .openRecents,
         .openFavorites,
-        .openActions
+        .openActions,
     ]
 
     var body: some View {

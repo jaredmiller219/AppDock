@@ -3,8 +3,8 @@
 //  AppDock
 //
 
-import Cocoa
 import Carbon
+import Cocoa
 
 struct ShortcutDefinition: Equatable {
     let keyCode: UInt16

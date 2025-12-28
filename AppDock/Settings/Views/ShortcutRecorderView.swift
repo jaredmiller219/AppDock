@@ -3,8 +3,8 @@
 //  AppDock
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 struct ShortcutRecorder: NSViewRepresentable {
     @Binding var shortcut: ShortcutDefinition?
@@ -87,7 +87,7 @@ final class ShortcutRecorderField: NSTextField {
         return resigned
     }
 
-    override func mouseDown(with event: NSEvent) {
+    override func mouseDown(with _: NSEvent) {
         window?.makeFirstResponder(self)
     }
 
@@ -103,7 +103,7 @@ final class ShortcutRecorderField: NSTextField {
             return
         }
         let requiredModifiers: NSEvent.ModifierFlags = [.command, .option, .control]
-        guard !modifiers.intersection(requiredModifiers).isEmpty else {
+        guard !modifiers.isDisjoint(with: requiredModifiers) else {
             NSSound.beep()
             return
         }
@@ -217,7 +217,7 @@ enum ShortcutFormatter {
         44: "/",
         45: "N",
         46: "M",
-        47: "."
+        47: ".",
     ]
 
     static func string(for shortcut: ShortcutDefinition) -> String {

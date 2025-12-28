@@ -3,8 +3,8 @@
 //  AppDock
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 /// Simple NSVisualEffectView wrapper to add a blur behind context menus.
 struct VisualEffectBlur: NSViewRepresentable {
@@ -21,13 +21,13 @@ struct VisualEffectBlur: NSViewRepresentable {
         view.state = .active
     }
 
-    func makeNSView(context: Context) -> NSVisualEffectView {
+    func makeNSView(context _: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
         Self.configure(view, material: material, blendingMode: blendingMode)
         return view
     }
 
-    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+    func updateNSView(_ nsView: NSVisualEffectView, context _: Context) {
         Self.configure(nsView, material: material, blendingMode: blendingMode)
     }
 }

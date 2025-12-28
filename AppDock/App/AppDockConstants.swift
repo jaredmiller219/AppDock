@@ -2,8 +2,8 @@
 //  AppDockConstants.swift
 //  AppDock
 //
-import Foundation
 import CoreGraphics
+import Foundation
 
 public enum AppDockConstants {
     // MARK: - Settings

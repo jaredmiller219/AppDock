@@ -9,8 +9,7 @@ import XCTest
 
 /// Launch screenshot baseline for UI testing.
 final class UITestsLaunchTests: XCTestCase {
-
-    override class var runsForEachTargetApplicationUIConfiguration: Bool {
+    override static var runsForEachTargetApplicationUIConfiguration: Bool {
         true
     }
 

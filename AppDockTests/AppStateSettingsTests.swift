@@ -1,5 +1,5 @@
-import XCTest
 @testable import AppDock
+import XCTest
 
 /// Verifies AppState and SettingsDraft stay in sync for every setting option.
 final class AppStateSettingsTests: XCTestCase {

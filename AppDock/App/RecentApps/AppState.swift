@@ -3,8 +3,8 @@
 //  AppDock
 //
 
-import SwiftUI
 import Cocoa
+import SwiftUI
 
 // MARK: - App State
 
@@ -13,6 +13,7 @@ import Cocoa
 /// - Note: Values are hydrated from settings and updated as the app runs.
 class AppState: ObservableObject {
     // MARK: Dock Entries
+
     /// Dock entry tuple shared across view and model logic.
     ///
     /// - Note: Icons are pre-sized to keep rendering cheap in the grid.
@@ -42,7 +43,7 @@ class AppState: ObservableObject {
 
     // Settings-backed toggles and layout values for the dock UI.
     // Populated from `SettingsDefaults` and refreshed from `SettingsDraft`.
-	
+
     /// Toggle for adding the app to login items.
     @Published var launchAtLogin = SettingsDefaults.launchAtLoginDefault
     /// Controls whether the app opens on user login.
@@ -77,8 +78,10 @@ class AppState: ObservableObject {
             UserDefaults.standard.set(menuLayoutMode.rawValue, forKey: SettingsDefaults.menuLayoutModeKey)
         }
     }
+
     /// UI-test-only: records last activation request for recents rows.
     @Published var uiTestLastActivationBundleId: String = ""
+
     // MARK: Initialization
 
     /// Initializes state from stored settings.

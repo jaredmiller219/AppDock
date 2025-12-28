@@ -1,5 +1,5 @@
-import XCTest
 @testable import AppDock
+import XCTest
 
 final class MenuGesturesTests: XCTestCase {
     func testMenuGestureConstants_haveExpectedDefaults() {

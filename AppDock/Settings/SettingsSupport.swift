@@ -3,11 +3,11 @@
 //  AppDock
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 /// Central place for settings keys, defaults, and reset helpers.
-struct SettingsDefaults {
+enum SettingsDefaults {
     static let launchAtLoginKey = "settings.launchAtLogin"
     static let openOnStartupKey = "settings.openOnStartup"
     static let autoUpdatesKey = "settings.autoUpdates"
@@ -61,7 +61,7 @@ struct SettingsDefaults {
         shortcutOpenDockKey,
         shortcutOpenRecentsKey,
         shortcutOpenFavoritesKey,
-        shortcutOpenActionsKey
+        shortcutOpenActionsKey,
     ]
 
     static func defaultsDictionary() -> [String: Any] {
@@ -84,12 +84,12 @@ struct SettingsDefaults {
             debugLoggingKey: debugLoggingDefault,
             menuPageKey: menuPageDefault.rawValue,
             simpleSettingsKey: simpleSettingsDefault,
-            menuLayoutModeKey: menuLayoutModeDefault.rawValue
+            menuLayoutModeKey: menuLayoutModeDefault.rawValue,
         ]
     }
 
     static func restore(in defaults: UserDefaults = .standard) {
-        defaultsDictionary().forEach { key, value in
+        for (key, value) in defaultsDictionary() {
             defaults.set(value, forKey: key)
         }
         shortcutKeys.forEach { defaults.removeObject(forKey: $0) }
@@ -148,7 +148,7 @@ struct SettingsDefaults {
         }
         let payload: [String: Int] = [
             "keyCode": Int(shortcut.keyCode),
-            "modifiers": Int(shortcut.modifierMask.rawValue)
+            "modifiers": Int(shortcut.modifierMask.rawValue),
         ]
         defaults.set(payload, forKey: key)
     }

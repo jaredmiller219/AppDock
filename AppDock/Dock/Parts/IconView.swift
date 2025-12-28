@@ -3,8 +3,8 @@
 //  AppDock
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 // MARK: - IconView
 

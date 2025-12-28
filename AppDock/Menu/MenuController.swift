@@ -34,7 +34,6 @@ enum PopoverSizing {
 ///
 /// This wrapper keeps AppKit/SwiftUI interop isolated from the rest of the app.
 class MenuController: NSObject {
-
     /// Creates a popover controller for the dock and menu actions.
     func makePopoverController(
         appState: AppState,

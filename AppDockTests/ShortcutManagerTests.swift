@@ -1,6 +1,6 @@
-import XCTest
-import Carbon
 @testable import AppDock
+import Carbon
+import XCTest
 
 final class ShortcutManagerTests: XCTestCase {
     func testRefreshShortcutsDeduplicatesRegistrations() {
@@ -8,7 +8,7 @@ final class ShortcutManagerTests: XCTestCase {
         let sharedShortcut = ShortcutDefinition(keyCode: 12, modifiers: [.command, .option])
         let shortcuts: [ShortcutAction: ShortcutDefinition] = [
             .togglePopover: sharedShortcut,
-            .nextPage: sharedShortcut
+            .nextPage: sharedShortcut,
         ]
 
         let manager = ShortcutManager(

@@ -8,7 +8,7 @@ import AppKit
 /// Pure helper for filtering, sorting, and padding the dock list.
 ///
 /// Keeping this logic outside the SwiftUI view makes it easier to test and reuse.
-struct DockAppList {
+enum DockAppList {
     typealias AppEntry = AppState.AppEntry
 
     /// Returns the list after applying filter + sort + padding.

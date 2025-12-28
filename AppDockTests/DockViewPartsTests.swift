@@ -1,7 +1,7 @@
-import XCTest
-import SwiftUI
-import AppKit
 @testable import AppDock
+import AppKit
+import SwiftUI
+import XCTest
 
 final class DockViewPartsTests: XCTestCase {
     func testButtonViewInteraction_toggleContextMenu() {

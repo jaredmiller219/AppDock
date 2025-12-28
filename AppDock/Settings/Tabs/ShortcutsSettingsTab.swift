@@ -50,8 +50,8 @@ private struct ShortcutRow: View {
                 shortcut: $shortcut,
                 accessibilityIdentifier: AppDockConstants.Accessibility.shortcutRecorderPrefix + title
             )
-                .frame(width: 160)
-                .accessibilityLabel(Text(title))
+            .frame(width: 160)
+            .accessibilityLabel(Text(title))
             Text(displayValue)
                 .font(.caption2)
                 .foregroundColor(.clear)

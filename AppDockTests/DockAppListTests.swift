@@ -1,6 +1,6 @@
-import XCTest
-import AppKit
 @testable import AppDock
+import AppKit
+import XCTest
 
 /// Verifies the pure dock list builder used by DockView.
 final class DockAppListTests: XCTestCase {
@@ -12,7 +12,7 @@ final class DockAppListTests: XCTestCase {
         let apps = [
             makeEntry(name: "A", bundleId: "com.running.a"),
             makeEntry(name: "B", bundleId: "com.stopped.b"),
-            makeEntry(name: "C", bundleId: "")
+            makeEntry(name: "C", bundleId: ""),
         ]
         let runningSet: Set<String> = ["com.running.a"]
         let result = DockAppList.build(
@@ -32,7 +32,7 @@ final class DockAppListTests: XCTestCase {
         let apps = [
             makeEntry(name: "Zulu", bundleId: "z"),
             makeEntry(name: "Alpha", bundleId: "a"),
-            makeEntry(name: "Echo", bundleId: "e")
+            makeEntry(name: "Echo", bundleId: "e"),
         ]
         let result = DockAppList.build(
             apps: apps,
@@ -49,7 +49,7 @@ final class DockAppListTests: XCTestCase {
         let apps = [
             makeEntry(name: "Bravo", bundleId: "b"),
             makeEntry(name: "Charlie", bundleId: "c"),
-            makeEntry(name: "Alpha", bundleId: "a")
+            makeEntry(name: "Alpha", bundleId: "a"),
         ]
         let result = DockAppList.build(
             apps: apps,
@@ -64,7 +64,7 @@ final class DockAppListTests: XCTestCase {
 
     func testBuild_padsToTotalSlots() {
         let apps = [
-            makeEntry(name: "Solo", bundleId: "solo")
+            makeEntry(name: "Solo", bundleId: "solo"),
         ]
         let result = DockAppList.build(
             apps: apps,
@@ -84,7 +84,7 @@ final class DockAppListTests: XCTestCase {
     func testPadApps_skipsPaddingWhenSlotsFilled() {
         let apps = [
             makeEntry(name: "One", bundleId: "1"),
-            makeEntry(name: "Two", bundleId: "2")
+            makeEntry(name: "Two", bundleId: "2"),
         ]
         let result = DockAppList.padApps(apps, totalSlots: 1)
 

@@ -3,8 +3,8 @@
 //  AppDock
 //
 
-import SwiftUI
 import Cocoa
+import SwiftUI
 
 // MARK: - App Delegate
 
@@ -13,8 +13,9 @@ import Cocoa
 /// - Note: Owns the status item, popover, and application lifecycle hooks.
 class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: State + Dependencies
+
     /// Shared instance for cross-object coordination.
-    static private(set) var instance: AppDelegate!
+    private(set) static var instance: AppDelegate!
 
     /// Initialize the shared app state.
     @Published var appState = AppState()
@@ -59,7 +60,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// Called when the application finishes launching.
     ///
     /// - Note: Sets up the status item, popover content, and workspace observers.
-    func applicationDidFinishLaunching(_ notification: Notification) {
+    func applicationDidFinishLaunching(_: Notification) {
         AppDelegate.instance = self
 
         // Configure a visible status bar icon.
@@ -166,7 +167,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// Displays the popover centered on the current screen.
     ///
     /// - Note: The popover is positioned at screen center for consistency.
-    private func showPopover(_ sender: Any?) {
+    private func showPopover(_: Any?) {
         guard let button = statusBarItem.button else { return }
 
         updatePopoverSize()
@@ -329,7 +330,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             ) { [weak self] notification in
                 guard
                     let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey]
-                        as? NSRunningApplication
+                    as? NSRunningApplication
                 else {
                     return
                 }
@@ -342,12 +343,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             ) { [weak self] notification in
                 guard
                     let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey]
-                        as? NSRunningApplication
+                    as? NSRunningApplication
                 else {
                     return
                 }
                 self?.handleTerminatedApp(app)
-            }
+            },
         ]
     }
 

@@ -1,5 +1,5 @@
-import XCTest
 @testable import AppDock
+import XCTest
 
 /// Verifies SettingsDefaults keys and restore behavior.
 final class SettingsDefaultsTests: XCTestCase {

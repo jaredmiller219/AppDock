@@ -1,16 +1,15 @@
-import XCTest
-import SwiftUI
 @testable import AppDock
+import SwiftUI
+import XCTest
 
 /// Tests for the popover host wiring and action closures.
 final class MenuControllerTests: XCTestCase {
-    
     // Verify the hosting controller is created with the expected size and root view
     func testMakePopoverController_returnsHostingControllerWithSize() {
         let controller = MenuController()
         let appState = AppDock.AppState()
         let menuState = MenuState()
-        
+
         let popVC = controller.makePopoverController(
             appState: appState,
             menuState: menuState,
@@ -18,12 +17,12 @@ final class MenuControllerTests: XCTestCase {
             aboutAction: {},
             quitAction: {}
         )
-        
+
         guard let hosting = popVC as? NSHostingController<PopoverContentView> else {
             XCTFail("Popover controller should be an NSHostingController<PopoverContentView>")
             return
         }
-        
+
         XCTAssertEqual(hosting.view.frame.size.width, PopoverSizing.defaultWidth, accuracy: 0.1)
         XCTAssertEqual(hosting.view.frame.size.height, PopoverSizing.height, accuracy: 0.1)
         XCTAssertTrue(hosting.rootView.appState === appState)
@@ -120,7 +119,7 @@ final class MenuControllerTests: XCTestCase {
         let expectedWidth = PopoverSizing.width(for: appState)
         XCTAssertEqual(hosting.view.frame.size.width, expectedWidth, accuracy: 0.1)
     }
-    
+
     // Verify button actions are wired through the view
     func testMakePopoverController_wiresActions() {
         let controller = MenuController()
@@ -129,7 +128,7 @@ final class MenuControllerTests: XCTestCase {
         var settingsCalled = false
         var aboutCalled = false
         var quitCalled = false
-        
+
         let popVC = controller.makePopoverController(
             appState: appState,
             menuState: menuState,
@@ -137,17 +136,17 @@ final class MenuControllerTests: XCTestCase {
             aboutAction: { aboutCalled = true },
             quitAction: { quitCalled = true }
         )
-        
+
         guard let hosting = popVC as? NSHostingController<PopoverContentView> else {
             XCTFail("Popover controller should be an NSHostingController<PopoverContentView>")
             return
         }
-        
+
         // Trigger actions directly through the view's closures
         hosting.rootView.settingsAction()
         hosting.rootView.aboutAction()
         hosting.rootView.quitAction()
-        
+
         XCTAssertTrue(settingsCalled, "Settings action should be wired.")
         XCTAssertTrue(aboutCalled, "About action should be wired.")
         XCTAssertTrue(quitCalled, "Quit action should be wired.")

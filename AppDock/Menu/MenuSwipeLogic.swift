@@ -3,10 +3,10 @@
 //  AppDock
 //
 
-import Foundation
 import CoreGraphics
+import Foundation
 
-struct MenuSwipeLogic {
+enum MenuSwipeLogic {
     static func orderedPages() -> [MenuPage] {
         MenuPage.allCases.sorted { $0.orderIndex < $1.orderIndex }
     }

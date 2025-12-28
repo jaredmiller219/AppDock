@@ -91,7 +91,7 @@ final class PopoverUITests: UITestBase {
         let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
         XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
 
-        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, yPosition: 0.5)
 
         let recentsHeader = anyElement(in: popoverWindow,
                                        id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
@@ -126,7 +126,7 @@ final class PopoverUITests: UITestBase {
         let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
         XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
 
-        dragPopover(popoverWindow, fromX: 0.6, toX: 0.5, y: 0.5)
+        dragPopover(popoverWindow, fromX: 0.6, toX: 0.5, yPosition: 0.5)
 
         XCTAssertTrue(filterButton.waitForExistence(timeout: 2))
         let recentsHeader = anyElement(in: popoverWindow,
@@ -143,7 +143,7 @@ final class PopoverUITests: UITestBase {
         let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
         XCTAssertTrue(filterButton.waitForExistence(timeout: 4))
 
-        dragPopover(popoverWindow, fromX: 0.85, toX: 0.55, y: 0.5)
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.55, yPosition: 0.5)
 
         XCTAssertTrue(filterButton.waitForExistence(timeout: 2))
         let recentsHeader = anyElement(in: popoverWindow,
@@ -157,12 +157,12 @@ final class PopoverUITests: UITestBase {
         let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
         XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
 
-        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, yPosition: 0.5)
         let recentsHeader = anyElement(in: popoverWindow,
                                        id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
         XCTAssertTrue(recentsHeader.waitForExistence(timeout: 2))
 
-        dragPopover(popoverWindow, fromX: 0.15, toX: 0.85, y: 0.5)
+        dragPopover(popoverWindow, fromX: 0.15, toX: 0.85, yPosition: 0.5)
         let filterButton = popoverWindow.menuButtons[UITestConstants.Accessibility.dockFilterMenu]
         XCTAssertTrue(filterButton.waitForExistence(timeout: 2))
     }
@@ -193,7 +193,7 @@ final class PopoverUITests: UITestBase {
         let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
         XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
 
-        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, yPosition: 0.5)
 
         let recentsHeader = anyElement(in: popoverWindow,
                                        id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
@@ -208,7 +208,7 @@ final class PopoverUITests: UITestBase {
         let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
         XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
 
-        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, yPosition: 0.5)
 
         let recentsHeader = anyElement(in: popoverWindow,
                                        id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
@@ -240,7 +240,7 @@ final class PopoverUITests: UITestBase {
         expectation(for: leftSnapPredicate, evaluatedWith: leftMode)
         waitForExpectations(timeout: 2)
 
-        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, yPosition: 0.5)
         let recentsHeader = anyElement(in: popoverWindow,
                                        id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
         XCTAssertTrue(recentsHeader.waitForExistence(timeout: 4))
@@ -257,11 +257,11 @@ final class PopoverUITests: UITestBase {
         let popoverWindow = app.windows[UITestConstants.Accessibility.uiTestWindow]
         XCTAssertTrue(popoverWindow.waitForExistence(timeout: 4))
 
-        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, yPosition: 0.5)
         let recentsHeader = anyElement(in: popoverWindow,
                                        id: UITestConstants.Accessibility.menuPageHeaderPrefix + "recents")
         XCTAssertTrue(recentsHeader.waitForExistence(timeout: 4))
-        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, y: 0.5)
+        dragPopover(popoverWindow, fromX: 0.85, toX: 0.15, yPosition: 0.5)
 
         let favoritesHeader = anyElement(in: popoverWindow,
                                          id: UITestConstants.Accessibility.menuPageHeaderPrefix + "favorites")

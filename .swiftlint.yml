@@ -1,0 +1,28 @@
+excluded:
+  - AppDock_Docs
+  - AppDock.xcodeproj
+
+cache_path: .swiftlint_cache
+
+line_length: 180
+
+function_body_length:
+  warning: 150
+
+function_parameter_count:
+  warning: 10
+
+file_length:
+  warning: 800
+
+type_body_length:
+  warning: 400
+
+disabled_rules:
+  - trailing_comma
+  - opening_brace
+  - nesting
+  - orphaned_doc_comment
+  - large_tuple
+  - multiple_closures_with_trailing_closure
+  - implicit_optional_initialization

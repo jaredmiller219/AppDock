@@ -3,8 +3,8 @@
 //  AppDock
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 struct MenuAppListView: View {
     let title: String
@@ -67,7 +67,8 @@ struct MenuAppRow: View {
 
         if let targetApp = NSRunningApplication
             .runningApplications(withBundleIdentifier: bundleId)
-            .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
+            .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier })
+        {
             targetApp.unhide()
             targetApp.activate(options: [.activateAllWindows])
             openApp(bundleId: bundleId)

@@ -1,5 +1,5 @@
 //
-//  SettingsViewTab.swift
+//  SettingsTab.swift
 //  AppDock
 //
 

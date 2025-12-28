@@ -3,9 +3,9 @@
 //  AppDock
 //
 
-import SwiftUI
 import Foundation
 import os
+import SwiftUI
 
 /// Popover content for the menu bar window.
 struct PopoverContentView: View {
@@ -82,7 +82,8 @@ struct PopoverContentView: View {
             return false
         }
         if let neighbor = neighborPage(for: direction),
-           neighbor == .dock {
+           neighbor == .dock
+        {
             return false
         }
         return true
@@ -120,7 +121,8 @@ struct PopoverContentView: View {
         }
         guard shouldUseInteractiveSwipe(current: menuState.menuPage, direction: direction) else {
             if MenuSwipeLogic.shouldCommit(horizontal: horizontal, vertical: vertical, width: popoverWidth),
-               let nextPage = neighborPage(for: direction) {
+               let nextPage = neighborPage(for: direction)
+            {
                 selectPage(nextPage, animated: false)
             }
             resetDrag()
