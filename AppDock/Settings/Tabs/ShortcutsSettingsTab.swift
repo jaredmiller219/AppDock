@@ -55,10 +55,9 @@ private struct ShortcutRow: View {
             )
             .frame(width: 160)
             .accessibilityLabel(Text(title))
-            if isEditing {
+            if isEditing && shortcut == nil {
                 Button("Cancel") {
                     isEditing = false
-                    shortcut = nil
                     NSApp.keyWindow?.makeFirstResponder(nil)
                 }
                 .buttonStyle(.bordered)
