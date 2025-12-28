@@ -35,6 +35,9 @@ struct MenuPageBar: View {
                 .frame(maxWidth: .infinity)
                 .keyboardShortcut(page.shortcutKey, modifiers: .command)
                 .accessibilityIdentifier(AppDockConstants.Accessibility.menuPageButtonPrefix + page.rawValue)
+                .accessibilityLabel(Text(page.title))
+                .accessibilityHint(Text("Switch to \(page.title) page"))
+                .accessibilityAddTraits(selectedPage == page ? .isSelected : [])
             }
         }
         .padding(.top, AppDockConstants.MenuPageBar.topPadding)

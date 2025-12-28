@@ -5,6 +5,7 @@
 
 import SwiftUI
 import Foundation
+import os
 
 /// Popover content for the menu bar window.
 struct PopoverContentView: View {
@@ -18,6 +19,7 @@ struct PopoverContentView: View {
     @State private var isDragging = false
     @State private var showNeighborDuringDrag = true
     @State private var suppressNextTransition = false
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "AppDock", category: "Menu")
     private var dragCommitDuration: TimeInterval {
         AppDockConstants.MenuGestures.dragCommitDuration
     }
@@ -60,6 +62,11 @@ struct PopoverContentView: View {
 
     private var isUITestMode: Bool {
         ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestMode)
+    }
+
+    private func logPageAppearance(_ page: MenuPage) {
+        guard appState.debugLogging else { return }
+        logger.debug("Menu page appeared: \(page.rawValue, privacy: .public)")
     }
 
     private func handleSwipeDirection(_ direction: SwipeDirection) {
@@ -209,7 +216,7 @@ private extension PopoverContentView {
                         .padding(.bottom, AppDockConstants.MenuLayout.dockPaddingBottom)
                 }
                 .onAppear {
-                    print("Menu page appeared: dock")
+                    logPageAppearance(.dock)
                 }
             case .recents:
                 ScrollView(showsIndicators: false) {
@@ -226,7 +233,7 @@ private extension PopoverContentView {
                     .padding(.bottom, AppDockConstants.MenuLayout.recentsPaddingBottom)
                 }
                 .onAppear {
-                    print("Menu page appeared: recents")
+                    logPageAppearance(.recents)
                 }
             case .favorites:
                 ScrollView(showsIndicators: false) {
@@ -240,7 +247,7 @@ private extension PopoverContentView {
                     .padding(.bottom, AppDockConstants.MenuLayout.favoritesPaddingBottom)
                 }
                 .onAppear {
-                    print("Menu page appeared: favorites")
+                    logPageAppearance(.favorites)
                 }
             case .actions:
                 ScrollView(showsIndicators: false) {
@@ -256,7 +263,7 @@ private extension PopoverContentView {
                     .padding(.bottom, AppDockConstants.MenuLayout.actionsPaddingBottom)
                 }
                 .onAppear {
-                    print("Menu page appeared: actions")
+                    logPageAppearance(.actions)
                 }
             }
         }
@@ -461,6 +468,8 @@ private struct MenuPageHeader: View {
                 .fill(Color.primary.opacity(0.08))
         )
         .accessibilityIdentifier(AppDockConstants.Accessibility.menuPageHeaderPrefix + page.rawValue)
+        .accessibilityLabel(Text(page.title))
+        .accessibilityHint(Text("Current menu page"))
     }
 }
 
@@ -495,5 +504,7 @@ private struct FilterMenuButton: View {
             )
         }
         .accessibilityIdentifier(AppDockConstants.Accessibility.dockFilterMenu)
+        .accessibilityLabel(Text("Filter and sort"))
+        .accessibilityHint(Text("Choose which apps to show and how to sort them"))
     }
 }

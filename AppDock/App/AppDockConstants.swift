@@ -151,6 +151,8 @@ public enum AppDockConstants {
         // Menu rows + buttons
         /// Prefix for Settings/About/Quit menu row identifiers.
         public static let menuRowPrefix = "MenuRow-"
+        /// Prefix for menu app row identifiers.
+        public static let menuAppRowPrefix = "MenuAppRow-"
         /// Identifier for the dock context menu container.
         public static let contextMenu = "DockContextMenu"
         /// Identifier for the status item button in the menu bar.

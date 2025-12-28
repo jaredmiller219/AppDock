@@ -5,6 +5,7 @@
 
 import SwiftUI
 import AppKit
+import os
 
 // MARK: - ContextMenuView
 
@@ -24,6 +25,19 @@ struct ContextMenuView: View {
     let appName: String
     let bundleId: String
     let confirmBeforeQuit: Bool
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "AppDock", category: "ContextMenu")
+
+    private var isDebugLoggingEnabled: Bool {
+        SettingsDefaults.boolValue(
+            forKey: SettingsDefaults.debugLoggingKey,
+            defaultValue: SettingsDefaults.debugLoggingDefault
+        )
+    }
+
+    private func log(_ message: String) {
+        guard isDebugLoggingEnabled else { return }
+        logger.debug("\(message, privacy: .public)")
+    }
 
     private func shouldQuitApp() -> Bool {
         guard ContextMenuViewPrompt.requiresConfirmation(confirmBeforeQuit: confirmBeforeQuit) else { return true }
@@ -43,7 +57,7 @@ struct ContextMenuView: View {
                 if let app = NSRunningApplication
                     .runningApplications(withBundleIdentifier: bundleId)
                     .first {
-                    print("Hiding app with bundle ID: \(bundleId)")
+                    log("Hiding app with bundle ID: \(bundleId)")
                     app.hide()
                 }
                 onDismiss()
@@ -55,7 +69,7 @@ struct ContextMenuView: View {
                 if let targetApp = NSRunningApplication
                     .runningApplications(withBundleIdentifier: bundleId)
                     .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
-                    print("Quitting app with bundle ID: \(bundleId)")
+                    log("Quitting app with bundle ID: \(bundleId)")
                     let terminated = targetApp.terminate()
                     if !terminated {
                         targetApp.forceTerminate()

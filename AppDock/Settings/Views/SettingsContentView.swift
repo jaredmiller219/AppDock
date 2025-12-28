@@ -18,6 +18,7 @@ struct SettingsContentView: View {
                     LayoutSettingsTab(draft: $draft)
                     FilteringSettingsTab(draft: $draft)
                     BehaviorSettingsTab(draft: $draft)
+                    ShortcutsSettingsTab(draft: $draft)
                     AccessibilitySettingsTab(draft: $draft)
                     AdvancedSettingsTab(draft: $draft)
                 }
@@ -41,6 +42,8 @@ struct SettingsContentView: View {
             FilteringSettingsTab(draft: $draft)
         case .behavior:
             BehaviorSettingsTab(draft: $draft)
+        case .shortcuts:
+            ShortcutsSettingsTab(draft: $draft)
         case .accessibility:
             AccessibilitySettingsTab(draft: $draft)
         case .advanced:

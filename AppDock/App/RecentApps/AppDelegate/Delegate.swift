@@ -32,6 +32,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var uiTestWindow: NSWindow?
     var uiTestStatusItemWindow: NSWindow?
 
+    private lazy var shortcutManager = ShortcutManager { [weak self] action in
+        self?.handleShortcut(action)
+    }
+
     /// Create the popover that will host our dock view.
     lazy var popover: NSPopover = {
         let popover = NSPopover()
@@ -90,6 +94,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Keep the dock in sync with app launches.
             startWorkspaceMonitoring()
         }
+
+        shortcutManager.refreshShortcuts()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(refreshShortcuts),
+            name: .appDockShortcutsChanged,
+            object: nil
+        )
 
         applyUITestOverridesIfNeeded()
     }
@@ -227,6 +239,51 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func closePopover(_ sender: Any?) {
         popover.performClose(sender)
         stopPopoverMonitor()
+    }
+
+    @objc private func refreshShortcuts() {
+        shortcutManager.refreshShortcuts()
+    }
+
+    private func handleShortcut(_ action: ShortcutAction) {
+        switch action {
+        case .togglePopover:
+            togglePopover(nil)
+        case .nextPage:
+            advanceMenuPage(direction: .left)
+        case .previousPage:
+            advanceMenuPage(direction: .right)
+        case .openDock:
+            showPopoverAndSelectPage(.dock)
+        case .openRecents:
+            showPopoverAndSelectPage(.recents)
+        case .openFavorites:
+            showPopoverAndSelectPage(.favorites)
+        case .openActions:
+            showPopoverAndSelectPage(.actions)
+        }
+    }
+
+    private func showPopoverAndSelectPage(_ page: MenuPage) {
+        menuState.menuPage = page
+        if !popover.isShown {
+            showPopover(nil)
+        }
+    }
+
+    private func advanceMenuPage(direction: SwipeDirection) {
+        guard appState.menuLayoutMode == .advanced else {
+            if !popover.isShown {
+                showPopover(nil)
+            }
+            return
+        }
+        if let next = MenuSwipeLogic.nextPage(from: menuState.menuPage, direction: direction) {
+            menuState.menuPage = next
+        }
+        if !popover.isShown {
+            showPopover(nil)
+        }
     }
 
     // MARK: Popover Event Monitoring

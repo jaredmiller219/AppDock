@@ -86,6 +86,7 @@ struct MenuAppRow: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: AppDockConstants.MenuAppRow.iconSize, height: AppDockConstants.MenuAppRow.iconSize)
                     .cornerRadius(AppDockConstants.MenuAppRow.iconCornerRadius)
+                    .accessibilityHidden(true)
 
                 Text(app.name)
                     .font(.callout)
@@ -102,6 +103,12 @@ struct MenuAppRow: View {
         }
         .buttonStyle(.plain)
         .contentShape(RoundedRectangle(cornerRadius: AppDockConstants.MenuAppRow.cornerRadius))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text(app.name))
+        .accessibilityHint(Text("Open app"))
+        .accessibilityIdentifier(
+            AppDockConstants.Accessibility.menuAppRowPrefix + (app.bundleid.isEmpty ? app.name : app.bundleid)
+        )
         .onHover { hovering in
             isHovering = hovering
         }
@@ -119,6 +126,7 @@ struct MenuEmptyState: View {
             Image(systemName: systemImage)
                 .font(.title2)
                 .foregroundColor(.secondary)
+                .accessibilityHidden(true)
             Text(title)
                 .font(.headline)
             Text(message)
@@ -127,6 +135,8 @@ struct MenuEmptyState: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, AppDockConstants.MenuEmptyState.paddingVertical)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text("\(title). \(message)"))
     }
 }
 
@@ -135,6 +145,9 @@ struct MenuRow: View {
     let title: String
     let action: () -> Void
     @State private var isHovering = false
+    private var accessibilityHintText: String {
+        "Activate \(title)"
+    }
 
     var body: some View {
         Button(action: action) {
@@ -154,6 +167,8 @@ struct MenuRow: View {
         .frame(maxWidth: .infinity)
         .contentShape(RoundedRectangle(cornerRadius: AppDockConstants.MenuRow.cornerRadius))
         .accessibilityIdentifier(AppDockConstants.Accessibility.menuRowPrefix + title)
+        .accessibilityLabel(Text(title))
+        .accessibilityHint(Text(accessibilityHintText))
         .onHover { hovering in
             isHovering = hovering
         }

@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import AppKit
 
 /// Central place for settings keys, defaults, and reset helpers.
 struct SettingsDefaults {
@@ -26,6 +27,13 @@ struct SettingsDefaults {
     static let menuPageKey = "settings.menuPage"
     static let simpleSettingsKey = "settings.simpleMode"
     static let menuLayoutModeKey = "settings.menuLayoutMode"
+    static let shortcutTogglePopoverKey = "settings.shortcut.togglePopover"
+    static let shortcutNextPageKey = "settings.shortcut.nextPage"
+    static let shortcutPreviousPageKey = "settings.shortcut.previousPage"
+    static let shortcutOpenDockKey = "settings.shortcut.openDock"
+    static let shortcutOpenRecentsKey = "settings.shortcut.openRecents"
+    static let shortcutOpenFavoritesKey = "settings.shortcut.openFavorites"
+    static let shortcutOpenActionsKey = "settings.shortcut.openActions"
 
     static let launchAtLoginDefault = false
     static let openOnStartupDefault = true
@@ -46,6 +54,15 @@ struct SettingsDefaults {
     static let menuPageDefault: MenuPage = .dock
     static let simpleSettingsDefault = false
     static let menuLayoutModeDefault: MenuLayoutMode = .advanced
+    static let shortcutKeys = [
+        shortcutTogglePopoverKey,
+        shortcutNextPageKey,
+        shortcutPreviousPageKey,
+        shortcutOpenDockKey,
+        shortcutOpenRecentsKey,
+        shortcutOpenFavoritesKey,
+        shortcutOpenActionsKey
+    ]
 
     static func defaultsDictionary() -> [String: Any] {
         [
@@ -75,6 +92,7 @@ struct SettingsDefaults {
         defaultsDictionary().forEach { key, value in
             defaults.set(value, forKey: key)
         }
+        shortcutKeys.forEach { defaults.removeObject(forKey: $0) }
     }
 
     static func boolValue(forKey key: String, defaultValue: Bool, in defaults: UserDefaults = .standard) -> Bool {
@@ -113,6 +131,27 @@ struct SettingsDefaults {
         )
         return MenuLayoutMode(rawValue: rawValue) ?? menuLayoutModeDefault
     }
+
+    static func shortcutValue(forKey key: String, in defaults: UserDefaults = .standard) -> ShortcutDefinition? {
+        guard let payload = defaults.dictionary(forKey: key) as? [String: Int] else { return nil }
+        guard let keyCode = payload["keyCode"], let modifiers = payload["modifiers"] else { return nil }
+        return ShortcutDefinition(
+            keyCode: UInt16(keyCode),
+            modifiers: NSEvent.ModifierFlags(rawValue: UInt(modifiers))
+        )
+    }
+
+    static func setShortcut(_ shortcut: ShortcutDefinition?, forKey key: String, in defaults: UserDefaults = .standard) {
+        guard let shortcut else {
+            defaults.removeObject(forKey: key)
+            return
+        }
+        let payload: [String: Int] = [
+            "keyCode": Int(shortcut.keyCode),
+            "modifiers": Int(shortcut.modifierMask.rawValue)
+        ]
+        defaults.set(payload, forKey: key)
+    }
 }
 
 /// Staged settings values, applied to UserDefaults + AppState on demand.
@@ -135,6 +174,13 @@ struct SettingsDraft: Equatable {
     var debugLogging: Bool
     var simpleSettings: Bool
     var menuLayoutMode: MenuLayoutMode
+    var shortcutTogglePopover: ShortcutDefinition?
+    var shortcutNextPage: ShortcutDefinition?
+    var shortcutPreviousPage: ShortcutDefinition?
+    var shortcutOpenDock: ShortcutDefinition?
+    var shortcutOpenRecents: ShortcutDefinition?
+    var shortcutOpenFavorites: ShortcutDefinition?
+    var shortcutOpenActions: ShortcutDefinition?
 
     static func from(appState: AppState) -> SettingsDraft {
         SettingsDraft(
@@ -158,7 +204,14 @@ struct SettingsDraft: Equatable {
                 forKey: SettingsDefaults.simpleSettingsKey,
                 defaultValue: SettingsDefaults.simpleSettingsDefault
             ),
-            menuLayoutMode: appState.menuLayoutMode
+            menuLayoutMode: appState.menuLayoutMode,
+            shortcutTogglePopover: SettingsDefaults.shortcutValue(forKey: SettingsDefaults.shortcutTogglePopoverKey),
+            shortcutNextPage: SettingsDefaults.shortcutValue(forKey: SettingsDefaults.shortcutNextPageKey),
+            shortcutPreviousPage: SettingsDefaults.shortcutValue(forKey: SettingsDefaults.shortcutPreviousPageKey),
+            shortcutOpenDock: SettingsDefaults.shortcutValue(forKey: SettingsDefaults.shortcutOpenDockKey),
+            shortcutOpenRecents: SettingsDefaults.shortcutValue(forKey: SettingsDefaults.shortcutOpenRecentsKey),
+            shortcutOpenFavorites: SettingsDefaults.shortcutValue(forKey: SettingsDefaults.shortcutOpenFavoritesKey),
+            shortcutOpenActions: SettingsDefaults.shortcutValue(forKey: SettingsDefaults.shortcutOpenActionsKey)
         )
     }
 
@@ -252,7 +305,35 @@ struct SettingsDraft: Equatable {
                 defaultValue: SettingsDefaults.simpleSettingsDefault,
                 in: defaults
             ),
-            menuLayoutMode: SettingsDefaults.menuLayoutModeValue(in: defaults)
+            menuLayoutMode: SettingsDefaults.menuLayoutModeValue(in: defaults),
+            shortcutTogglePopover: SettingsDefaults.shortcutValue(
+                forKey: SettingsDefaults.shortcutTogglePopoverKey,
+                in: defaults
+            ),
+            shortcutNextPage: SettingsDefaults.shortcutValue(
+                forKey: SettingsDefaults.shortcutNextPageKey,
+                in: defaults
+            ),
+            shortcutPreviousPage: SettingsDefaults.shortcutValue(
+                forKey: SettingsDefaults.shortcutPreviousPageKey,
+                in: defaults
+            ),
+            shortcutOpenDock: SettingsDefaults.shortcutValue(
+                forKey: SettingsDefaults.shortcutOpenDockKey,
+                in: defaults
+            ),
+            shortcutOpenRecents: SettingsDefaults.shortcutValue(
+                forKey: SettingsDefaults.shortcutOpenRecentsKey,
+                in: defaults
+            ),
+            shortcutOpenFavorites: SettingsDefaults.shortcutValue(
+                forKey: SettingsDefaults.shortcutOpenFavoritesKey,
+                in: defaults
+            ),
+            shortcutOpenActions: SettingsDefaults.shortcutValue(
+                forKey: SettingsDefaults.shortcutOpenActionsKey,
+                in: defaults
+            )
         )
     }
 
@@ -276,6 +357,13 @@ struct SettingsDraft: Equatable {
         defaults.set(debugLogging, forKey: SettingsDefaults.debugLoggingKey)
         defaults.set(simpleSettings, forKey: SettingsDefaults.simpleSettingsKey)
         defaults.set(menuLayoutMode.rawValue, forKey: SettingsDefaults.menuLayoutModeKey)
+        SettingsDefaults.setShortcut(shortcutTogglePopover, forKey: SettingsDefaults.shortcutTogglePopoverKey)
+        SettingsDefaults.setShortcut(shortcutNextPage, forKey: SettingsDefaults.shortcutNextPageKey)
+        SettingsDefaults.setShortcut(shortcutPreviousPage, forKey: SettingsDefaults.shortcutPreviousPageKey)
+        SettingsDefaults.setShortcut(shortcutOpenDock, forKey: SettingsDefaults.shortcutOpenDockKey)
+        SettingsDefaults.setShortcut(shortcutOpenRecents, forKey: SettingsDefaults.shortcutOpenRecentsKey)
+        SettingsDefaults.setShortcut(shortcutOpenFavorites, forKey: SettingsDefaults.shortcutOpenFavoritesKey)
+        SettingsDefaults.setShortcut(shortcutOpenActions, forKey: SettingsDefaults.shortcutOpenActionsKey)
     }
 }
 

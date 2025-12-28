@@ -10,6 +10,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case layout
     case filtering
     case behavior
+    case shortcuts
     case accessibility
     case advanced
 
@@ -21,6 +22,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .layout: return "Layout"
         case .filtering: return "Filtering"
         case .behavior: return "Behavior"
+        case .shortcuts: return "Shortcuts"
         case .accessibility: return "Accessibility"
         case .advanced: return "Advanced"
         }
@@ -32,6 +34,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .layout: return "square.grid.3x3"
         case .filtering: return "line.3.horizontal.decrease.circle"
         case .behavior: return "hand.tap"
+        case .shortcuts: return "keyboard"
         case .accessibility: return "figure.walk"
         case .advanced: return "wrench.and.screwdriver"
         }

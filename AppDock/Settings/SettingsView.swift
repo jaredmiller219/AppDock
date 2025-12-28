@@ -31,6 +31,7 @@ struct SettingsView: View {
         draft.apply()
         appState.applySettings(draft)
         appliedSimpleSettings = draft.simpleSettings
+        NotificationCenter.default.post(name: .appDockShortcutsChanged, object: nil)
     }
 
     /// Persists draft values without changing the live in-memory settings.
@@ -44,6 +45,7 @@ struct SettingsView: View {
         draft = SettingsDraft.load()
         appState.applySettings(draft)
         appliedSimpleSettings = draft.simpleSettings
+        NotificationCenter.default.post(name: .appDockShortcutsChanged, object: nil)
     }
 
     var body: some View {
