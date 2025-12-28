@@ -29,6 +29,7 @@ class UITestBase: XCTestCase {
             static let settingsMenuLayoutPicker = "SettingsMenuLayoutPicker"
             static let favoritesEmptyState = "FavoritesEmptyState"
             static let shortcutRecorderValuePrefix = "ShortcutRecorderValue-"
+            static let shortcutRecorderCancelPrefix = "ShortcutRecorderCancel-"
         }
 
         enum ShortcutActions {

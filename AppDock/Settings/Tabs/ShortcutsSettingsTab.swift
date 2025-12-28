@@ -48,20 +48,30 @@ private struct ShortcutRow: View {
         HStack {
             Text(title)
             Spacer()
-            ShortcutRecorder(
-                shortcut: $shortcut,
-                accessibilityIdentifier: AppDockConstants.Accessibility.shortcutRecorderPrefix + title,
-                isEditing: $isEditing
-            )
-            .frame(width: 160)
-            .accessibilityLabel(Text(title))
-            if isEditing && shortcut == nil {
-                Button("Cancel") {
-                    isEditing = false
-                    NSApp.keyWindow?.makeFirstResponder(nil)
+            ZStack(alignment: .trailing) {
+                ShortcutRecorder(
+                    shortcut: $shortcut,
+                    accessibilityIdentifier: AppDockConstants.Accessibility.shortcutRecorderPrefix + title,
+                    isEditing: $isEditing
+                )
+                .accessibilityLabel(Text(title))
+
+                if isEditing {
+                    Button {
+                        isEditing = false
+                        NSApp.keyWindow?.makeFirstResponder(nil)
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .symbolRenderingMode(.hierarchical)
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.trailing, 6)
+                    .accessibilityLabel(Text("Cancel recording"))
+                    .accessibilityIdentifier(AppDockConstants.Accessibility.shortcutRecorderCancelPrefix + title)
                 }
-                .buttonStyle(.bordered)
             }
+            .frame(width: 160)
             Text(displayValue)
                 .font(.caption2)
                 .foregroundColor(.clear)

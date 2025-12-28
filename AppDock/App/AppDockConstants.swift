@@ -157,6 +157,8 @@ public enum AppDockConstants {
         public static let shortcutRecorderPrefix = "ShortcutRecorder-"
         /// Prefix for shortcut recorder value identifiers.
         public static let shortcutRecorderValuePrefix = "ShortcutRecorderValue-"
+        /// Prefix for shortcut recorder cancel button identifiers.
+        public static let shortcutRecorderCancelPrefix = "ShortcutRecorderCancel-"
         /// Identifier for the dock context menu container.
         public static let contextMenu = "DockContextMenu"
         /// Identifier for the favorites empty state.
