@@ -357,13 +357,13 @@ struct SettingsDraft: Equatable {
         defaults.set(debugLogging, forKey: SettingsDefaults.debugLoggingKey)
         defaults.set(simpleSettings, forKey: SettingsDefaults.simpleSettingsKey)
         defaults.set(menuLayoutMode.rawValue, forKey: SettingsDefaults.menuLayoutModeKey)
-        SettingsDefaults.setShortcut(shortcutTogglePopover, forKey: SettingsDefaults.shortcutTogglePopoverKey)
-        SettingsDefaults.setShortcut(shortcutNextPage, forKey: SettingsDefaults.shortcutNextPageKey)
-        SettingsDefaults.setShortcut(shortcutPreviousPage, forKey: SettingsDefaults.shortcutPreviousPageKey)
-        SettingsDefaults.setShortcut(shortcutOpenDock, forKey: SettingsDefaults.shortcutOpenDockKey)
-        SettingsDefaults.setShortcut(shortcutOpenRecents, forKey: SettingsDefaults.shortcutOpenRecentsKey)
-        SettingsDefaults.setShortcut(shortcutOpenFavorites, forKey: SettingsDefaults.shortcutOpenFavoritesKey)
-        SettingsDefaults.setShortcut(shortcutOpenActions, forKey: SettingsDefaults.shortcutOpenActionsKey)
+        SettingsDefaults.setShortcut(shortcutTogglePopover, forKey: SettingsDefaults.shortcutTogglePopoverKey, in: defaults)
+        SettingsDefaults.setShortcut(shortcutNextPage, forKey: SettingsDefaults.shortcutNextPageKey, in: defaults)
+        SettingsDefaults.setShortcut(shortcutPreviousPage, forKey: SettingsDefaults.shortcutPreviousPageKey, in: defaults)
+        SettingsDefaults.setShortcut(shortcutOpenDock, forKey: SettingsDefaults.shortcutOpenDockKey, in: defaults)
+        SettingsDefaults.setShortcut(shortcutOpenRecents, forKey: SettingsDefaults.shortcutOpenRecentsKey, in: defaults)
+        SettingsDefaults.setShortcut(shortcutOpenFavorites, forKey: SettingsDefaults.shortcutOpenFavoritesKey, in: defaults)
+        SettingsDefaults.setShortcut(shortcutOpenActions, forKey: SettingsDefaults.shortcutOpenActionsKey, in: defaults)
     }
 }
 

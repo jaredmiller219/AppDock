@@ -53,11 +53,28 @@ final class SettingsUITests: UITestBase {
         settingsWindow.buttons["Behavior"].click()
         XCTAssertTrue(settingsWindow.checkBoxes["Show running indicator"].waitForExistence(timeout: 2))
 
+        settingsWindow.buttons["Shortcuts"].click()
+        XCTAssertTrue(settingsWindow.staticTexts["Toggle popover"].waitForExistence(timeout: 2))
+
         settingsWindow.buttons["Accessibility"].click()
         XCTAssertTrue(settingsWindow.checkBoxes["Reduce motion"].waitForExistence(timeout: 2))
 
         settingsWindow.buttons["Advanced"].click()
         XCTAssertTrue(settingsWindow.checkBoxes["Enable debug logging"].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testShortcutsTabShowsRecorderFields() throws {
+        let app = launchAppForSettingsTests()
+        let settingsWindow = app.windows["AppDock Settings"]
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+
+        settingsWindow.buttons["Shortcuts"].click()
+        let toggleRecorder = anyElement(
+            in: settingsWindow,
+            id: UITestConstants.Accessibility.shortcutRecorderPrefix + "Toggle popover"
+        )
+        XCTAssertTrue(toggleRecorder.waitForExistence(timeout: 2))
     }
 
     @MainActor

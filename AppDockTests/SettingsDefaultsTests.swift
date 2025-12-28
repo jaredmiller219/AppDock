@@ -36,6 +36,13 @@ final class SettingsDefaultsTests: XCTestCase {
         XCTAssertEqual(values[SettingsDefaults.menuPageKey] as? String, SettingsDefaults.menuPageDefault.rawValue)
         XCTAssertEqual(values[SettingsDefaults.simpleSettingsKey] as? Bool, SettingsDefaults.simpleSettingsDefault)
         XCTAssertEqual(values[SettingsDefaults.menuLayoutModeKey] as? String, SettingsDefaults.menuLayoutModeDefault.rawValue)
+        XCTAssertNil(values[SettingsDefaults.shortcutTogglePopoverKey])
+        XCTAssertNil(values[SettingsDefaults.shortcutNextPageKey])
+        XCTAssertNil(values[SettingsDefaults.shortcutPreviousPageKey])
+        XCTAssertNil(values[SettingsDefaults.shortcutOpenDockKey])
+        XCTAssertNil(values[SettingsDefaults.shortcutOpenRecentsKey])
+        XCTAssertNil(values[SettingsDefaults.shortcutOpenFavoritesKey])
+        XCTAssertNil(values[SettingsDefaults.shortcutOpenActionsKey])
     }
 
     /// Ensures restore writes the expected values into UserDefaults.
@@ -43,6 +50,12 @@ final class SettingsDefaultsTests: XCTestCase {
         // Use an isolated suite so tests do not pollute real app settings.
         let defaults = makeDefaults()
         defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        SettingsDefaults.setShortcut(
+            ShortcutDefinition(keyCode: 12, modifiers: [.command, .shift]),
+            forKey: SettingsDefaults.shortcutTogglePopoverKey,
+            in: defaults
+        )
 
         SettingsDefaults.restore(in: defaults)
 
@@ -65,5 +78,19 @@ final class SettingsDefaultsTests: XCTestCase {
         XCTAssertEqual(defaults.string(forKey: SettingsDefaults.menuPageKey), SettingsDefaults.menuPageDefault.rawValue)
         XCTAssertEqual(defaults.bool(forKey: SettingsDefaults.simpleSettingsKey), SettingsDefaults.simpleSettingsDefault)
         XCTAssertEqual(defaults.string(forKey: SettingsDefaults.menuLayoutModeKey), SettingsDefaults.menuLayoutModeDefault.rawValue)
+        XCTAssertNil(defaults.dictionary(forKey: SettingsDefaults.shortcutTogglePopoverKey))
+    }
+
+    func testShortcutRoundTripPersistsKeyCodeAndModifiers() {
+        let defaults = makeDefaults()
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let shortcut = ShortcutDefinition(keyCode: 7, modifiers: [.command, .option])
+        SettingsDefaults.setShortcut(shortcut, forKey: SettingsDefaults.shortcutOpenDockKey, in: defaults)
+
+        let loaded = SettingsDefaults.shortcutValue(forKey: SettingsDefaults.shortcutOpenDockKey, in: defaults)
+
+        XCTAssertEqual(loaded?.keyCode, shortcut.keyCode)
+        XCTAssertEqual(loaded?.modifierMask, shortcut.modifierMask)
     }
 }

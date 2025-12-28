@@ -17,6 +17,7 @@ class UITestBase: XCTestCase {
             static let menuPageHeaderPrefix = "MenuPageHeader-"
             static let statusItem = "AppDockStatusItem"
             static let contextMenu = "DockContextMenu"
+            static let shortcutRecorderPrefix = "ShortcutRecorder-"
             static let uiTestTrackpadSwipeLeft = "UITestTrackpadSwipeLeft"
             static let uiTestDismissContextMenu = "UITestDismissContextMenu"
             static let uiTestStatusItemProxy = "UITestStatusItemProxy"

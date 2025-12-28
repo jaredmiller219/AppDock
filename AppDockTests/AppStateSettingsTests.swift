@@ -23,7 +23,14 @@ final class AppStateSettingsTests: XCTestCase {
             reduceMotion: true,
             debugLogging: true,
             simpleSettings: true,
-            menuLayoutMode: .simple
+            menuLayoutMode: .simple,
+            shortcutTogglePopover: nil,
+            shortcutNextPage: nil,
+            shortcutPreviousPage: nil,
+            shortcutOpenDock: nil,
+            shortcutOpenRecents: nil,
+            shortcutOpenFavorites: nil,
+            shortcutOpenActions: nil
         )
 
         // Apply the full snapshot and assert each published property updated.

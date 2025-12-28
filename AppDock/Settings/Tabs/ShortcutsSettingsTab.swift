@@ -44,6 +44,7 @@ private struct ShortcutRow: View {
             ShortcutRecorder(shortcut: $shortcut)
                 .frame(width: 160)
                 .accessibilityLabel(Text(title))
+                .accessibilityIdentifier(AppDockConstants.Accessibility.shortcutRecorderPrefix + title)
         }
     }
 }

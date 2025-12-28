@@ -34,6 +34,11 @@ final class SettingsDraftTests: XCTestCase {
         defaults.set(true, forKey: SettingsDefaults.debugLoggingKey)
         defaults.set(true, forKey: SettingsDefaults.simpleSettingsKey)
         defaults.set(MenuLayoutMode.simple.rawValue, forKey: SettingsDefaults.menuLayoutModeKey)
+        SettingsDefaults.setShortcut(
+            ShortcutDefinition(keyCode: 6, modifiers: [.command, .option]),
+            forKey: SettingsDefaults.shortcutTogglePopoverKey,
+            in: defaults
+        )
 
         let draft = SettingsDraft.load(from: defaults)
 
@@ -55,6 +60,8 @@ final class SettingsDraftTests: XCTestCase {
         XCTAssertTrue(draft.debugLogging)
         XCTAssertTrue(draft.simpleSettings)
         XCTAssertEqual(draft.menuLayoutMode, .simple)
+        XCTAssertEqual(draft.shortcutTogglePopover?.keyCode, 6)
+        XCTAssertEqual(draft.shortcutTogglePopover?.modifierMask, [.command, .option])
     }
 
     func testApply_writesValuesToDefaults() {
@@ -80,7 +87,14 @@ final class SettingsDraftTests: XCTestCase {
             reduceMotion: true,
             debugLogging: true,
             simpleSettings: true,
-            menuLayoutMode: .simple
+            menuLayoutMode: .simple,
+            shortcutTogglePopover: ShortcutDefinition(keyCode: 12, modifiers: [.command, .shift]),
+            shortcutNextPage: nil,
+            shortcutPreviousPage: nil,
+            shortcutOpenDock: ShortcutDefinition(keyCode: 13, modifiers: [.command, .option]),
+            shortcutOpenRecents: nil,
+            shortcutOpenFavorites: nil,
+            shortcutOpenActions: nil
         )
 
         draft.apply(to: defaults)
@@ -103,6 +117,12 @@ final class SettingsDraftTests: XCTestCase {
         XCTAssertTrue(defaults.bool(forKey: SettingsDefaults.debugLoggingKey))
         XCTAssertTrue(defaults.bool(forKey: SettingsDefaults.simpleSettingsKey))
         XCTAssertEqual(defaults.string(forKey: SettingsDefaults.menuLayoutModeKey), MenuLayoutMode.simple.rawValue)
+        let toggleShortcut = SettingsDefaults.shortcutValue(forKey: SettingsDefaults.shortcutTogglePopoverKey, in: defaults)
+        XCTAssertEqual(toggleShortcut?.keyCode, 12)
+        XCTAssertEqual(toggleShortcut?.modifierMask, [.command, .shift])
+        let dockShortcut = SettingsDefaults.shortcutValue(forKey: SettingsDefaults.shortcutOpenDockKey, in: defaults)
+        XCTAssertEqual(dockShortcut?.keyCode, 13)
+        XCTAssertEqual(dockShortcut?.modifierMask, [.command, .option])
     }
 
     func testFromAppState_readsSimpleSettingsFromDefaults() {
