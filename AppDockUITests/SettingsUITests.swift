@@ -124,9 +124,10 @@ final class SettingsUITests: UITestBase {
         )
         XCTAssertTrue(toggleRecorder.waitForExistence(timeout: 2))
         XCTAssertTrue(toggleRecorderValue.waitForExistence(timeout: 2))
+        let cancelButton = settingsWindow.buttons["Cancel"]
+        XCTAssertFalse(cancelButton.exists)
 
         toggleRecorder.click()
-        let cancelButton = settingsWindow.buttons["Cancel"]
         XCTAssertTrue(cancelButton.waitForExistence(timeout: 2))
         app.typeKey(XCUIKeyboardKey.escape.rawValue, modifierFlags: [])
         settingsWindow.click()
