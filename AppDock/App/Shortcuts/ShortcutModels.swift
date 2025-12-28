@@ -6,14 +6,24 @@
 import Carbon
 import Cocoa
 
+/// Small value type describing a global keyboard shortcut.
+///
+/// Stores the hardware `keyCode` and the `NSEvent.ModifierFlags` used by
+/// AppKit; helpers translate the modifier flags into masks suitable for
+/// persisting and registering with Carbon APIs.
 struct ShortcutDefinition: Equatable {
+    /// Hardware key code representing the key.
     let keyCode: UInt16
+
+    /// Raw modifier flags captured from `NSEvent`.
     let modifiers: NSEvent.ModifierFlags
 
+    /// Normalized mask containing only device-independent modifier flags.
     var modifierMask: NSEvent.ModifierFlags {
         modifiers.intersection(.deviceIndependentFlagsMask)
     }
 
+    /// Converts the `modifierMask` into Carbon-compatible modifier bits.
     var carbonModifiers: UInt32 {
         var flags: UInt32 = 0
         if modifierMask.contains(.command) {
@@ -32,6 +42,7 @@ struct ShortcutDefinition: Equatable {
     }
 }
 
+/// Logical actions that can be triggered via global shortcuts.
 enum ShortcutAction: String, CaseIterable, Identifiable {
     case togglePopover
     case nextPage
@@ -41,8 +52,10 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
     case openFavorites
     case openActions
 
+    /// Stable identifier for SwiftUI lists.
     var id: String { rawValue }
 
+    /// Human-readable title for Settings UI.
     var title: String {
         switch self {
         case .togglePopover:
@@ -62,6 +75,7 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Returns the `UserDefaults` key used to persist this action's shortcut.
     var settingsKey: String {
         switch self {
         case .togglePopover:

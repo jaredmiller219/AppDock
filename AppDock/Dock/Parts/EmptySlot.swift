@@ -2,12 +2,24 @@
 //  EmptySlot.swift
 //  AppDock
 //
+/*
+ EmptySlot.swift
+
+ Purpose:
+  - Render an unobtrusive placeholder in dock grid cells that do not have
+    an associated app entry. The placeholder provides a subtle border and
+    a small label so the grid's layout remains visually consistent.
+*/
 
 import SwiftUI
 
 // MARK: - EmptySlot
 
 /// Placeholder slot shown when there are fewer apps than grid cells.
+///
+/// - Parameters:
+///   - width: Target width for the placeholder so grid alignment matches icons.
+///   - height: Target height for the placeholder so grid alignment matches icons.
 struct EmptySlot: View {
     let width: CGFloat
     let height: CGFloat

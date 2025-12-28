@@ -63,37 +63,44 @@ extension AppDelegate {
             let bundleid = app.bundleIdentifier,
             let appPath = app.bundleURL?.path
         else {
-            return nil
-        }
+            //
+            //  RecentApps.swift
+            //  AppDock
+            //
+            /*
+             RecentApps.swift
 
-        let appIcon = workspace.icon(forFile: appPath)
-        appIcon.size = NSSize(width: AppDockConstants.AppIcon.size, height: AppDockConstants.AppIcon.size)
-        return (name: appName, bundleid: bundleid, icon: appIcon)
-    }
+             Purpose:
+              - Small AppDelegate extension that populates `AppState.recentApps` by
+                querying running applications or other platform APIs. Kept separate to
+                isolate platform-specific lookup logic from the main delegate.
+            */
 
-    // MARK: App List Helpers
+            import Foundation
+            import AppKit
 
-    /// Filters running applications to user-facing apps with required metadata.
-    ///
-    /// - Note: Excludes background agents and missing metadata.
-    func fetchUserApps(from workspace: NSWorkspace) -> [NSRunningApplication] {
-        workspace.runningApplications.filter { app in
-            app.activationPolicy == .regular &&
-                app.bundleIdentifier != nil &&
-                app.launchDate != nil
-        }
-    }
+            // MARK: - Recent Apps
 
-    /// Sorts by launch date, newest first. Apps missing a launch date are excluded.
-    ///
-    /// - Note: Ensures the most recently launched apps appear first.
-    func sortAppsByLaunchDate(_ apps: [NSRunningApplication]) -> [NSRunningApplication] {
-        apps.sorted { app1, app2 in
-            guard let date1 = app1.launchDate, let date2 = app2.launchDate else {
-                return false
+            /// Utilities to build the recent apps list used by the dock.
+            extension AppDelegate {
+                /// Queries running applications as a source for the recent apps list.
+                ///
+                /// - Note: This is a conservative fallback; more advanced heuristics
+                ///   (e.g., Launch Services recency) can be added here if desired.
+                func getRecentApplications() {
+                    var items: [AppState.AppEntry] = []
+
+                    // Fallback: list running apps as a reasonable default
+                    for app in NSWorkspace.shared.runningApplications {
+                        guard let bundleId = app.bundleIdentifier else { continue }
+                        let name = app.localizedName ?? ""
+                        let icon = app.icon ?? NSImage()
+                        items.append((name: name, bundleid: bundleId, icon: icon))
+                    }
+
+                    appState.recentApps = items
+                }
             }
-            return date1 > date2
-        }
     }
 
     /// Maps running apps into dock entries with resized icons.

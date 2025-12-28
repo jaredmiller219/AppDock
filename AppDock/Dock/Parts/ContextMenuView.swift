@@ -9,6 +9,7 @@ import SwiftUI
 
 // MARK: - ContextMenuView
 
+/// Small helpers used by the `ContextMenuView` for confirmation and titles.
 enum ContextMenuViewPrompt {
     static func requiresConfirmation(confirmBeforeQuit: Bool) -> Bool {
         confirmBeforeQuit
@@ -20,11 +21,24 @@ enum ContextMenuViewPrompt {
 }
 
 /// Context menu shown when a slot is command-clicked.
+///
+/// Provides simple actions that operate on the target `bundleId` such as
+/// hiding and quitting the application. The view will optionally prompt
+/// for confirmation when the user requests to quit.
 struct ContextMenuView: View {
+    /// Called after the menu performs an action to allow the caller to
+    /// dismiss overlays or update state.
     var onDismiss: () -> Void
+
+    /// Human-readable app name for presenting titles.
     let appName: String
+
+    /// Target app bundle identifier used to find running instances.
     let bundleId: String
+
+    /// When `true`, present a confirmation alert before quitting.
     let confirmBeforeQuit: Bool
+
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "AppDock", category: "ContextMenu")
 
     private var isDebugLoggingEnabled: Bool {

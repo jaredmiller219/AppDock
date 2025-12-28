@@ -2,6 +2,19 @@
 //  SettingsView.swift
 //  AppDock
 //
+/*
+ SettingsView.swift
+
+ Purpose:
+    - Renders the Settings window UI with a staged `SettingsDraft` model and
+        explicit Apply/Save actions so changes can be previewed before applying.
+
+ Overview:
+    - Composes header, sidebar, content and footer views and wires the
+        `SettingsDraft` lifecycle to `AppState` using `applySettings()`.
+    - Keeps persistence (UserDefaults) and live UI state separate until the
+        user explicitly applies changes.
+*/
 
 import SwiftUI
 

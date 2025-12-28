@@ -6,11 +6,20 @@
 import AppKit
 import SwiftUI
 
+/// Small row used in the Recents / Favorites list to represent an app.
+///
+/// - Displays an app icon and name and handles activation when clicked.
 struct MenuAppRow: View {
+    /// App entry tuple (name, bundle id, icon) provided by `AppState`.
     let app: AppState.AppEntry
+
+    /// Reference to shared `AppState` so the row can update UI-test hooks.
     let appState: AppState
+
+    /// Local hover state used to highlight the row background.
     @State private var isHovering = false
 
+    /// Opens the application bundle at the provided `bundleId`.
     private func openApp(bundleId: String) {
         guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleId) else {
             return
@@ -25,6 +34,9 @@ struct MenuAppRow: View {
         )
     }
 
+    /// Activates a running instance of the app if available, otherwise
+    /// launches a new instance. In UI test mode this records the activation
+    /// candidate instead of actually activating.
     private func activateOrLaunchApp(bundleId: String) {
         if ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestDisableActivation) {
             if ProcessInfo.processInfo.arguments.contains(AppDockConstants.Testing.uiTestMode) {

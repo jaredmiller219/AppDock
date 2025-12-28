@@ -2,8 +2,19 @@
 //  MenuController.swift
 //  AppDock
 //
-//  Created by Jared Miller on 12/17/24.
-//
+/*
+ MenuController.swift
+
+ Purpose:
+    - Bridge between AppKit popover hosting and SwiftUI content. Exposes a
+        small API to create an `NSViewController` hosting the SwiftUI popover
+        content sized to `AppState` and current settings.
+
+ Overview:
+    - Provides `PopoverSizing` helpers and a `MenuController` factory method
+        `makePopoverController(...)` so higher-level code can avoid AppKit/SwiftUI
+        interop details.
+*/
 
 // Import the SwiftUI framework for user interface components.
 import SwiftUI

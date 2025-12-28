@@ -2,6 +2,25 @@
 //  AppState.swift
 //  AppDock
 //
+/*
+ AppState.swift
+
+ Purpose:
+    - Central observable model that holds the app's runtime UI state used
+        by SwiftUI views (dock contents, filters, layout, and settings-backed
+        values).
+
+ Overview:
+    - This class is an `ObservableObject` so views can bind to published
+        properties and update reactively as the app changes.
+    - It loads initial values from persisted `SettingsDraft` and exposes an
+        `applySettings(_:)` helper to sync a draft snapshot into the live
+        model.
+
+ Notes:
+    - Keep state shape stable: renaming or removing published properties
+        affects serialization and UI bindings.
+*/
 
 import Cocoa
 import SwiftUI

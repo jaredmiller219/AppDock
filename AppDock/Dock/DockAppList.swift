@@ -12,6 +12,14 @@ enum DockAppList {
     typealias AppEntry = AppState.AppEntry
 
     /// Returns the list after applying filter + sort + padding.
+    ///
+    /// - Parameters:
+    ///   - apps: The original list of app entries.
+    ///   - filter: Current `AppFilterOption` to apply.
+    ///   - sort: Current `AppSortOption` to apply.
+    ///   - totalSlots: The total number of slots the UI will render (used to pad).
+    ///   - isRunning: A small function used to determine whether a bundle id has a running instance.
+    /// - Returns: A list of `AppEntry` values filtered, sorted and padded to `totalSlots`.
     static func build(
         apps: [AppEntry],
         filter: AppFilterOption,
@@ -25,6 +33,9 @@ enum DockAppList {
     }
 
     /// Applies the current filter option.
+    ///
+    /// - Note: The `runningOnly` case uses the provided `isRunning` predicate
+    ///   so filter logic can be tested without querying system APIs.
     static func filterApps(
         _ apps: [AppEntry],
         filter: AppFilterOption,
@@ -41,6 +52,9 @@ enum DockAppList {
     }
 
     /// Applies the current sort option.
+    ///
+    /// - Note: `recent` currently leaves the original order intact; to
+    ///   enable true recency sorting the model should timestamp entries.
     static func sortApps(_ apps: [AppEntry], sort: AppSortOption) -> [AppEntry] {
         switch sort {
         case .recent:
@@ -57,6 +71,9 @@ enum DockAppList {
     }
 
     /// Pads the app list to match the total grid slot count.
+    ///
+    /// - Note: Padding entries are empty tuples (empty strings and an empty image)
+    ///   so the UI can render placeholder `EmptySlot` views in the grid.
     static func padApps(_ apps: [AppEntry], totalSlots: Int) -> [AppEntry] {
         let paddingCount = max(0, totalSlots - apps.count)
         guard paddingCount > 0 else { return apps }

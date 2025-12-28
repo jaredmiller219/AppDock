@@ -2,6 +2,18 @@
 //  Delegate.swift
 //  AppDock
 //
+/*
+ Delegate.swift
+
+ Purpose:
+    - Application delegate responsible for wiring AppKit primitives (the
+        status bar item and popover) to the SwiftUI-driven interfaces. Also
+        manages workspace observers and shortcut registration.
+
+ Notes:
+    - Keep AppKit interaction centralized here so the SwiftUI views remain
+        testable and primarily declarative.
+*/
 
 import Cocoa
 import SwiftUI

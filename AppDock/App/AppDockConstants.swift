@@ -2,6 +2,23 @@
 //  AppDockConstants.swift
 //  AppDock
 //
+/*
+ AppDockConstants.swift
+
+ Purpose:
+    - Centralized collection of UI, timing, layout and accessibility constants
+        used throughout the AppDock UI layers (Dock, Menu, Settings).
+
+ Overview:
+    - Grouped enums expose related numeric and string constants so the UI
+        layers can remain declarative and easily tuned.
+    - Keep values here rather than scattering magic numbers across views.
+
+ Notes:
+    - This file contains only immutable constants; changing values affects
+        layout and test identifiers app-wide.
+*/
+
 import CoreGraphics
 import Foundation
 

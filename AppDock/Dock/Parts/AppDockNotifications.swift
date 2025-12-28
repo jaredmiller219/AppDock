@@ -2,6 +2,13 @@
 //  AppDockNotifications.swift
 //  AppDock
 //
+/*
+ AppDockNotifications.swift
+
+ Purpose:
+  - Centralize `Notification.Name` values used for app-wide UI coordination
+    (for example, dismissing context menus or notifying when shortcuts change).
+*/
 
 import Foundation
 

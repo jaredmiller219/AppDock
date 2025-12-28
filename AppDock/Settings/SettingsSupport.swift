@@ -87,7 +87,34 @@ enum SettingsDefaults {
             menuLayoutModeKey: menuLayoutModeDefault.rawValue,
         ]
     }
+    /// Returns the dictionary of default setting keys/values to register.
+    static func defaultsDictionary() -> [String: Any] {
+        [
+            launchAtLoginKey: launchAtLoginDefault,
+            openOnStartupKey: openOnStartupDefault,
+            autoUpdatesKey: autoUpdatesDefault,
+            showAppLabelsKey: showAppLabelsDefault,
+            showRunningIndicatorKey: showRunningIndicatorDefault,
+            enableHoverRemoveKey: enableHoverRemoveDefault,
+            confirmBeforeQuitKey: confirmBeforeQuitDefault,
+            keepQuitAppsKey: keepQuitAppsDefault,
+            defaultFilterKey: defaultFilterDefault.rawValue,
+            defaultSortKey: defaultSortDefault.rawValue,
+            gridColumnsKey: gridColumnsDefault,
+            gridRowsKey: gridRowsDefault,
+            iconSizeKey: iconSizeDefault,
+            labelSizeKey: labelSizeDefault,
+            reduceMotionKey: reduceMotionDefault,
+            debugLoggingKey: debugLoggingDefault,
+            menuPageKey: menuPageDefault.rawValue,
+            simpleSettingsKey: simpleSettingsDefault,
+            menuLayoutModeKey: menuLayoutModeDefault.rawValue,
+        ]
+    }
 
+    /// Restore built-in defaults into the provided `UserDefaults` instance.
+    ///
+    /// - Parameter defaults: The `UserDefaults` to write defaults into (defaults to `.standard`).
     static func restore(in defaults: UserDefaults = .standard) {
         for (key, value) in defaultsDictionary() {
             defaults.set(value, forKey: key)
@@ -95,25 +122,30 @@ enum SettingsDefaults {
         shortcutKeys.forEach { defaults.removeObject(forKey: $0) }
     }
 
+    /// Helper to read a Boolean setting with a fallback default.
     static func boolValue(forKey key: String, defaultValue: Bool, in defaults: UserDefaults = .standard) -> Bool {
         guard defaults.object(forKey: key) != nil else { return defaultValue }
         return defaults.bool(forKey: key)
     }
 
+    /// Helper to read an integer setting with a fallback default.
     static func intValue(forKey key: String, defaultValue: Int, in defaults: UserDefaults = .standard) -> Int {
         guard defaults.object(forKey: key) != nil else { return defaultValue }
         return defaults.integer(forKey: key)
     }
 
+    /// Helper to read a double setting with a fallback default.
     static func doubleValue(forKey key: String, defaultValue: Double, in defaults: UserDefaults = .standard) -> Double {
         guard defaults.object(forKey: key) != nil else { return defaultValue }
         return defaults.double(forKey: key)
     }
 
+    /// Helper to read a string setting with a fallback default.
     static func stringValue(forKey key: String, defaultValue: String, in defaults: UserDefaults = .standard) -> String {
         defaults.string(forKey: key) ?? defaultValue
     }
 
+    /// Read the persisted `MenuPage` value (or return the default).
     static func menuPageValue(in defaults: UserDefaults = .standard) -> MenuPage {
         let rawValue = stringValue(
             forKey: menuPageKey,
@@ -123,6 +155,7 @@ enum SettingsDefaults {
         return MenuPage(rawValue: rawValue) ?? menuPageDefault
     }
 
+    /// Read the persisted `MenuLayoutMode` value (or return the default).
     static func menuLayoutModeValue(in defaults: UserDefaults = .standard) -> MenuLayoutMode {
         let rawValue = stringValue(
             forKey: menuLayoutModeKey,
@@ -132,6 +165,8 @@ enum SettingsDefaults {
         return MenuLayoutMode(rawValue: rawValue) ?? menuLayoutModeDefault
     }
 
+    /// Load a `ShortcutDefinition` previously persisted under the given key.
+    /// - Returns: `nil` if the key was not set or payload malformed.
     static func shortcutValue(forKey key: String, in defaults: UserDefaults = .standard) -> ShortcutDefinition? {
         guard let payload = defaults.dictionary(forKey: key) as? [String: Int] else { return nil }
         guard let keyCode = payload["keyCode"], let modifiers = payload["modifiers"] else { return nil }
@@ -141,6 +176,11 @@ enum SettingsDefaults {
         )
     }
 
+    /// Persist or clear a `ShortcutDefinition` for the given key.
+    ///
+    /// - Parameters:
+    ///   - shortcut: If `nil` the persisted value is removed.
+    ///   - key: Settings key to use for persistence.
     static func setShortcut(_ shortcut: ShortcutDefinition?, forKey key: String, in defaults: UserDefaults = .standard) {
         guard let shortcut else {
             defaults.removeObject(forKey: key)
@@ -338,6 +378,9 @@ struct SettingsDraft: Equatable {
     }
 
     /// Persist staged values into UserDefaults.
+    /// Apply the staged `SettingsDraft` values into the provided `UserDefaults`.
+    ///
+    /// - Note: This writes both scalar settings and serialized shortcut payloads.
     func apply(to defaults: UserDefaults = .standard) {
         defaults.set(launchAtLogin, forKey: SettingsDefaults.launchAtLoginKey)
         defaults.set(openOnStartup, forKey: SettingsDefaults.openOnStartupKey)

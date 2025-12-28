@@ -25,7 +25,10 @@ enum ButtonViewInteraction {
 
 /// Renders a single app icon slot and handles interactions.
 ///
-/// Supports command-click context menus, hover removal, and activation.
+/// Responsibilities:
+/// - Render either an `EmptySlot` placeholder or an `IconView` button.
+/// - Handle primary click semantics (activate vs. command-click for context menu).
+/// - Show a delayed remove button when the user holds Command while hovering.
 struct ButtonView: View {
     let appName: String
     let bundleId: String
@@ -34,17 +37,29 @@ struct ButtonView: View {
     let buttonHeight: CGFloat
     let allowRemove: Bool
 
-    // Controls whether THIS button's context menu is visible.
+    /// Controls whether THIS button's context menu is visible.
     @Binding var isContextMenuVisible: Bool
 
-    // Called when the user taps the "X" remove button.
+    /// Called when the user taps the "X" remove button.
     let onRemove: () -> Void
 
+    /// Local hover state for showing outlines and scheduling remove button.
     @State private var isHovering = false
+
+    /// Controls whether the remove "X" is visible.
     @State private var showRemoveButton = false
+
+    /// Work item used to delay showing the remove button so it doesn't
+    /// appear immediately when the pointer enters the cell.
     @State private var removeButtonWorkItem: DispatchWorkItem?
+
+    /// Tracks whether the Command key is currently held down.
     @State private var isCommandHeld = false
+
+    /// Monitors for local modifier flag changes.
     @State private var modifierFlagsMonitor: Any?
+
+    /// Monitors for global modifier flag changes (outside this window).
     @State private var globalModifierFlagsMonitor: Any?
 
     private func openApp(bundleId: String) {

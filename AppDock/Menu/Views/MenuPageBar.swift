@@ -2,9 +2,22 @@
 //  MenuPageBar.swift
 //  AppDock
 //
+/*
+ MenuPageBar.swift
+
+ Purpose:
+    - Renders the bottom page/tab bar for the popover when using the
+        `advanced` menu layout. Shows a button for each `MenuPage` and
+        provides keyboard shortcuts and accessibility identifiers.
+
+ Notes:
+    - Visual styling uses values from `AppDockConstants.MenuPageBar` so
+        the layout remains consistent with the rest of the popover UI.
+*/
 
 import SwiftUI
 
+/// Small tab bar that displays one button per `MenuPage`.
 struct MenuPageBar: View {
     let selectedPage: MenuPage
     let onSelect: (MenuPage) -> Void

@@ -2,6 +2,17 @@
 //  IconView.swift
 //  AppDock
 //
+/*
+ IconView.swift
+
+ Purpose:
+    - Small, focused view for rendering an `NSImage` app icon with consistent
+        sizing and corner radius used throughout dock tiles and lists.
+
+ Overview:
+    - Keeps image resizing and accessibility identifier logic in one place so
+        callers can pass pre-sized icons and rely on consistent visual styling.
+*/
 
 import AppKit
 import SwiftUI

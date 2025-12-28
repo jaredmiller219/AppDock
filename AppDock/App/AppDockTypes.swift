@@ -2,6 +2,21 @@
 //  AppDockTypes.swift
 //  AppDock
 //
+/*
+ AppDockTypes.swift
+
+ Purpose:
+    - Defines lightweight enums and small helper types used across the UI,
+        such as filtering, sorting and layout mode options.
+
+ Overview:
+    - Keep these types small and value-driven so SwiftUI views can use them
+        directly (they are CaseIterable / Identifiable where useful).
+
+ Notes:
+    - UI strings and SF symbol names are provided here to centralize
+        localization-friendly labels and avoid duplication in views.
+*/
 
 import Foundation
 import SwiftUI

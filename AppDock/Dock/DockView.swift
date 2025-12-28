@@ -2,8 +2,23 @@
 //  DockView.swift
 //  AppDock
 //
-//  Created by Jared Miller on 12/12/24.
-//
+/*
+ DockView.swift
+
+ Purpose:
+    - Primary SwiftUI view responsible for rendering the dock grid, paging
+        behavior and the centered context menu overlay.
+
+ Overview:
+    - Reads layout and user preferences from `AppState` and composes smaller
+        view components such as `ButtonView`, `ContextMenuView`, and
+        `IconView` to render each slot.
+    - Handles paging gestures and context menu lifecycle.
+
+ Notes:
+    - Keep view code declarative; move heavy work into helper types so SwiftUI
+        can diff efficiently.
+*/
 
 import AppKit
 import SwiftUI
@@ -17,9 +32,15 @@ struct DockView: View {
     /// Local alias to keep tuple types readable.
     typealias AppEntry = AppState.AppEntry
 
-    // Tracks which app index currently has its context menu open.
+    /// Tracks which app index currently has its context menu open.
+    /// - `nil` when no context menu is visible.
     @State private var activeContextMenuIndex: Int? = nil
+
+    /// Token changed whenever a context menu is opened to force a new
+    /// view identity for animation/transition correctness.
     @State private var contextMenuToken = UUID()
+
+    /// Current page index when the dock is paged.
     @State private var pageIndex = 0
 
     private var contextMenuAnimation: Animation? {
