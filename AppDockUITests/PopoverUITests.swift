@@ -266,7 +266,8 @@ final class PopoverUITests: UITestBase {
         let favoritesHeader = anyElement(in: popoverWindow,
                                          id: UITestConstants.Accessibility.menuPageHeaderPrefix + "favorites")
         XCTAssertTrue(favoritesHeader.waitForExistence(timeout: 4))
-        XCTAssertTrue(popoverWindow.staticTexts["No Favorites Yet"].waitForExistence(timeout: 4))
+        let emptyState = anyElement(in: popoverWindow, id: UITestConstants.Accessibility.favoritesEmptyState)
+        XCTAssertTrue(emptyState.waitForExistence(timeout: 4))
     }
 
     @MainActor

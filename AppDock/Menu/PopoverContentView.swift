@@ -242,6 +242,7 @@ private extension PopoverContentView {
                         message: "Pin apps to keep them on this page.",
                         systemImage: "star"
                     )
+                    .accessibilityIdentifier(AppDockConstants.Accessibility.favoritesEmptyState)
                     .padding(.horizontal, AppDockConstants.MenuLayout.favoritesPaddingHorizontal)
                     .padding(.top, AppDockConstants.MenuLayout.favoritesPaddingTop)
                     .padding(.bottom, AppDockConstants.MenuLayout.favoritesPaddingBottom)

@@ -108,6 +108,7 @@ final class ShortcutRecorderField: NSTextField {
     func updateDisplay(with shortcut: ShortcutDefinition?, isEditing: Bool) {
         if isEditing {
             stringValue = "Type Shortcut"
+            setAccessibilityValue(stringValue)
             return
         }
         if let shortcut {
@@ -115,6 +116,7 @@ final class ShortcutRecorderField: NSTextField {
         } else {
             stringValue = "Record Shortcut"
         }
+        setAccessibilityValue(stringValue)
     }
 
     private func isModifierKey(_ keyCode: UInt16) -> Bool {

@@ -157,6 +157,8 @@ public enum AppDockConstants {
         public static let shortcutRecorderPrefix = "ShortcutRecorder-"
         /// Identifier for the dock context menu container.
         public static let contextMenu = "DockContextMenu"
+        /// Identifier for the favorites empty state.
+        public static let favoritesEmptyState = "FavoritesEmptyState"
         /// Identifier for the status item button in the menu bar.
         public static let statusItem = "AppDockStatusItem"
         /// Status item label used for UI lookups and assertions.
