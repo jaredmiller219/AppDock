@@ -62,6 +62,7 @@ class UITestBase: XCTestCase {
     @MainActor
     func launchAppForPopoverTests() -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchEnvironment["SHOW_KEY_VISUALIZER"] = "1"
         app.launchArguments = [
             UITestConstants.TestingArgs.uiTestMode,
             UITestConstants.TestingArgs.uiTestOpenPopover,
@@ -76,6 +77,7 @@ class UITestBase: XCTestCase {
     @MainActor
     func launchAppForSimplePopoverTests() -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchEnvironment["SHOW_KEY_VISUALIZER"] = "1"
         app.launchArguments = [
             UITestConstants.TestingArgs.uiTestMode,
             UITestConstants.TestingArgs.uiTestOpenPopover,
@@ -91,6 +93,7 @@ class UITestBase: XCTestCase {
     @MainActor
     func launchAppForSettingsTests() -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchEnvironment["SHOW_KEY_VISUALIZER"] = "1"
         app.launchArguments = [
             UITestConstants.TestingArgs.uiTestMode,
             UITestConstants.TestingArgs.uiTestOpenSettings,
@@ -103,6 +106,7 @@ class UITestBase: XCTestCase {
     @MainActor
     func launchAppForPopoverAndSettingsTests() -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchEnvironment["SHOW_KEY_VISUALIZER"] = "1"
         app.launchArguments = [
             UITestConstants.TestingArgs.uiTestMode,
             UITestConstants.TestingArgs.uiTestOpenPopovers,
@@ -117,6 +121,7 @@ class UITestBase: XCTestCase {
     @MainActor
     func launchAppForStatusItemTests() -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchEnvironment["SHOW_KEY_VISUALIZER"] = "1"
         app.launchArguments = [
             UITestConstants.TestingArgs.uiTestMode,
             UITestConstants.TestingArgs.uiTestSeedDock,
@@ -130,6 +135,7 @@ class UITestBase: XCTestCase {
     @MainActor
     func launchAppForShortcutTests() -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchEnvironment["SHOW_KEY_VISUALIZER"] = "1"
         app.launchArguments = [
             UITestConstants.TestingArgs.uiTestMode,
             UITestConstants.TestingArgs.uiTestOpenPopover,

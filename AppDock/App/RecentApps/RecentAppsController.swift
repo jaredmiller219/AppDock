@@ -17,6 +17,7 @@
 */
 
 import SwiftUI
+import AppKit
 
 // MARK: - App Entry Point
 
@@ -27,6 +28,10 @@ import SwiftUI
 @main
 struct RecentAppsController: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+    init() {
+        KeyVisualizer.startIfRunningUITests()
+    }
 
     // MARK: Scene
 
