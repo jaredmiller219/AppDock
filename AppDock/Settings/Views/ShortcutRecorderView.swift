@@ -127,8 +127,8 @@ final class ShortcutRecorderField: NSTextField {
         let became = super.becomeFirstResponder()
         if became {
             isEditing = true
-            onEditingStateChange?(true)
             stringValue = "Recording..."
+            onEditingStateChange?(true)
         }
         return became
     }
@@ -138,12 +138,21 @@ final class ShortcutRecorderField: NSTextField {
         if resigned {
             isEditing = false
             onEditingStateChange?(false)
+            // Don't clear the display here - let updateDisplay handle it via binding update
         }
         return resigned
     }
 
     override func mouseDown(with _: NSEvent) {
         window?.makeFirstResponder(self)
+    }
+
+    override func flagsChanged(with event: NSEvent) {
+        // Show live preview of modifiers being pressed/released
+        guard isEditing else { return }
+        let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        stringValue = formatModifiers(modifiers)
+        setAccessibilityValue(stringValue)
     }
 
     override func keyDown(with event: NSEvent) {
@@ -159,7 +168,9 @@ final class ShortcutRecorderField: NSTextField {
             return
         }
         if isModifierKey(event.keyCode) {
-            NSSound.beep()
+            // Show live preview of modifiers being pressed
+            stringValue = formatModifiers(modifiers)
+            setAccessibilityValue(stringValue)
             return
         }
         let requiredModifiers: NSEvent.ModifierFlags = [.command, .option, .control]
@@ -169,11 +180,28 @@ final class ShortcutRecorderField: NSTextField {
         }
 
         let shortcut = ShortcutDefinition(keyCode: event.keyCode, modifiers: modifiers)
+        // Show live preview before finalizing
+        stringValue = ShortcutFormatter.string(for: shortcut)
+        setAccessibilityValue(stringValue)
+        
         onShortcutChange?(shortcut)
         window?.makeFirstResponder(nil)
     }
+    
+    func formatModifiers(_ modifiers: NSEvent.ModifierFlags) -> String {
+        var result = ""
+        if modifiers.contains(.control) { result += "⌃" }
+        if modifiers.contains(.option) { result += "⌥" }
+        if modifiers.contains(.shift) { result += "⇧" }
+        if modifiers.contains(.command) { result += "⌘" }
+        return result.isEmpty ? "Recording..." : result
+    }
 
     func updateDisplay(with shortcut: ShortcutDefinition?, isEditing: Bool) {
+        // Only update display if not currently in editing mode
+        // becomeFirstResponder will handle the "Recording..." text
+        guard !self.isEditing else { return }
+        
         if isEditing {
             stringValue = "Recording..."
             setAccessibilityValue(stringValue)
