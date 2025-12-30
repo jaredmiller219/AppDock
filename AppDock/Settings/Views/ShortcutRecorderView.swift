@@ -20,7 +20,7 @@
  
  INTERACTION FLOW:
  1. User clicks field -> becomeFirstResponder -> enter recording mode
- 2. Field shows "Type Shortcut" placeholder while recording
+ 2. Field shows "Recording..." while waiting for keyboard input
  3. User presses key combo -> keyDown intercepts -> parses modifiers + keyCode
  4. ShortcutDefinition assembled -> onShortcutChange callback -> binding updated
  5. User releases keys or presses Escape -> resignFirstResponder -> exit recording
@@ -128,7 +128,7 @@ final class ShortcutRecorderField: NSTextField {
         if became {
             isEditing = true
             onEditingStateChange?(true)
-            stringValue = "Type Shortcut"
+            stringValue = "Recording..."
         }
         return became
     }
@@ -175,7 +175,7 @@ final class ShortcutRecorderField: NSTextField {
 
     func updateDisplay(with shortcut: ShortcutDefinition?, isEditing: Bool) {
         if isEditing {
-            stringValue = "Type Shortcut"
+            stringValue = "Recording..."
             setAccessibilityValue(stringValue)
             setAccessibilityLabel(stringValue)
             setAccessibilityTitle(stringValue)

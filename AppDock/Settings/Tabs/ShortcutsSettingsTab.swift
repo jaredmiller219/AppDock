@@ -25,7 +25,7 @@
 
  STYLING:
  - ShortcutRow subcomponents with title + recorder + display value
- - Cancel (X) button appears when actively recording a shortcut
+ - Clear (X) button appears on hover when a shortcut is set
  - Display values use ShortcutFormatter for consistent formatting
  - Divider separates control shortcuts from direct page access shortcuts
 
@@ -75,6 +75,7 @@ private struct ShortcutRow: View {
     let title: String
     @Binding var shortcut: ShortcutDefinition?
     @State private var isEditing = false
+    @State private var isHovering = false
 
     private var displayValue: String {
         guard let shortcut else { return "Record Shortcut" }
@@ -93,8 +94,9 @@ private struct ShortcutRow: View {
                 )
                 .accessibilityLabel(Text(title))
 
-                if isEditing {
+                if isHovering && shortcut != nil {
                     Button {
+                        shortcut = nil
                         isEditing = false
                         NSApp.keyWindow?.makeFirstResponder(nil)
                     } label: {
@@ -104,8 +106,24 @@ private struct ShortcutRow: View {
                     }
                     .buttonStyle(.plain)
                     .padding(.trailing, 6)
-                    .accessibilityLabel(Text("Cancel recording"))
+                    .accessibilityLabel(Text("Clear shortcut"))
                     .accessibilityIdentifier(AppDockConstants.Accessibility.shortcutRecorderCancelPrefix + title)
+                }
+            }
+            .onContinuousHover { phase in
+                switch phase {
+                case .active:
+                    isHovering = true
+                case .ended:
+                    isHovering = false
+                }
+            }
+            .onContinuousHover { phase in
+                switch phase {
+                case .active:
+                    isHovering = true
+                case .ended:
+                    isHovering = false
                 }
             }
             .frame(width: 160)

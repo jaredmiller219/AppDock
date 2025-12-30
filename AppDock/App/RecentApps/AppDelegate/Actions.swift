@@ -11,9 +11,10 @@ import SwiftUI
 extension AppDelegate {
     /// Handler for the "About" action.
     ///
-    /// - Note: Closes the popover after showing the panel.
+    /// - Note: Brings the About panel to the front and gives it focus, then closes the popover.
     @objc func about() {
         NSApp.orderFrontStandardAboutPanel()
+        NSApp.activate(ignoringOtherApps: true)
         closePopover(nil)
     }
 
