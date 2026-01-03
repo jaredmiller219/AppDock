@@ -120,7 +120,7 @@ final class ShortcutsTabUITests: UITestBase {
 
     // MARK: - Helper Methods
 
-    func waitForDisplayedTextContaining(
+    private func waitForDisplayedTextContaining(
         _ element: XCUIElement,
         substring: String,
         timeout: TimeInterval
