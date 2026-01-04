@@ -8,18 +8,12 @@ import XCTest
 final class SettingsUITests: UITestBase {
     @MainActor
     func testSettingsWindow_flow() throws {
-        let app = launchAppForSettingsTests()
-
-        let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+        let (app, settingsWindow) = launchAppAndOpenSettings()
 
         let applyButton = settingsWindow.buttons["Apply"]
         XCTAssertTrue(applyButton.exists)
 
-        let behaviorTab = settingsWindow.buttons["Behavior"]
-        if behaviorTab.waitForExistence(timeout: 2) {
-            behaviorTab.click()
-        }
+        navigateToTab(in: settingsWindow, tabName: "Behavior")
 
         let labelToggle = settingsWindow.checkBoxes["Show app labels"]
         if labelToggle.waitForExistence(timeout: 2) {
@@ -37,74 +31,50 @@ final class SettingsUITests: UITestBase {
 
     @MainActor
     func testSettingsTabsContainControls() throws {
-        let app = launchAppForSettingsTests()
-        let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+        let (_, settingsWindow) = launchAppAndOpenSettings()
 
-        settingsWindow.buttons["General"].click()
+        navigateToTab(in: settingsWindow, tabName: "General")
         XCTAssertTrue(settingsWindow.checkBoxes["Launch at login"].waitForExistence(timeout: 2))
 
-        settingsWindow.buttons["Layout"].click()
+        navigateToTab(in: settingsWindow, tabName: "Layout")
         XCTAssertTrue(settingsWindow.staticTexts["Columns"].waitForExistence(timeout: 2))
 
-        settingsWindow.buttons["Filtering"].click()
+        navigateToTab(in: settingsWindow, tabName: "Filtering")
         XCTAssertTrue(settingsWindow.staticTexts["Default filter"].waitForExistence(timeout: 2))
 
-        settingsWindow.buttons["Behavior"].click()
+        navigateToTab(in: settingsWindow, tabName: "Behavior")
         XCTAssertTrue(settingsWindow.checkBoxes["Show running indicator"].waitForExistence(timeout: 2))
 
-        settingsWindow.buttons["Shortcuts"].click()
+        navigateToTab(in: settingsWindow, tabName: "Shortcuts")
         XCTAssertTrue(settingsWindow.staticTexts["Toggle popover"].waitForExistence(timeout: 2))
 
-        settingsWindow.buttons["Accessibility"].click()
+        navigateToTab(in: settingsWindow, tabName: "Accessibility")
         XCTAssertTrue(settingsWindow.checkBoxes["Reduce motion"].waitForExistence(timeout: 2))
 
-        settingsWindow.buttons["Advanced"].click()
+        navigateToTab(in: settingsWindow, tabName: "Advanced")
         XCTAssertTrue(settingsWindow.checkBoxes["Enable debug logging"].waitForExistence(timeout: 2))
     }
 
     @MainActor
-    func testShortcutsTabShowsRecorderFields() throws {
-        let app = launchAppForSettingsTests()
-        let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
-
-        settingsWindow.buttons["Shortcuts"].click()
-        let toggleRecorder = anyElement(
-            in: settingsWindow,
-            id: UITestConstants.Accessibility.shortcutRecorderPrefix + "Toggle popover"
-        )
-        XCTAssertTrue(toggleRecorder.waitForExistence(timeout: 2))
-    }
-
-
-
-    @MainActor
     func testLayoutTabShowsMenuLayoutPicker() throws {
-        let app = launchAppForSettingsTests()
-        let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+        let (_, settingsWindow) = launchAppAndOpenSettings()
 
-        settingsWindow.buttons["Layout"].click()
+        navigateToTab(in: settingsWindow, tabName: "Layout")
         let layoutPicker = anyElement(in: settingsWindow, id: UITestConstants.Accessibility.settingsMenuLayoutPicker)
         XCTAssertTrue(layoutPicker.waitForExistence(timeout: 2))
     }
 
     @MainActor
     func testAdvancedTabShowsSettingsLayoutToggle() throws {
-        let app = launchAppForSettingsTests()
-        let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+        let (_, settingsWindow) = launchAppAndOpenSettings()
 
-        settingsWindow.buttons["Advanced"].click()
+        navigateToTab(in: settingsWindow, tabName: "Advanced")
         XCTAssertTrue(settingsWindow.checkBoxes["Use advanced settings layout"].waitForExistence(timeout: 2))
     }
 
     @MainActor
     func testApplyButtonDisabledUntilChangesMade() throws {
-        let app = launchAppForSettingsTests()
-        let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+        let (app, settingsWindow) = launchAppAndOpenSettings()
 
         let applyButton = settingsWindow.buttons["Apply"]
         let actionsButton = anyElement(in: settingsWindow, id: "Settings Actions")
@@ -114,7 +84,7 @@ final class SettingsUITests: UITestBase {
         app.menuItems["Restore Defaults"].click()
         XCTAssertFalse(applyButton.isEnabled)
 
-        settingsWindow.buttons["Behavior"].click()
+        navigateToTab(in: settingsWindow, tabName: "Behavior")
         let labelToggle = settingsWindow.checkBoxes["Show app labels"]
         XCTAssertTrue(labelToggle.waitForExistence(timeout: 2))
         labelToggle.click()
@@ -123,9 +93,7 @@ final class SettingsUITests: UITestBase {
 
     @MainActor
     func testSidebarButtonsRespondToFullRowClicks() throws {
-        let app = launchAppForSettingsTests()
-        let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+        let (_, settingsWindow) = launchAppAndOpenSettings()
 
         let layoutButton = settingsWindow.buttons["Layout"]
         XCTAssertTrue(layoutButton.waitForExistence(timeout: 2))

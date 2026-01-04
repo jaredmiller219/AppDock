@@ -16,24 +16,18 @@ final class ShortcutsTabUITests: UITestBase {
     /// Test that the clear button appears on hover when a shortcut is set.
     @MainActor
     func testClearButton_appearsOnHover_whenShortcutIsSet() throws {
-        let app = launchAppForSettingsTests()
-        let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+        let (app, settingsWindow) = launchAppAndOpenSettings()
 
-        settingsWindow.buttons["Shortcuts"].click()
-        let toggleRecorder = anyElement(
-            in: settingsWindow,
-            id: UITestConstants.Accessibility.shortcutRecorderPrefix + "Toggle popover"
-        )
-        let cancelButton = anyElement(
-            in: settingsWindow,
-            id: UITestConstants.Accessibility.shortcutRecorderCancelPrefix + "Toggle popover"
-        )
+        navigateToTab(in: settingsWindow, tabName: "Shortcuts")
+        let toggleRecorder = getShortcutRecorder(in: settingsWindow, for: "Toggle popover")
+        let cancelButton = getShortcutCancelButton(in: settingsWindow, for: "Toggle popover")
         XCTAssertTrue(toggleRecorder.waitForExistence(timeout: 2))
 
         // Record a shortcut
         toggleRecorder.click()
-        app.typeKey("k", modifierFlags: [.command, .option])
+        recordShortcut(app, key: "k", modifiers: [.command, .option])
+
+        // Move focus away from recorder field
         settingsWindow.click()
 
         // Button should not be visible when not hovering
@@ -50,19 +44,11 @@ final class ShortcutsTabUITests: UITestBase {
     /// Test that the clear button does not appear when no shortcut is set.
     @MainActor
     func testClearButton_doesNotAppear_whenNoShortcutSet() throws {
-        let app = launchAppForSettingsTests()
-        let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+        let (_, settingsWindow) = launchAppAndOpenSettings()
 
-        settingsWindow.buttons["Shortcuts"].click()
-        let toggleRecorder = anyElement(
-            in: settingsWindow,
-            id: UITestConstants.Accessibility.shortcutRecorderPrefix + "Toggle popover"
-        )
-        let cancelButton = anyElement(
-            in: settingsWindow,
-            id: UITestConstants.Accessibility.shortcutRecorderCancelPrefix + "Toggle popover"
-        )
+        navigateToTab(in: settingsWindow, tabName: "Shortcuts")
+        let toggleRecorder = getShortcutRecorder(in: settingsWindow, for: "Toggle popover")
+        let cancelButton = getShortcutCancelButton(in: settingsWindow, for: "Toggle popover")
         XCTAssertTrue(toggleRecorder.waitForExistence(timeout: 2))
 
         // Hover over empty recorder field
@@ -78,29 +64,17 @@ final class ShortcutsTabUITests: UITestBase {
     /// Test that clicking the clear button clears the shortcut.
     @MainActor
     func testClearButton_clearsShortcutOnClick() throws {
-        let app = launchAppForSettingsTests()
-        let settingsWindow = app.windows["AppDock Settings"]
-        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+        let (app, settingsWindow) = launchAppAndOpenSettings()
 
-        settingsWindow.buttons["Shortcuts"].click()
-        let toggleRecorder = anyElement(
-            in: settingsWindow,
-            id: UITestConstants.Accessibility.shortcutRecorderPrefix + "Toggle popover"
-        )
-        let cancelButton = anyElement(
-            in: settingsWindow,
-            id: UITestConstants.Accessibility.shortcutRecorderCancelPrefix + "Toggle popover"
-        )
-        let toggleRecorderValue = anyElement(
-            in: settingsWindow,
-            id: UITestConstants.Accessibility.shortcutRecorderValuePrefix + "Toggle popover"
-        )
+        navigateToTab(in: settingsWindow, tabName: "Shortcuts")
+        let toggleRecorder = getShortcutRecorder(in: settingsWindow, for: "Toggle popover")
+        let cancelButton = getShortcutCancelButton(in: settingsWindow, for: "Toggle popover")
+        let toggleRecorderValue = getShortcutValueField(in: settingsWindow, for: "Toggle popover")
         XCTAssertTrue(toggleRecorder.waitForExistence(timeout: 2))
 
         // Record a shortcut
         toggleRecorder.click()
-        app.typeKey("k", modifierFlags: [.command, .option])
-        settingsWindow.click()
+        recordShortcut(app, key: "k", modifiers: [.command, .option])
 
         // Hover and click clear button
         toggleRecorder.hover()
@@ -118,21 +92,5 @@ final class ShortcutsTabUITests: UITestBase {
         )
     }
 
-    // MARK: - Helper Methods
-
-    private func waitForDisplayedTextContaining(
-        _ element: XCUIElement,
-        substring: String,
-        timeout: TimeInterval
-    ) -> Bool {
-        let predicate = NSPredicate(
-            format: "value CONTAINS %@ OR label CONTAINS %@ OR title CONTAINS %@",
-            substring,
-            substring,
-            substring
-        )
-        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
-        return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
-    }
 }
 

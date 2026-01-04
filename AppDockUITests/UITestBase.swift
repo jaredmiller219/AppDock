@@ -203,4 +203,81 @@ class UITestBase: XCTestCase {
         let statusItemQuery = app.descendants(matching: .statusItem)
         return statusItemQuery.firstMatch
     }
+
+    // MARK: - Shared Settings Test Helpers
+
+    @MainActor
+    func launchAppAndOpenSettings() -> (app: XCUIApplication, settingsWindow: XCUIElement) {
+        let app = launchAppForSettingsTests()
+        let settingsWindow = app.windows["AppDock Settings"]
+        XCTAssertTrue(settingsWindow.waitForExistence(timeout: 4))
+        return (app, settingsWindow)
+    }
+
+    @MainActor
+    func navigateToTab(in settingsWindow: XCUIElement, tabName: String) {
+        settingsWindow.buttons[tabName].click()
+    }
+
+    @MainActor
+    func getShortcutRecorder(in settingsWindow: XCUIElement, for action: String) -> XCUIElement {
+        return anyElement(
+            in: settingsWindow,
+            id: UITestConstants.Accessibility.shortcutRecorderPrefix + action
+        )
+    }
+
+    @MainActor
+    func getShortcutCancelButton(in settingsWindow: XCUIElement, for action: String) -> XCUIElement {
+        return anyElement(
+            in: settingsWindow,
+            id: UITestConstants.Accessibility.shortcutRecorderCancelPrefix + action
+        )
+    }
+
+    @MainActor
+    func getShortcutValueField(in settingsWindow: XCUIElement, for action: String) -> XCUIElement {
+        return anyElement(
+            in: settingsWindow,
+            id: UITestConstants.Accessibility.shortcutRecorderValuePrefix + action
+        )
+    }
+
+    @MainActor
+    func recordShortcut(_ app: XCUIApplication, key: String, modifiers: NSEvent.ModifierFlags) {
+        var keyModifiers: XCUIElement.KeyModifierFlags = []
+        
+        if modifiers.contains(.command) {
+            keyModifiers.insert(.command)
+        }
+        if modifiers.contains(.option) {
+            keyModifiers.insert(.option)
+        }
+        if modifiers.contains(.control) {
+            keyModifiers.insert(.control)
+        }
+        if modifiers.contains(.shift) {
+            keyModifiers.insert(.shift)
+        }
+        
+        app.typeKey(key, modifierFlags: keyModifiers)
+        // Press Return to finalize recording
+        app.typeKey("\r", modifierFlags: [])
+    }
+
+    @MainActor
+    func waitForDisplayedTextContaining(
+        _ element: XCUIElement,
+        substring: String,
+        timeout: TimeInterval
+    ) -> Bool {
+        let predicate = NSPredicate(
+            format: "value CONTAINS %@ OR label CONTAINS %@ OR title CONTAINS %@",
+            substring,
+            substring,
+            substring
+        )
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
+        return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
+    }
 }
