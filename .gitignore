@@ -20,6 +20,6 @@ Package.resolved
 # MkDocs site output
 AppDock_Docs/site/
 
-./future-enhancements.md
-./professional-polish.md
-./appdock.md
+future-enhancements.md
+professional-polish.md
+appdock.md
