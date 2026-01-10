@@ -97,6 +97,10 @@ extension AppDelegate {
             menuState: menuState,
             settingsAction: { [weak self] in self?.openSettings() },
             aboutAction: { [weak self] in self?.about() },
+            shortcutsAction: { [weak self] in self?.openKeyboardShortcuts() },
+            helpAction: { [weak self] in self?.openHelp() },
+            releaseNotesAction: { [weak self] in self?.openReleaseNotes() },
+            appGroupsAction: { [weak self] in self?.openAppGroups() },
             quitAction: { [weak self] in self?.quit() }
         )
 

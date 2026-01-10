@@ -42,6 +42,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Keep a reference to the Settings window so we reuse it.
     var settingsWindowController: NSWindowController?
+    var shortcutsWindowController: NSWindowController?
+    var helpWindowController: NSWindowController?
+    var releaseNotesWindowController: NSWindowController?
+    var appGroupsWindowController: NSWindowController?
     var uiTestWindow: NSWindow?
     var uiTestStatusItemWindow: NSWindow?
     var uiTestShortcutsWindow: NSWindow?
@@ -93,6 +97,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             menuState: menuState,
             settingsAction: { [weak self] in self?.openSettings() },
             aboutAction: { [weak self] in self?.about() },
+            shortcutsAction: { [weak self] in self?.openKeyboardShortcuts() },
+            helpAction: { [weak self] in self?.openHelp() },
+            releaseNotesAction: { [weak self] in self?.openReleaseNotes() },
+            appGroupsAction: { [weak self] in self?.openAppGroups() },
             quitAction: { [weak self] in self?.quit() }
         )
 

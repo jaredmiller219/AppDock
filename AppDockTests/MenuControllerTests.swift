@@ -15,6 +15,10 @@ final class MenuControllerTests: XCTestCase {
             menuState: menuState,
             settingsAction: {},
             aboutAction: {},
+            shortcutsAction: {},
+            helpAction: {},
+            releaseNotesAction: {},
+            appGroupsAction: {},
             quitAction: {}
         )
 
@@ -39,6 +43,10 @@ final class MenuControllerTests: XCTestCase {
             menuState: menuState,
             settingsAction: {},
             aboutAction: {},
+            shortcutsAction: {},
+            helpAction: {},
+            releaseNotesAction: {},
+            appGroupsAction: {},
             quitAction: {}
         )
 
@@ -62,6 +70,10 @@ final class MenuControllerTests: XCTestCase {
             menuState: menuState,
             settingsAction: {},
             aboutAction: {},
+            shortcutsAction: {},
+            helpAction: {},
+            releaseNotesAction: {},
+            appGroupsAction: {},
             quitAction: {}
         )
 
@@ -85,6 +97,10 @@ final class MenuControllerTests: XCTestCase {
             menuState: menuState,
             settingsAction: {},
             aboutAction: {},
+            shortcutsAction: {},
+            helpAction: {},
+            releaseNotesAction: {},
+            appGroupsAction: {},
             quitAction: {}
         )
 
@@ -108,6 +124,10 @@ final class MenuControllerTests: XCTestCase {
             menuState: menuState,
             settingsAction: {},
             aboutAction: {},
+            shortcutsAction: {},
+            helpAction: {},
+            releaseNotesAction: {},
+            appGroupsAction: {},
             quitAction: {}
         )
 
@@ -127,6 +147,10 @@ final class MenuControllerTests: XCTestCase {
         let menuState = MenuState()
         var settingsCalled = false
         var aboutCalled = false
+        var shortcutsCalled = false
+        var helpCalled = false
+        var releaseNotesCalled = false
+        var appGroupsCalled = false
         var quitCalled = false
 
         let popVC = controller.makePopoverController(
@@ -134,6 +158,10 @@ final class MenuControllerTests: XCTestCase {
             menuState: menuState,
             settingsAction: { settingsCalled = true },
             aboutAction: { aboutCalled = true },
+            shortcutsAction: { shortcutsCalled = true },
+            helpAction: { helpCalled = true },
+            releaseNotesAction: { releaseNotesCalled = true },
+            appGroupsAction: { appGroupsCalled = true },
             quitAction: { quitCalled = true }
         )
 
@@ -145,10 +173,18 @@ final class MenuControllerTests: XCTestCase {
         // Trigger actions directly through the view's closures
         hosting.rootView.settingsAction()
         hosting.rootView.aboutAction()
+        hosting.rootView.shortcutsAction()
+        hosting.rootView.helpAction()
+        hosting.rootView.releaseNotesAction()
+        hosting.rootView.appGroupsAction()
         hosting.rootView.quitAction()
 
         XCTAssertTrue(settingsCalled, "Settings action should be wired.")
         XCTAssertTrue(aboutCalled, "About action should be wired.")
+        XCTAssertTrue(shortcutsCalled, "Shortcuts action should be wired.")
+        XCTAssertTrue(helpCalled, "Help action should be wired.")
+        XCTAssertTrue(releaseNotesCalled, "Release Notes action should be wired.")
+        XCTAssertTrue(appGroupsCalled, "App Groups action should be wired.")
         XCTAssertTrue(quitCalled, "Quit action should be wired.")
     }
 

@@ -38,6 +38,18 @@ struct PopoverContentView: View {
     /// Callback to open the About window.
     let aboutAction: () -> Void
 
+    /// Callback to open the Keyboard Shortcuts panel.
+    let shortcutsAction: () -> Void
+
+    /// Callback to open the Help panel.
+    let helpAction: () -> Void
+
+    /// Callback to open the Release Notes panel.
+    let releaseNotesAction: () -> Void
+
+    /// Callback to open the App Groups panel.
+    let appGroupsAction: () -> Void
+
     /// Callback to quit the application.
     let quitAction: () -> Void
 
@@ -326,7 +338,11 @@ struct PopoverContentView: View {
             settingsAction: settingsAction,
             aboutAction: aboutAction,
             quitAction: quitAction,
-            onPageAppear: logPageAppearance
+            onPageAppear: logPageAppearance,
+            shortcutsAction: shortcutsAction,
+            helpAction: helpAction,
+            releaseNotesAction: releaseNotesAction,
+            appGroupsAction: appGroupsAction
         )
     }
 
@@ -339,6 +355,10 @@ struct PopoverContentView: View {
                     appState: appState,
                     settingsAction: settingsAction,
                     aboutAction: aboutAction,
+                    shortcutsAction: shortcutsAction,
+                    helpAction: helpAction,
+                    releaseNotesAction: releaseNotesAction,
+                    appGroupsAction: appGroupsAction,
                     quitAction: quitAction
                 )
             } else {

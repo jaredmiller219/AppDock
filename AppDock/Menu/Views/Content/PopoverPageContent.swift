@@ -42,31 +42,137 @@ struct PopoverPageContent: View {
     
     /// Callback triggered when the page becomes visible to update page appearance tracking
     let onPageAppear: (MenuPage) -> Void
+    
+    /// Callback triggered when keyboard shortcuts is selected from action menu
+    let shortcutsAction: () -> Void
+    
+    /// Callback triggered when help is selected from action menu
+    let helpAction: () -> Void
+    
+    /// Callback triggered when release notes is selected from action menu
+    let releaseNotesAction: () -> Void
+    
+    /// Callback triggered when app groups is selected from action menu
+    let appGroupsAction: () -> Void
+    
+    /// Search text state for filtering apps
+    @State private var searchText = ""
+    
+    /// Focus state for search bar
+    @FocusState private var isSearchFocused: Bool
 
     var body: some View {
         Group {
             switch page {
             case .dock:
-                ScrollView(showsIndicators: false) {
-                    DockView(appState: appState)
-                        .padding(.horizontal, AppDockConstants.MenuLayout.dockPaddingHorizontal)
-                        .padding(.top, AppDockConstants.MenuLayout.dockPaddingTop)
-                        .padding(.bottom, AppDockConstants.MenuLayout.dockPaddingBottom)
+                VStack(spacing: 0) {
+                    EnhancedSearchBar(
+                        searchText: $searchText,
+                        onSearchChanged: { _ in },
+                        onSearchSubmitted: { _ in }
+                    )
+                    .focused($isSearchFocused)
+                    .padding(.horizontal, AppDockConstants.MenuLayout.dockPaddingHorizontal)
+                    .padding(.top, AppDockConstants.MenuLayout.dockPaddingTop)
+                    .padding(.bottom, 8)
+                    
+                    if searchText.isEmpty {
+                        ScrollView(showsIndicators: false) {
+                            DockView(appState: appState)
+                                .padding(.horizontal, AppDockConstants.MenuLayout.dockPaddingHorizontal)
+                                .padding(.bottom, AppDockConstants.MenuLayout.dockPaddingBottom)
+                        }
+                        .simultaneousGesture(
+                            TapGesture()
+                                .onEnded { _ in
+                                    // Defocus search bar when clicking on dock content
+                                    if isSearchFocused {
+                                        isSearchFocused = false
+                                    }
+                                }
+                        )
+                    } else {
+                        ScrollView(showsIndicators: false) {
+                            SearchResultsView(
+                                searchText: searchText,
+                                apps: appState.recentApps,
+                                onAppSelected: { app in
+                                    // Handle app selection
+                                    searchText = ""
+                                }
+                            )
+                            .padding(.horizontal, AppDockConstants.MenuLayout.dockPaddingHorizontal)
+                            .padding(.bottom, AppDockConstants.MenuLayout.dockPaddingBottom)
+                        }
+                        .simultaneousGesture(
+                            TapGesture()
+                                .onEnded { _ in
+                                    // Defocus search bar when clicking on search results
+                                    if isSearchFocused {
+                                        isSearchFocused = false
+                                    }
+                                }
+                        )
+                    }
                 }
                 .onAppear { onPageAppear(.dock) }
             case .recents:
-                ScrollView(showsIndicators: false) {
-                    MenuAppListView(
-                        title: "Recent Apps",
-                        apps: appState.recentApps,
-                        emptyTitle: "No Recent Apps",
-                        emptyMessage: "Launch an app to see it here.",
-                        emptySystemImage: "clock.arrow.circlepath",
-                        appState: appState
+                VStack(spacing: 0) {
+                    EnhancedSearchBar(
+                        searchText: $searchText,
+                        onSearchChanged: { _ in },
+                        onSearchSubmitted: { _ in }
                     )
+                    .focused($isSearchFocused)
                     .padding(.horizontal, AppDockConstants.MenuLayout.recentsPaddingHorizontal)
                     .padding(.top, AppDockConstants.MenuLayout.recentsPaddingTop)
-                    .padding(.bottom, AppDockConstants.MenuLayout.recentsPaddingBottom)
+                    .padding(.bottom, 8)
+                    
+                    if searchText.isEmpty {
+                        ScrollView(showsIndicators: false) {
+                            MenuAppListView(
+                                title: "Recent Apps",
+                                apps: appState.recentApps,
+                                emptyTitle: "No Recent Apps",
+                                emptyMessage: "Launch an app to see it here.",
+                                emptySystemImage: "clock.arrow.circlepath",
+                                appState: appState
+                            )
+                            .padding(.horizontal, AppDockConstants.MenuLayout.recentsPaddingHorizontal)
+                            .padding(.bottom, AppDockConstants.MenuLayout.recentsPaddingBottom)
+                        }
+                        .simultaneousGesture(
+                            TapGesture()
+                                .onEnded { _ in
+                                    // Defocus search bar when clicking on recents content
+                                    if isSearchFocused {
+                                        isSearchFocused = false
+                                    }
+                                }
+                        )
+                    } else {
+                        ScrollView(showsIndicators: false) {
+                            SearchResultsView(
+                                searchText: searchText,
+                                apps: appState.recentApps,
+                                onAppSelected: { app in
+                                    // Handle app selection
+                                    searchText = ""
+                                }
+                            )
+                            .padding(.horizontal, AppDockConstants.MenuLayout.recentsPaddingHorizontal)
+                            .padding(.bottom, AppDockConstants.MenuLayout.recentsPaddingBottom)
+                        }
+                        .simultaneousGesture(
+                            TapGesture()
+                                .onEnded { _ in
+                                    // Defocus search bar when clicking on search results
+                                    if isSearchFocused {
+                                        isSearchFocused = false
+                                    }
+                                }
+                        )
+                    }
                 }
                 .onAppear { onPageAppear(.recents) }
             case .favorites:
@@ -86,6 +192,14 @@ struct PopoverPageContent: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         MenuRow(title: "Settings", action: settingsAction)
+                        Divider()
+                        MenuRow(title: "Keyboard Shortcuts", action: shortcutsAction)
+                        Divider()
+                        MenuRow(title: "Help", action: helpAction)
+                        Divider()
+                        MenuRow(title: "Release Notes", action: releaseNotesAction)
+                        Divider()
+                        MenuRow(title: "App Groups", action: appGroupsAction)
                         Divider()
                         MenuRow(title: "About", action: aboutAction)
                         Divider()

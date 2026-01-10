@@ -65,6 +65,40 @@ struct ContextMenuView: View {
         return alert.runModal() == .alertFirstButtonReturn
     }
 
+    private func shouldForceQuitApp() -> Bool {
+        let alert = NSAlert()
+        alert.messageText = "Force Quit \(appName)?"
+        alert.informativeText = "The app will not be able to save any unsaved changes."
+        alert.addButton(withTitle: "Force Quit")
+        alert.addButton(withTitle: "Cancel")
+        return alert.runModal() == .alertFirstButtonReturn
+    }
+
+    private func showInFinder() {
+        if let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleId) {
+            NSWorkspace.shared.selectFile(appURL.path, inFileViewerRootedAtPath: "")
+        }
+        onDismiss()
+    }
+
+    private func revealInDock() {
+        if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == bundleId }) {
+            if #available(macOS 14.0, *) {
+                app.activate()
+            } else {
+                app.activate(options: [.activateIgnoringOtherApps])
+            }
+        }
+        onDismiss()
+    }
+
+    private func toggleLaunchAtLogin() {
+        // This would need to be implemented with SMLoginItemSetEnabled
+        // For now, just log the action
+        log("Toggle launch at login for: \(bundleId)")
+        onDismiss()
+    }
+
     var body: some View {
         VStack(spacing: AppDockConstants.ContextMenu.spacing) {
             Button("Hide App") {
@@ -79,6 +113,25 @@ struct ContextMenuView: View {
             }
             .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
 
+            Button("Show in Finder") {
+                showInFinder()
+            }
+            .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+
+            Button("Reveal in Dock") {
+                revealInDock()
+            }
+            .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+
+            Divider()
+
+            Button("Open at Login") {
+                toggleLaunchAtLogin()
+            }
+            .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+
+            Divider()
+
             Button("Quit App") {
                 guard shouldQuitApp() else { return }
                 if let targetApp = NSRunningApplication
@@ -90,6 +143,19 @@ struct ContextMenuView: View {
                     if !terminated {
                         targetApp.forceTerminate()
                     }
+                }
+                onDismiss()
+            }
+            .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+
+            Button("Force Quit") {
+                guard shouldForceQuitApp() else { return }
+                if let targetApp = NSRunningApplication
+                    .runningApplications(withBundleIdentifier: bundleId)
+                    .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier })
+                {
+                    log("Force quitting app with bundle ID: \(bundleId)")
+                    targetApp.forceTerminate()
                 }
                 onDismiss()
             }

@@ -181,6 +181,19 @@ final class PopoverUITests: UITestBase {
         let contextMenu = anyElement(in: popoverWindow, id: UITestConstants.Accessibility.contextMenu)
         XCTAssertTrue(contextMenu.waitForExistence(timeout: 2))
 
+        // Test that new context menu actions are present
+        let showInFinderButton = popoverWindow.buttons["Show in Finder"]
+        XCTAssertTrue(showInFinderButton.waitForExistence(timeout: 2))
+        
+        let revealInDockButton = popoverWindow.buttons["Reveal in Dock"]
+        XCTAssertTrue(revealInDockButton.waitForExistence(timeout: 2))
+        
+        let openAtLoginButton = popoverWindow.buttons["Open at Login"]
+        XCTAssertTrue(openAtLoginButton.waitForExistence(timeout: 2))
+        
+        let forceQuitButton = popoverWindow.buttons["Force Quit"]
+        XCTAssertTrue(forceQuitButton.waitForExistence(timeout: 2))
+
         let dismissTrigger = popoverWindow.buttons[UITestConstants.Accessibility.uiTestDismissContextMenu]
         XCTAssertTrue(dismissTrigger.waitForExistence(timeout: 2))
         dismissTrigger.click()

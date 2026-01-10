@@ -16,10 +16,7 @@
         interop details.
 */
 
-// Import the SwiftUI framework for user interface components.
 import SwiftUI
-
-// Import Foundation framework for basic functionality.
 import Foundation
 
 // MARK: - Menu Controller
@@ -51,6 +48,10 @@ class MenuController: NSObject {
         menuState: MenuState,
         settingsAction: @escaping () -> Void,
         aboutAction: @escaping () -> Void,
+        shortcutsAction: @escaping () -> Void,
+        helpAction: @escaping () -> Void,
+        releaseNotesAction: @escaping () -> Void,
+        appGroupsAction: @escaping () -> Void,
         quitAction: @escaping () -> Void
     ) -> NSViewController {
         let contentView = PopoverContentView(
@@ -58,6 +59,10 @@ class MenuController: NSObject {
             menuState: menuState,
             settingsAction: settingsAction,
             aboutAction: aboutAction,
+            shortcutsAction: shortcutsAction,
+            helpAction: helpAction,
+            releaseNotesAction: releaseNotesAction,
+            appGroupsAction: appGroupsAction,
             quitAction: quitAction
         )
         let hostingController = NSHostingController(rootView: contentView)

@@ -526,7 +526,7 @@ public enum AppDockConstants {
         /// Vertical padding inside context menu buttons.
         public static let paddingVertical: CGFloat = 10
         /// Fixed width for context menu buttons.
-        public static let width: CGFloat = 160
+        public static let width: CGFloat = 180
     }
 
     // Card group box styling shared by settings sections.
