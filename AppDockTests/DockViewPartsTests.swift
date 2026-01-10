@@ -81,7 +81,7 @@ final class DockViewPartsTests: XCTestCase {
         XCTAssertNotNil(contextMenuView)
         
         // Test context menu constants for new actions
-        XCTAssertEqual(AppDockConstants.ContextMenu.width, 180)
+        XCTAssertEqual(AppDockConstants.ContextMenu.width, 220)
         XCTAssertEqual(AppDockConstants.ContextMenu.buttonMinHeight, 36)
         XCTAssertEqual(AppDockConstants.ContextMenu.spacing, 8)
     }

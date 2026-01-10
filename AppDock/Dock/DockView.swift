@@ -31,6 +31,12 @@ struct DockView: View {
 
     /// Local alias to keep tuple types readable.
     typealias AppEntry = AppState.AppEntry
+    
+//    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "AppDock", category: "DockView")
+//
+//    private func log(_ message: String) {
+//        logger.debug("\(message, privacy: .public)")
+//    }
 
     /// Tracks which app index currently has its context menu open.
     /// - `nil` when no context menu is visible.
@@ -161,12 +167,6 @@ struct DockView: View {
             }
         }
         .padding()
-        // Dismiss on any tap in the dock when a context menu is open (without blocking buttons).
-        .simultaneousGesture(TapGesture().onEnded {
-            if activeContextMenuIndex != nil {
-                dismissContextMenus()
-            }
-        })
         // Centered context menu overlay for the currently active app.
         .overlay(alignment: .center) {
             if let active = activeContextMenuIndex,
@@ -175,11 +175,24 @@ struct DockView: View {
                 let (appName, bundleId, _) = paddedApps[active]
 
                 if !bundleId.isEmpty {
-                    // Match the menu frame in both blur and stroke layers.
+                    // Match menu frame in both blur and stroke layers.
                     let menuWidth: CGFloat = AppDockConstants.DockContextMenu.width
                     let menuHeight: CGFloat = AppDockConstants.DockContextMenu.height
 
                     ZStack {
+                        // Background overlay to catch outside clicks (full screen)
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                dismissContextMenus()
+                            }
+                        
+                        // Context menu area that blocks the background overlay
+                        Rectangle()
+                            .fill(Color.clear)
+                            .frame(width: menuWidth, height: menuHeight)
+                            .allowsHitTesting(false)
+                        
                         VisualEffectBlur(material: .hudWindow, blendingMode: .withinWindow)
                             .frame(width: menuWidth, height: menuHeight)
                             .clipShape(RoundedRectangle(cornerRadius: AppDockConstants.DockContextMenu.cornerRadius))
@@ -201,6 +214,7 @@ struct DockView: View {
                             confirmBeforeQuit: appState.confirmBeforeQuit
                         )
                         .padding(AppDockConstants.DockContextMenu.padding)
+                        .allowsHitTesting(true)
                     }
                     .id(contextMenuToken)
                     .transition(

@@ -522,11 +522,15 @@ public enum AppDockConstants {
         /// Minimum height for each context menu button.
         public static let buttonMinHeight: CGFloat = 36
         /// Horizontal padding inside context menu buttons.
-        public static let paddingHorizontal: CGFloat = 14
+        public static let paddingHorizontal: CGFloat = 12
         /// Vertical padding inside context menu buttons.
         public static let paddingVertical: CGFloat = 10
         /// Fixed width for context menu buttons.
-        public static let width: CGFloat = 180
+        public static let width: CGFloat = 220
+        /// Size of the close button.
+        public static let closeButtonSize: CGFloat = 24
+        /// Padding for close button positioning.
+        public static let closeButtonPadding: CGFloat = 8
     }
 
     // Card group box styling shared by settings sections.

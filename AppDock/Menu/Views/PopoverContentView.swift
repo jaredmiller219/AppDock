@@ -386,10 +386,6 @@ struct PopoverContentView: View {
         }
         // Set the popover frame to match the required dimensions.
         .frame(width: popoverWidth, height: AppDockConstants.MenuPopover.height, alignment: .top)
-        // Dismiss context menus in the dock on any tap in the popover.
-        .simultaneousGesture(TapGesture().onEnded {
-            NotificationCenter.default.post(name: .appDockDismissContextMenu, object: nil)
-        })
         // Synchronize previous page when the view appears.
         .onAppear {
             previousPage = menuState.menuPage

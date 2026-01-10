@@ -50,11 +50,13 @@ final class ContextMenuViewTests: XCTestCase {
     
     func testContextMenuConstants() {
         // Verify context menu constants are properly set
-        XCTAssertEqual(AppDockConstants.ContextMenu.width, 180)
+        XCTAssertEqual(AppDockConstants.ContextMenu.width, 220)
         XCTAssertEqual(AppDockConstants.ContextMenu.buttonMinHeight, 36)
         XCTAssertEqual(AppDockConstants.ContextMenu.spacing, 8)
-        XCTAssertEqual(AppDockConstants.ContextMenu.paddingHorizontal, 14)
+        XCTAssertEqual(AppDockConstants.ContextMenu.paddingHorizontal, 12)
         XCTAssertEqual(AppDockConstants.ContextMenu.paddingVertical, 10)
+        XCTAssertEqual(AppDockConstants.ContextMenu.closeButtonSize, 24)
+        XCTAssertEqual(AppDockConstants.ContextMenu.closeButtonPadding, 8)
     }
     
     func testContextMenuAccessibilityIdentifier() {

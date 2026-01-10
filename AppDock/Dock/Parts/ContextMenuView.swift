@@ -38,24 +38,10 @@ struct ContextMenuView: View {
 
     /// When `true`, present a confirmation alert before quitting.
     let confirmBeforeQuit: Bool
-
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "AppDock", category: "ContextMenu")
-
-    private var isDebugLoggingEnabled: Bool {
-        SettingsDefaults.boolValue(
-            forKey: SettingsDefaults.debugLoggingKey,
-            defaultValue: SettingsDefaults.debugLoggingDefault
-        )
-    }
-
-    private func log(_ message: String) {
-        guard isDebugLoggingEnabled else { return }
-        logger.debug("\(message, privacy: .public)")
-    }
+    
+    @State private var isXButtonHovered = false
 
     private func shouldQuitApp() -> Bool {
-        guard ContextMenuViewPrompt.requiresConfirmation(confirmBeforeQuit: confirmBeforeQuit) else { return true }
-
         let alert = NSAlert()
         let title = ContextMenuViewPrompt.quitTitle(for: appName)
         alert.messageText = title
@@ -95,75 +81,139 @@ struct ContextMenuView: View {
     private func toggleLaunchAtLogin() {
         // This would need to be implemented with SMLoginItemSetEnabled
         // For now, just log the action
-        log("Toggle launch at login for: \(bundleId)")
+//        log("Toggle launch at login for: \(bundleId)")
         onDismiss()
     }
 
     var body: some View {
-        VStack(spacing: AppDockConstants.ContextMenu.spacing) {
-            Button("Hide App") {
-                if let app = NSRunningApplication
-                    .runningApplications(withBundleIdentifier: bundleId)
-                    .first
-                {
-                    log("Hiding app with bundle ID: \(bundleId)")
-                    app.hide()
-                }
-                onDismiss()
-            }
-            .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+        ZStack(alignment: .topLeading) {
+            // Background layer that absorbs taps
+            Rectangle()
+                .fill(Color.clear)
+                .frame(width: AppDockConstants.ContextMenu.width, height: 220)
+                .simultaneousGesture(
+                    TapGesture()
+                        .onEnded { _ in
+                            // Do nothing - absorbs taps that aren't on buttons
+                        }
+                )
+            
+            VStack(spacing: AppDockConstants.ContextMenu.spacing) {
+                Button(action: {
+//                    log("🔍 ContextMenuView: 'Hide App' button tapped")
+                    if let app = NSRunningApplication
+                        .runningApplications(withBundleIdentifier: bundleId)
+                        .first
+                    {
+//                        log("Hiding app with bundle ID: \(bundleId)")
+                        app.hide()
+                    }
+                    onDismiss()
+                }, label: {
+                    Text("Hide App")
+                })
+                .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+                .lineLimit(1)
+                .truncationMode(.tail)
 
-            Button("Show in Finder") {
-                showInFinder()
-            }
-            .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+                Button(action: {
+                    showInFinder()
+                }, label: {
+                    Text("Show in Finder")
+                })
+                .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+                .lineLimit(1)
+                .truncationMode(.tail)
 
-            Button("Reveal in Dock") {
-                revealInDock()
-            }
-            .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+                Button(action: {
+                    revealInDock()
+                }, label: {
+                    Text("Reveal in Dock")
+                })
+                .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+                .lineLimit(1)
+                .truncationMode(.tail)
 
-            Divider()
+                Button(action: {
+                    toggleLaunchAtLogin()
+                }, label: {
+                    Text("Open at Login")
+                })
+                .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+                .lineLimit(1)
+                .truncationMode(.tail)
 
-            Button("Open at Login") {
-                toggleLaunchAtLogin()
-            }
-            .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+                Button(action: {
+                    guard shouldQuitApp() else { return }
+                    if let targetApp = NSRunningApplication
+                        .runningApplications(withBundleIdentifier: bundleId)
+                        .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier })
+                    {
+//                        log("Quitting app with bundle ID: \(bundleId)")
+                        let terminated = targetApp.terminate()
+                        if !terminated {
+                            targetApp.forceTerminate()
+                        }
+                    }
+                    onDismiss()
+                }, label: {
+                    Text("Quit App")
+                })
+                .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+                .lineLimit(1)
+                .truncationMode(.tail)
 
-            Divider()
-
-            Button("Quit App") {
-                guard shouldQuitApp() else { return }
-                if let targetApp = NSRunningApplication
-                    .runningApplications(withBundleIdentifier: bundleId)
-                    .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier })
-                {
-                    log("Quitting app with bundle ID: \(bundleId)")
-                    let terminated = targetApp.terminate()
-                    if !terminated {
+                Button(action: {
+                    guard shouldForceQuitApp() else { return }
+                    if let targetApp = NSRunningApplication
+                        .runningApplications(withBundleIdentifier: bundleId)
+                        .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier })
+                    {
+//                        log("Force quitting app with bundle ID: \(bundleId)")
                         targetApp.forceTerminate()
                     }
-                }
-                onDismiss()
+                    onDismiss()
+                }, label: {
+                    Text("Force Quit")
+                })
+                .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+                .lineLimit(1)
+                .truncationMode(.tail)
             }
-            .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
-
-            Button("Force Quit") {
-                guard shouldForceQuitApp() else { return }
-                if let targetApp = NSRunningApplication
-                    .runningApplications(withBundleIdentifier: bundleId)
-                    .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier })
-                {
-                    log("Force quitting app with bundle ID: \(bundleId)")
-                    targetApp.forceTerminate()
-                }
+            .padding(.horizontal, AppDockConstants.ContextMenu.paddingHorizontal)
+            .padding(.vertical, AppDockConstants.ContextMenu.paddingVertical)
+            .frame(width: AppDockConstants.ContextMenu.width)
+            .background(
+                Material.ultraThinMaterial
+                    .opacity(0.8)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+            )
+            .cornerRadius(8)
+            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+            
+            Button(action: {
                 onDismiss()
+            }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .frame(width: AppDockConstants.ContextMenu.closeButtonSize, height: AppDockConstants.ContextMenu.closeButtonSize)
+                    .background(
+                        Circle()
+                            .fill(isXButtonHovered ? Color.secondary.opacity(0.2) : Color.secondary.opacity(0.1))
+                            .frame(width: AppDockConstants.ContextMenu.closeButtonSize, height: AppDockConstants.ContextMenu.closeButtonSize)
+                    )
             }
-            .frame(maxWidth: .infinity, minHeight: AppDockConstants.ContextMenu.buttonMinHeight)
+            .buttonStyle(PlainButtonStyle())
+            .padding(AppDockConstants.ContextMenu.closeButtonPadding)
+            .accessibilityLabel("Close context menu")
+            .onHover { isHovering in
+                isXButtonHovered = isHovering
+            }
         }
-        .padding(.horizontal, AppDockConstants.ContextMenu.paddingHorizontal)
-        .padding(.vertical, AppDockConstants.ContextMenu.paddingVertical)
-        .frame(width: AppDockConstants.ContextMenu.width)
         .accessibilityIdentifier(AppDockConstants.Accessibility.contextMenu)
     }
 }

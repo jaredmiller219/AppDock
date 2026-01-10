@@ -97,7 +97,7 @@ struct ButtonView: View {
         }
     }
 
-    /// Handles primary click behavior: command-click toggles menu, otherwise activates the app.
+    /// Handles primary click behavior: command-click toggles menu, otherwise activates app.
     private func handlePrimaryClick() {
         if ButtonViewInteraction.shouldToggleContextMenu(currentEvent: NSApp.currentEvent) {
             // Command-click: toggle this button's context menu.
