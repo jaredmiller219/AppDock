@@ -9,7 +9,7 @@
  OVERVIEW:
  AccessibilitySettingsTab contains a single toggle:
  - Reduce motion: Disable page transition animations and other motion-based effects
- 
+
  When enabled, disables animated page swaps, drag previews, and other kinetic effects
  to accommodate users who experience motion sickness or prefer static interfaces.
 
@@ -22,7 +22,7 @@
 import SwiftUI
 
 /// Settings tab for accessibility preferences and motion sensitivity options.
-/// 
+///
 /// Provides toggle for reducing motion/animations in the user interface.
 struct AccessibilitySettingsTab: View {
     /// Binding to settings draft being edited

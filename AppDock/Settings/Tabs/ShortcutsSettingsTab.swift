@@ -8,18 +8,18 @@
 
  OVERVIEW:
  ShortcutsSettingsTab contains seven keyboard shortcut recorders:
- 
+
  Menu Control Shortcuts:
  - Toggle popover: Show/hide the menu popover
  - Next page: Swipe to the next menu page
  - Previous page: Swipe to the previous menu page
- 
+
  Direct Page Access Shortcuts:
  - Open Dock: Jump directly to dock/apps page
  - Open Recents: Jump directly to recent apps page
  - Open Favorites: Jump directly to favorites page
  - Open Menu: Jump directly to actions page
- 
+
  Each shortcut row uses ShortcutRecorder component with live editing and display formatting.
  Helper text explains how to record new shortcuts (press key combo, Delete to clear).
 
@@ -39,7 +39,7 @@ import SwiftUI
 import AppKit
 
 /// Settings tab for keyboard shortcut customization and management.
-/// 
+///
 /// Displays recorders for seven global shortcuts: Toggle Popover, Next/Previous Page,
 /// and direct shortcuts to Dock, Recents, Favorites, and Actions pages.
 struct ShortcutsSettingsTab: View {

@@ -13,12 +13,12 @@ struct HelpSection: Identifiable, Hashable {
     let title: String
     let icon: String
     let content: [HelpContent]
-    
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(title)
     }
-    
+
     static func == (lhs: HelpSection, rhs: HelpSection) -> Bool {
         lhs.id == rhs.id
     }
@@ -31,7 +31,7 @@ struct HelpContent: Identifiable {
     let description: String
     let steps: [String]?
     let tips: [String]?
-    
+
     enum ContentType {
         case overview
         case tutorial
@@ -45,7 +45,7 @@ struct InAppHelpPanel: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedSection: HelpSection?
     @State private var searchText = ""
-    
+
     private let helpSections: [HelpSection] = [
         HelpSection(
             title: "Getting Started",
@@ -281,7 +281,7 @@ struct InAppHelpPanel: View {
             ]
         )
     ]
-    
+
     var body: some View {
         NavigationView {
             // Sidebar
@@ -290,7 +290,7 @@ struct InAppHelpPanel: View {
                     .tag(section)
             }
             .frame(minWidth: 200)
-            
+
             // Content area
             Group {
                 if let selectedSection = selectedSection {
@@ -322,7 +322,7 @@ struct InAppHelpPanel: View {
 struct HelpOverviewView: View {
     let sections: [HelpSection]
     let onSectionSelected: (HelpSection) -> Void
-    
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -331,18 +331,18 @@ struct HelpOverviewView: View {
                     Image(systemName: "questionmark.circle")
                         .font(.system(size: 48))
                         .foregroundColor(.accentColor)
-                    
+
                     Text("AppDock Help Center")
                         .font(.largeTitle)
                         .fontWeight(.bold)
-                    
+
                     Text("Find answers and learn how to use AppDock effectively")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                 }
                 .padding(.top, 20)
-                
+
                 // Quick links
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
                     ForEach(sections) { section in
@@ -352,14 +352,14 @@ struct HelpOverviewView: View {
                     }
                 }
                 .padding(.horizontal)
-                
+
                 // Quick tips
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Quick Tips")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .padding(.horizontal)
-                    
+
                     VStack(alignment: .leading, spacing: 8) {
                         HelpTipRow(icon: "keyboard", text: "Press ⌘? for keyboard shortcuts")
                         HelpTipRow(icon: "magnifyingglass", text: "Use ⌘F to search quickly")
@@ -369,7 +369,7 @@ struct HelpOverviewView: View {
                     .padding(.horizontal)
                 }
                 .padding(.top, 20)
-                
+
                 Spacer()
             }
         }
@@ -382,19 +382,19 @@ struct HelpOverviewView: View {
 struct HelpOverviewCard: View {
     let section: HelpSection
     let onTap: () -> Void
-    
+
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 12) {
                 Image(systemName: section.icon)
                     .font(.system(size: 32))
                     .foregroundColor(.accentColor)
-                
+
                 Text(section.title)
                     .font(.headline)
                     .fontWeight(.medium)
                     .foregroundColor(.primary)
-                
+
                 Text("\(section.content.count) articles")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -425,18 +425,18 @@ struct HelpOverviewCard: View {
 struct HelpTipRow: View {
     let icon: String
     let text: String
-    
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.system(size: 14))
                 .foregroundColor(.accentColor)
                 .frame(width: 20)
-            
+
             Text(text)
                 .font(.subheadline)
                 .foregroundColor(.primary)
-            
+
             Spacer()
         }
         .padding(.vertical, 4)
@@ -446,7 +446,7 @@ struct HelpTipRow: View {
 /// Help section content view
 struct HelpSectionView: View {
     let section: HelpSection
-    
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -464,7 +464,7 @@ struct HelpSectionView: View {
 /// Individual help content view
 struct HelpContentView: View {
     let content: HelpContent
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Header
@@ -472,25 +472,25 @@ struct HelpContentView: View {
                 Image(systemName: iconForType(content.type))
                     .font(.system(size: 20))
                     .foregroundColor(colorForType(content.type))
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(content.title)
                         .font(.headline)
                         .fontWeight(.semibold)
-                    
+
                     Text(typeLabel(for: content.type))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-                
+
                 Spacer()
             }
-            
+
             // Description
             Text(content.description)
                 .font(.body)
                 .foregroundColor(.primary)
-            
+
             // Steps
             if let steps = content.steps, !steps.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
@@ -498,7 +498,7 @@ struct HelpContentView: View {
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.primary)
-                    
+
                     ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
                         HStack(alignment: .top, spacing: 12) {
                             Text("\(index + 1).")
@@ -506,18 +506,18 @@ struct HelpContentView: View {
                                 .fontWeight(.medium)
                                 .foregroundColor(.accentColor)
                                 .frame(width: 20, alignment: .leading)
-                            
+
                             Text(step)
                                 .font(.body)
                                 .foregroundColor(.primary)
                                 .fixedSize(horizontal: false, vertical: true)
-                            
+
                             Spacer()
                         }
                     }
                 }
             }
-            
+
             // Tips
             if let tips = content.tips, !tips.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
@@ -525,29 +525,29 @@ struct HelpContentView: View {
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.primary)
-                    
+
                     ForEach(tips, id: \.self) { tip in
                         HStack(alignment: .top, spacing: 8) {
                             Image(systemName: "lightbulb")
                                 .font(.system(size: 12))
                                 .foregroundColor(.yellow)
                                 .frame(width: 16, alignment: .center)
-                            
+
                             Text(tip)
                                 .font(.body)
                                 .foregroundColor(.primary)
                                 .fixedSize(horizontal: false, vertical: true)
-                            
+
                             Spacer()
                         }
                     }
                 }
             }
-            
+
             Divider()
         }
     }
-    
+
     private func iconForType(_ type: HelpContent.ContentType) -> String {
         switch type {
         case .overview: return "info.circle"
@@ -556,7 +556,7 @@ struct HelpContentView: View {
         case .advanced: return "gear"
         }
     }
-    
+
     private func colorForType(_ type: HelpContent.ContentType) -> Color {
         switch type {
         case .overview: return .blue
@@ -565,7 +565,7 @@ struct HelpContentView: View {
         case .advanced: return .purple
         }
     }
-    
+
     private func typeLabel(for type: HelpContent.ContentType) -> String {
         switch type {
         case .overview: return "Overview"

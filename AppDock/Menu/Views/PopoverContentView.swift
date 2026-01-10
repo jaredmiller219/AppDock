@@ -235,7 +235,7 @@ struct PopoverContentView: View {
             resetDrag()
             return
         }
-        
+
         // Check if interactive swipe is allowed for this context.
         guard shouldUseInteractiveSwipe(current: menuState.menuPage, direction: direction) else {
             // Not interactive; check if we should snap to a page change anyway.

@@ -11,20 +11,20 @@ import SwiftUI
 struct SearchBar: View {
     @Binding var searchText: String
     @State private var isFocused = false
-    
+
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
                 .font(.system(size: 14, weight: .medium))
-            
+
             TextField("Search apps...", text: $searchText)
                 .textFieldStyle(PlainTextFieldStyle())
                 .font(.system(size: 14))
                 .onTapGesture {
                     isFocused = true
                 }
-            
+
             if !searchText.isEmpty {
                 Button(action: {
                     searchText = ""
@@ -55,10 +55,10 @@ struct EnhancedSearchBar: View {
     @Binding var searchText: String
     @State private var isFocused = false
     @FocusState private var isSearchFocused: Bool
-    
+
     var onSearchChanged: (String) -> Void
     var onSearchSubmitted: (String) -> Void
-    
+
     // Expose focus state to parent
     var isSearchFocusedBinding: Binding<Bool> {
         Binding(
@@ -66,19 +66,19 @@ struct EnhancedSearchBar: View {
             set: { isSearchFocused = $0 }
         )
     }
-    
+
     init(searchText: Binding<String>, onSearchChanged: @escaping (String) -> Void = { _ in }, onSearchSubmitted: @escaping (String) -> Void = { _ in }) {
         self._searchText = searchText
         self.onSearchChanged = onSearchChanged
         self.onSearchSubmitted = onSearchSubmitted
     }
-    
+
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
                 .font(.system(size: 14, weight: .medium))
-            
+
             TextField("Search apps...", text: $searchText)
                 .textFieldStyle(PlainTextFieldStyle())
                 .font(.system(size: 14))
@@ -86,11 +86,11 @@ struct EnhancedSearchBar: View {
                 .onSubmit {
                     onSearchSubmitted(searchText)
                 }
-                
-				.onChange(of: searchText) { oldValue, newValue in
+
+				.onChange(of: searchText) { _, newValue in
                     onSearchChanged(newValue)
                 }
-            
+
             if !searchText.isEmpty {
                 Button(action: {
                     searchText = ""
@@ -144,27 +144,27 @@ struct SearchResultsView: View {
     let searchText: String
     let apps: [AppState.AppEntry]
     let onAppSelected: (AppState.AppEntry) -> Void
-    
+
     private var filteredApps: [AppState.AppEntry] {
         guard !searchText.isEmpty else { return apps }
-        
+
         return apps.filter { app in
             app.name.localizedCaseInsensitiveContains(searchText) ||
             app.bundleid.localizedCaseInsensitiveContains(searchText)
         }
     }
-    
+
     var body: some View {
         if filteredApps.isEmpty && !searchText.isEmpty {
             VStack(spacing: 12) {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 32))
                     .foregroundColor(.secondary)
-                
+
                 Text("No apps found")
                     .font(.headline)
                     .foregroundColor(.secondary)
-                
+
                 Text("Try searching for a different app name")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -190,7 +190,7 @@ struct SearchResultRow: View {
     let app: AppState.AppEntry
     let searchText: String
     let onTap: () -> Void
-    
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 12) {
@@ -199,7 +199,7 @@ struct SearchResultRow: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 32, height: 32)
                     .cornerRadius(6)
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     HighlightedText(
                         text: app.name,
@@ -209,7 +209,7 @@ struct SearchResultRow: View {
                     )
                     .font(.system(size: 14, weight: .medium))
                     .lineLimit(1)
-                    
+
                     HighlightedText(
                         text: app.bundleid,
                         highlight: searchText,
@@ -219,7 +219,7 @@ struct SearchResultRow: View {
                     .font(.system(size: 11))
                     .lineLimit(1)
                 }
-                
+
                 Spacer()
             }
             .padding(.horizontal, 12)
@@ -246,10 +246,10 @@ struct HighlightedText: View {
     let highlight: String
     let defaultColor: Color
     let highlightColor: Color
-    
+
     var body: some View {
-        let _ = text.components(separatedBy: highlight)
-        
+        _ = text.components(separatedBy: highlight)
+
         Text(AttributedStringBuilder.build(
             text: text,
             highlight: highlight,
@@ -265,17 +265,17 @@ struct AttributedStringBuilder {
         guard !highlight.isEmpty else {
             return AttributedString(text)
         }
-        
+
         var result = AttributedString()
         let parts = text.components(separatedBy: highlight)
-        
+
         for (index, part) in parts.enumerated() {
             if !part.isEmpty {
                 var attributedPart = AttributedString(part)
                 attributedPart.foregroundColor = defaultColor
                 result.append(attributedPart)
             }
-            
+
             if index < parts.count - 1 {
                 var attributedHighlight = AttributedString(highlight)
                 attributedHighlight.foregroundColor = highlightColor
@@ -283,7 +283,7 @@ struct AttributedStringBuilder {
                 result.append(attributedHighlight)
             }
         }
-        
+
         return result
     }
 }
@@ -293,9 +293,9 @@ struct SearchBar_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 20) {
             SearchBar(searchText: .constant(""))
-            
+
             SearchBar(searchText: .constant("Safari"))
-            
+
             EnhancedSearchBar(
                 searchText: .constant(""),
                 onSearchChanged: { _ in },

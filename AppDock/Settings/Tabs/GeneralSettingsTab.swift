@@ -11,7 +11,7 @@
  - Launch at login: Start AppDock automatically when the Mac boots
  - Open dock on startup: Show the menu popover when AppDock first launches
  - Check for updates automatically: Download and install updates without user confirmation
- 
+
  All options update the SettingsDraft binding when changed.
 
  STYLING:
@@ -22,7 +22,7 @@
 import SwiftUI
 
 /// Settings tab for general application preferences and launch behavior.
-/// 
+///
 /// Displays toggles for launch at login, open on startup, and automatic updates.
 struct GeneralSettingsTab: View {
     /// Binding to settings draft being edited

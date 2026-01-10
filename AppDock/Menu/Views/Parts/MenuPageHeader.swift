@@ -25,7 +25,7 @@
 import SwiftUI
 
 /// Displays the title and icon for the current menu page in a styled header.
-/// 
+///
 /// Shows visual context for the active menu page (e.g., "Recents" or "Favorites")
 /// in a rounded background container.
 struct MenuPageHeader: View {

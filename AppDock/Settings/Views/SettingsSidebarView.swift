@@ -12,7 +12,7 @@
  - Button for each tab with icon and title
  - Accent color highlight for selected tab
  - Fixed width sidebar matching Settings UI layout
- 
+
  When a tab button is tapped, it updates selectedTab binding to switch views.
 
  STYLING:
@@ -25,7 +25,7 @@
 import SwiftUI
 
 /// Left sidebar navigation for Settings window tab selection.
-/// 
+///
 /// Displays list of settings tabs (General, Layout, Filtering, etc.) with visual
 /// highlighting of the currently selected tab. Updates selectedTab binding when tapped.
 struct SettingsSidebarView: View {

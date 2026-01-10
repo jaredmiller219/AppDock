@@ -20,9 +20,9 @@ extension AppDelegate {
 			app.activationPolicy == .regular && app.bundleIdentifier != nil && app.launchDate != nil
 		}
 
-		let sortedApps = userApps.sorted { (a, b) in
-			guard let d1 = a.launchDate, let d2 = b.launchDate else { return false }
-			return d1 > d2
+		let sortedApps = userApps.sorted { (firstApp, secondApp) in
+			guard let firstDate = firstApp.launchDate, let secondDate = secondApp.launchDate else { return false }
+			return firstDate > secondDate
 		}
 
 		let appDetails = sortedApps.compactMap { makeAppEntry(from: $0, workspace: workspace) }

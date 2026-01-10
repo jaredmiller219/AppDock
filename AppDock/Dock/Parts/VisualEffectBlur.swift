@@ -24,13 +24,13 @@ import AppKit
 import SwiftUI
 
 /// NSViewRepresentable wrapper for NSVisualEffectView providing macOS blur effects.
-/// 
+///
 /// Applies vibrancy and blur effects using native AppKit visual effects for depth
 /// and visual hierarchy in SwiftUI views.
 struct VisualEffectBlur: NSViewRepresentable {
     /// Material/style of the blur effect (in-window, under-window, sidebar, etc.)
     let material: NSVisualEffectView.Material
-    
+
     /// Blending mode controlling how the effect blends with background
     let blendingMode: NSVisualEffectView.BlendingMode
 

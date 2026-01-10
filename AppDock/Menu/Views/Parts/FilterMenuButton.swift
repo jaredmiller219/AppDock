@@ -10,7 +10,7 @@
  FilterMenuButton is a Menu button containing two Picker controls:
  - Show filter: Select between showing all apps, only running apps, or only hidden apps
  - Sort option: Choose how apps are ordered (by name, by recent use, etc.)
- 
+
  The selected options are bound to AppState properties and persist via UserDefaults.
 
  STYLING:
@@ -27,7 +27,7 @@
 import SwiftUI
 
 /// Dropdown menu for filtering and sorting applications shown in the dock.
-/// 
+///
 /// Provides Picker controls for Show (all/running/hidden) and Sort options,
 /// with selections persisted to AppState and UserDefaults.
 struct FilterMenuButton: View {

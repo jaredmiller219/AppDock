@@ -24,16 +24,16 @@
 import SwiftUI
 
 /// Displays a centered empty state with icon, title, and message.
-/// 
+///
 /// Shows when a list or section has no content, providing clear visual feedback
 /// with SF Symbol icon, heading, and description text.
 struct MenuEmptyState: View {
     /// Title text for the empty state (e.g., "No Recent Apps")
     let title: String
-    
+
     /// Supporting message text describing why list is empty
     let message: String
-    
+
     /// SF Symbol name to display as visual indicator
     let systemImage: String
 

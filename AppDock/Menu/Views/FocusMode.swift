@@ -16,30 +16,30 @@ struct FocusModeConfiguration: Codable {
     var endTime: Date = Date()
     var weekdays: Set<Int> = Set(1...7) // All weekdays
     var autoActivate: Bool = false
-    
+
     var isActive: Bool {
         guard isEnabled && scheduleEnabled else { return isEnabled }
-        
+
         let now = Date()
         let calendar = Calendar.current
-        
+
         // Check weekday
         let weekday = calendar.component(.weekday, from: now)
         guard weekdays.contains(weekday) else { return false }
-        
+
         // Check time range
         let currentHour = calendar.component(.hour, from: now)
         let currentMinute = calendar.component(.minute, from: now)
         let currentTime = currentHour * 60 + currentMinute
-        
+
         let startHour = calendar.component(.hour, from: startTime)
         let startMinute = calendar.component(.minute, from: startTime)
         let startTimeMinutes = startHour * 60 + startMinute
-        
+
         let endHour = calendar.component(.hour, from: endTime)
         let endMinute = calendar.component(.minute, from: endTime)
         let endTimeMinutes = endHour * 60 + endMinute
-        
+
         return currentTime >= startTimeMinutes && currentTime <= endTimeMinutes
     }
 }
@@ -47,59 +47,59 @@ struct FocusModeConfiguration: Codable {
 /// Focus mode manager
 class FocusModeManager: ObservableObject {
     @Published var configuration = FocusModeConfiguration()
-    
+
     private let userDefaults = UserDefaults.standard
     private let configurationKey = "FocusModeConfiguration"
-    
+
     init() {
         loadConfiguration()
     }
-    
+
     func saveConfiguration() {
         if let data = try? JSONEncoder().encode(configuration) {
             userDefaults.set(data, forKey: configurationKey)
         }
     }
-    
+
     func loadConfiguration() {
         if let data = userDefaults.data(forKey: configurationKey),
            let config = try? JSONDecoder().decode(FocusModeConfiguration.self, from: data) {
             configuration = config
         }
     }
-    
+
     func toggleFocusMode() {
         configuration.isEnabled.toggle()
         saveConfiguration()
-        
+
         if configuration.isActive {
             activateFocusMode()
         } else {
             deactivateFocusMode()
         }
     }
-    
+
     func addDistractingApp(_ bundleId: String) {
         configuration.distractingApps.insert(bundleId)
         saveConfiguration()
     }
-    
+
     func removeDistractingApp(_ bundleId: String) {
         configuration.distractingApps.remove(bundleId)
         saveConfiguration()
     }
-    
+
     private func activateFocusMode() {
         // Hide distracting apps from the dock
         // This would integrate with the app filtering system
         NotificationCenter.default.post(name: .focusModeActivated, object: nil)
     }
-    
+
     private func deactivateFocusMode() {
         // Show all apps again
         NotificationCenter.default.post(name: .focusModeDeactivated, object: nil)
     }
-    
+
     func isAppHidden(_ bundleId: String) -> Bool {
         configuration.isActive && configuration.distractingApps.contains(bundleId)
     }
@@ -108,7 +108,7 @@ class FocusModeManager: ObservableObject {
 /// Focus mode toggle button
 struct FocusModeToggle: View {
     @ObservedObject var focusManager: FocusModeManager
-    
+
     var body: some View {
         Button(action: {
             focusManager.toggleFocusMode()
@@ -117,7 +117,7 @@ struct FocusModeToggle: View {
                 Image(systemName: focusManager.configuration.isActive ? "moon.fill" : "moon")
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(focusManager.configuration.isActive ? .orange : .secondary)
-                
+
                 Text(focusManager.configuration.isActive ? "Focus Mode On" : "Focus Mode")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(focusManager.configuration.isActive ? .orange : .primary)
@@ -141,21 +141,21 @@ struct FocusModeToggle: View {
 struct FocusModeConfigurationPanel: View {
     @ObservedObject var focusManager: FocusModeManager
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var showingAppPicker = false
     @State private var tempStartTime = Date()
     @State private var tempEndTime = Date()
-    
+
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
                     // Status section
                     FocusModeStatusCard(focusManager: focusManager)
-                    
+
                     // Distracting apps section
                     FocusModeAppsCard(focusManager: focusManager, showingAppPicker: $showingAppPicker)
-                    
+
                     // Schedule section
                     FocusModeScheduleCard(
                         focusManager: focusManager,
@@ -196,32 +196,32 @@ struct FocusModeConfigurationPanel: View {
 /// Focus mode status card
 struct FocusModeStatusCard: View {
     @ObservedObject var focusManager: FocusModeManager
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Status")
                 .font(.headline)
                 .fontWeight(.semibold)
-            
+
             HStack {
                 Image(systemName: focusManager.configuration.isActive ? "moon.fill" : "moon")
                     .font(.system(size: 24))
                     .foregroundColor(focusManager.configuration.isActive ? .orange : .secondary)
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(focusManager.configuration.isActive ? "Focus Mode is Active" : "Focus Mode is Inactive")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(focusManager.configuration.isActive ? .orange : .primary)
-                    
+
                     if focusManager.configuration.isActive {
                         Text("Distracting apps are hidden")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                 }
-                
+
                 Spacer()
-                
+
                 Toggle("", isOn: Binding(
                     get: { focusManager.configuration.isEnabled },
                     set: { _ in focusManager.toggleFocusMode() }
@@ -240,16 +240,16 @@ struct FocusModeStatusCard: View {
 struct FocusModeAppsCard: View {
     @ObservedObject var focusManager: FocusModeManager
     @Binding var showingAppPicker: Bool
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Distracting Apps")
                     .font(.headline)
                     .fontWeight(.semibold)
-                
+
                 Spacer()
-                
+
                 Button(action: {
                     showingAppPicker = true
                 }) {
@@ -262,17 +262,17 @@ struct FocusModeAppsCard: View {
                 }
                 .buttonStyle(PlainButtonStyle())
             }
-            
+
             if focusManager.configuration.distractingApps.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "moon")
                         .font(.system(size: 32))
                         .foregroundColor(.secondary)
-                    
+
                     Text("No distracting apps")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
-                    
+
                     Text("Add apps that distract you during work")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -304,7 +304,7 @@ struct FocusModeAppsCard: View {
 struct FocusModeAppRow: View {
     let bundleId: String
     let onRemove: () -> Void
-    
+
     var body: some View {
         HStack {
             // App icon (would need to be loaded from bundle)
@@ -315,20 +315,20 @@ struct FocusModeAppRow: View {
                     Image(systemName: "app")
                         .foregroundColor(.secondary)
                 )
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(appName(for: bundleId))
                     .font(.system(size: 14, weight: .medium))
                     .lineLimit(1)
-                
+
                 Text(bundleId)
                     .font(.system(size: 11))
                     .foregroundColor(.secondary)
                     .lineLimit(1)
             }
-            
+
             Spacer()
-            
+
             Button(action: onRemove) {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 16))
@@ -343,7 +343,7 @@ struct FocusModeAppRow: View {
                 .fill(Color(.windowBackgroundColor))
         )
     }
-    
+
     private func appName(for bundleId: String) -> String {
         // This would need to be implemented to get the actual app name
         // For now, just return the bundle ID's last component
@@ -356,16 +356,16 @@ struct FocusModeScheduleCard: View {
     @ObservedObject var focusManager: FocusModeManager
     @Binding var startTime: Date
     @Binding var endTime: Date
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Schedule")
                     .font(.headline)
                     .fontWeight(.semibold)
-                
+
                 Spacer()
-                
+
                 Toggle("", isOn: Binding(
                     get: { focusManager.configuration.scheduleEnabled },
                     set: { enabled in
@@ -374,25 +374,25 @@ struct FocusModeScheduleCard: View {
                     }
                 ))
             }
-            
+
             if focusManager.configuration.scheduleEnabled {
                 VStack(spacing: 12) {
                     HStack {
                         Text("From:")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
-                        
+
                         DatePicker("", selection: $startTime, displayedComponents: .hourAndMinute)
                             .labelsHidden()
-                        
+
                         Text("To:")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
-                        
+
                         DatePicker("", selection: $endTime, displayedComponents: .hourAndMinute)
                             .labelsHidden()
                     }
-                    
+
                     // Weekday selection would go here
                     Text("Active every day")
                         .font(.caption)
@@ -416,7 +416,7 @@ struct FocusModeScheduleCard: View {
 struct FocusModeAppPicker: View {
     @ObservedObject var focusManager: FocusModeManager
     @Environment(\.dismiss) private var dismiss
-    
+
     // This would be populated with actual running apps
     @State private var availableApps: [String] = [
         "com.apple.Safari",
@@ -424,7 +424,7 @@ struct FocusModeAppPicker: View {
         "com.twitter.twitter-mac",
         "com.facebook.acebook"
     ]
-    
+
     var body: some View {
         NavigationView {
             List(availableApps, id: \.self) { bundleId in
@@ -440,20 +440,20 @@ struct FocusModeAppPicker: View {
                                 Image(systemName: "app")
                                     .foregroundColor(.secondary)
                             )
-                        
+
                         VStack(alignment: .leading, spacing: 2) {
                             Text(appName(for: bundleId))
                                 .font(.system(size: 14, weight: .medium))
                                 .lineLimit(1)
-                            
+
                             Text(bundleId)
                                 .font(.system(size: 11))
                                 .foregroundColor(.secondary)
                                 .lineLimit(1)
                         }
-                        
+
                         Spacer()
-                        
+
                         if focusManager.configuration.distractingApps.contains(bundleId) {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.accentColor)
@@ -474,7 +474,7 @@ struct FocusModeAppPicker: View {
         }
         .frame(minWidth: 400, minHeight: 500)
     }
-    
+
     private func appName(for bundleId: String) -> String {
         bundleId.components(separatedBy: ".").last ?? bundleId
     }
@@ -491,11 +491,11 @@ extension Notification.Name {
 struct FocusMode_Previews: PreviewProvider {
     static var previews: some View {
         let focusManager = FocusModeManager()
-        
+
         VStack(spacing: 20) {
             FocusModeToggle(focusManager: focusManager)
                 .padding()
-            
+
             FocusModeStatusCard(focusManager: focusManager)
                 .padding()
         }

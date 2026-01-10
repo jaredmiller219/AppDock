@@ -21,43 +21,43 @@
 import SwiftUI
 
 /// Renders the content view for a specific menu page (dock, recents, favorites, or actions).
-/// 
+///
 /// This struct handles the layout and display of different content based on the page type,
 /// including empty states, padding, and page appearance callbacks.
 struct PopoverPageContent: View {
     /// The menu page to display (dock, recents, favorites, or actions)
     let page: MenuPage
-    
+
     /// Reference to shared application state for dock content
     let appState: AppState
-    
+
     /// Callback triggered when Settings is selected from action menu
     let settingsAction: () -> Void
-    
+
     /// Callback triggered when About is selected from action menu
     let aboutAction: () -> Void
-    
+
     /// Callback triggered when Quit is selected from action menu
     let quitAction: () -> Void
-    
+
     /// Callback triggered when the page becomes visible to update page appearance tracking
     let onPageAppear: (MenuPage) -> Void
-    
+
     /// Callback triggered when keyboard shortcuts is selected from action menu
     let shortcutsAction: () -> Void
-    
+
     /// Callback triggered when help is selected from action menu
     let helpAction: () -> Void
-    
+
     /// Callback triggered when release notes is selected from action menu
     let releaseNotesAction: () -> Void
-    
+
     /// Callback triggered when app groups is selected from action menu
     let appGroupsAction: () -> Void
-    
+
     /// Search text state for filtering apps
     @State private var searchText = ""
-    
+
     /// Focus state for search bar
     @FocusState private var isSearchFocused: Bool
 
@@ -75,7 +75,7 @@ struct PopoverPageContent: View {
                     .padding(.horizontal, AppDockConstants.MenuLayout.dockPaddingHorizontal)
                     .padding(.top, AppDockConstants.MenuLayout.dockPaddingTop)
                     .padding(.bottom, 8)
-                    
+
                     if searchText.isEmpty {
                         ScrollView(showsIndicators: false) {
                             DockView(appState: appState)
@@ -96,7 +96,7 @@ struct PopoverPageContent: View {
                             SearchResultsView(
                                 searchText: searchText,
                                 apps: appState.recentApps,
-                                onAppSelected: { app in
+                                onAppSelected: { _ in
                                     // Handle app selection
                                     searchText = ""
                                 }
@@ -127,7 +127,7 @@ struct PopoverPageContent: View {
                     .padding(.horizontal, AppDockConstants.MenuLayout.recentsPaddingHorizontal)
                     .padding(.top, AppDockConstants.MenuLayout.recentsPaddingTop)
                     .padding(.bottom, 8)
-                    
+
                     if searchText.isEmpty {
                         ScrollView(showsIndicators: false) {
                             MenuAppListView(
@@ -155,7 +155,7 @@ struct PopoverPageContent: View {
                             SearchResultsView(
                                 searchText: searchText,
                                 apps: appState.recentApps,
-                                onAppSelected: { app in
+                                onAppSelected: { _ in
                                     // Handle app selection
                                     searchText = ""
                                 }

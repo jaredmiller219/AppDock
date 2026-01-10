@@ -11,7 +11,7 @@ import SwiftUI
 struct SelectionState: Equatable {
     var selectedApps: Set<String> = []
     var isSelectionMode: Bool = false
-    
+
     mutating func toggleSelection(bundleId: String) {
         if selectedApps.contains(bundleId) {
             selectedApps.remove(bundleId)
@@ -19,21 +19,21 @@ struct SelectionState: Equatable {
             selectedApps.insert(bundleId)
         }
     }
-    
+
     mutating func clearSelection() {
         selectedApps.removeAll()
         isSelectionMode = false
     }
-    
+
     mutating func selectAll(_ bundleIds: [String]) {
         selectedApps = Set(bundleIds)
         isSelectionMode = true
     }
-    
+
     var hasSelection: Bool {
         !selectedApps.isEmpty
     }
-    
+
     var selectionCount: Int {
         selectedApps.count
     }
@@ -43,12 +43,12 @@ struct SelectionState: Equatable {
 struct BatchOperationsToolbar: View {
     @Binding var selectionState: SelectionState
     let availableApps: [AppState.AppEntry]
-    
+
     let onQuitSelected: ([String]) -> Void
     let onHideSelected: ([String]) -> Void
     let onAddToFavorites: ([String]) -> Void
     let onRemoveFromDock: ([String]) -> Void
-    
+
     var body: some View {
         VStack(spacing: 0) {
             // Selection header
@@ -61,13 +61,13 @@ struct BatchOperationsToolbar: View {
                 }
                 .buttonStyle(PlainButtonStyle())
                 .foregroundColor(.secondary)
-                
+
                 Text(selectionState.selectionCount == 1 ? "1 app selected" : "\(selectionState.selectionCount) apps selected")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.primary)
-                
+
                 Spacer()
-                
+
                 Button(action: {
                     let allBundleIds = availableApps.map { $0.bundleid }
                     if selectionState.selectionCount == availableApps.count {
@@ -85,9 +85,9 @@ struct BatchOperationsToolbar: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(Color(.controlBackgroundColor))
-            
+
             Divider()
-            
+
             // Action buttons
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
@@ -99,7 +99,7 @@ struct BatchOperationsToolbar: View {
                     ) {
                         onQuitSelected(Array(selectionState.selectedApps))
                     }
-                    
+
                     BatchActionButton(
                         title: "Hide",
                         icon: "eye.slash",
@@ -108,7 +108,7 @@ struct BatchOperationsToolbar: View {
                     ) {
                         onHideSelected(Array(selectionState.selectedApps))
                     }
-                    
+
                     BatchActionButton(
                         title: "Add to Favorites",
                         icon: "star",
@@ -117,7 +117,7 @@ struct BatchOperationsToolbar: View {
                     ) {
                         onAddToFavorites(Array(selectionState.selectedApps))
                     }
-                    
+
                     BatchActionButton(
                         title: "Remove from Dock",
                         icon: "minus.circle",
@@ -145,13 +145,13 @@ struct BatchActionButton: View {
     let color: Color
     let isEnabled: Bool
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
                 Image(systemName: icon)
                     .font(.system(size: 12, weight: .medium))
-                
+
                 Text(title)
                     .font(.system(size: 12, weight: .medium))
             }
@@ -177,14 +177,14 @@ struct SelectableAppRow: View {
     let app: AppState.AppEntry
     @Binding var selectionState: SelectionState
     let isSelectionMode: Bool
-    
+
     let onTap: (AppState.AppEntry) -> Void
     let onCommandClick: (AppState.AppEntry) -> Void
-    
+
     private var isSelected: Bool {
         selectionState.selectedApps.contains(app.bundleid)
     }
-    
+
     var body: some View {
         HStack(spacing: 12) {
             // Selection checkbox
@@ -198,28 +198,28 @@ struct SelectableAppRow: View {
                 }
                 .buttonStyle(PlainButtonStyle())
             }
-            
+
             // App icon
             Image(nsImage: app.icon)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 32, height: 32)
                 .cornerRadius(6)
-            
+
             // App info
             VStack(alignment: .leading, spacing: 2) {
                 Text(app.name)
                     .font(.system(size: 14, weight: .medium))
                     .lineLimit(1)
-                
+
                 Text(app.bundleid)
                     .font(.system(size: 11))
                     .foregroundColor(.secondary)
                     .lineLimit(1)
             }
-            
+
             Spacer()
-            
+
             // Selection indicator
             if isSelected {
                 Image(systemName: "checkmark")
@@ -258,7 +258,7 @@ struct SelectableAppRow: View {
 /// Batch operations manager
 class BatchOperationsManager: ObservableObject {
     @Published var selectionState = SelectionState()
-    
+
     func performBatchQuit(bundleIds: [String]) {
         for bundleId in bundleIds {
             if let app = NSRunningApplication.runningApplications(withBundleIdentifier: bundleId).first {
@@ -267,7 +267,7 @@ class BatchOperationsManager: ObservableObject {
         }
         selectionState.clearSelection()
     }
-    
+
     func performBatchHide(bundleIds: [String]) {
         for bundleId in bundleIds {
             if let app = NSRunningApplication.runningApplications(withBundleIdentifier: bundleId).first {
@@ -276,12 +276,12 @@ class BatchOperationsManager: ObservableObject {
         }
         selectionState.clearSelection()
     }
-    
+
     func performBatchAddToFavorites(bundleIds: [String]) {
         // Implementation would depend on favorites storage
         selectionState.clearSelection()
     }
-    
+
     func performBatchRemoveFromDock(bundleIds: [String]) {
         // Implementation would depend on dock storage
         selectionState.clearSelection()
@@ -292,10 +292,10 @@ class BatchOperationsManager: ObservableObject {
 struct BatchOperationsDockView: View {
     @StateObject private var batchManager = BatchOperationsManager()
     @State private var isSelectionMode = false
-    
+
     let apps: [AppState.AppEntry]
     let appState: AppState
-    
+
     var body: some View {
         VStack(spacing: 0) {
             // Batch operations toolbar (shown when in selection mode)
@@ -315,7 +315,7 @@ struct BatchOperationsDockView: View {
                 .transition(.move(edge: .top).combined(with: .opacity))
                 .animation(.easeInOut(duration: 0.3), value: isSelectionMode)
             }
-            
+
             // Mode toggle button
             if !isSelectionMode {
                 HStack {
@@ -347,7 +347,7 @@ struct BatchOperationsDockView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
             }
-            
+
             // App list
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: 4) {
@@ -361,9 +361,14 @@ struct BatchOperationsDockView: View {
                             if let nsApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == selectedApp.bundleid }) {
                                 nsApp.activate()
                             } else {
-                                NSWorkspace.shared.launchApplication(withBundleIdentifier: selectedApp.bundleid, options: [], additionalEventParamDescriptor: nil, launchIdentifier: nil)
+                                NSWorkspace.shared.launchApplication(
+                                    withBundleIdentifier: selectedApp.bundleid,
+                                    options: [],
+                                    additionalEventParamDescriptor: nil,
+                                    launchIdentifier: nil
+                                )
                             }
-                        } onCommandClick: { selectedApp in
+                        } onCommandClick: { _ in
                             // Handle context menu
                         }
                     }
@@ -387,13 +392,13 @@ struct BatchOperations_Previews: PreviewProvider {
             ("Notes", "com.apple.Notes", NSImage()),
             ("Music", "com.apple.Music", NSImage())
         ]
-        
+
         VStack(spacing: 20) {
             BatchOperationsToolbar(
                 selectionState: .constant(SelectionState(selectedApps: ["com.apple.Safari"], isSelectionMode: true)),
                 availableApps: sampleApps
             ) { _ in } onHideSelected: { _ in } onAddToFavorites: { _ in } onRemoveFromDock: { _ in }
-            
+
             SelectableAppRow(
                 app: sampleApps[0],
                 selectionState: .constant(SelectionState(selectedApps: ["com.apple.Safari"], isSelectionMode: true)),

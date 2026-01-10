@@ -16,7 +16,7 @@ struct AppGroup: Identifiable, Codable, Hashable {
     var appBundleIds: Set<String>
     var isSystem: Bool // Built-in groups vs user-created
     var sortOrder: Int // Display order
-    
+
     init(name: String, icon: String = "folder", color: String = "#007AFF", appBundleIds: Set<String> = [], isSystem: Bool = false, sortOrder: Int = 0) {
         self.name = name
         self.icon = icon
@@ -25,16 +25,16 @@ struct AppGroup: Identifiable, Codable, Hashable {
         self.isSystem = isSystem
         self.sortOrder = sortOrder
     }
-    
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(name)
     }
-    
+
     static func == (lhs: AppGroup, rhs: AppGroup) -> Bool {
         lhs.id == rhs.id
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case name, icon, color, appBundleIds, isSystem, sortOrder
     }
@@ -43,15 +43,15 @@ struct AppGroup: Identifiable, Codable, Hashable {
 /// App group manager for persistence and operations
 class AppGroupManager: ObservableObject {
     @Published var groups: [AppGroup] = []
-    
+
     private let userDefaults = UserDefaults.standard
     private let groupsKey = "AppGroups"
-    
+
     init() {
         loadGroups()
         ensureSystemGroups()
     }
-    
+
     /// Load groups from UserDefaults
     private func loadGroups() {
         if let data = userDefaults.data(forKey: groupsKey),
@@ -59,14 +59,14 @@ class AppGroupManager: ObservableObject {
             groups = decodedGroups.sorted { $0.sortOrder < $1.sortOrder }
         }
     }
-    
+
     /// Save groups to UserDefaults
     private func saveGroups() {
         if let encoded = try? JSONEncoder().encode(groups) {
             userDefaults.set(encoded, forKey: groupsKey)
         }
     }
-    
+
     /// Ensure system groups exist
     private func ensureSystemGroups() {
         let systemGroups: [AppGroup] = [
@@ -106,20 +106,19 @@ class AppGroupManager: ObservableObject {
                 sortOrder: 4
             )
         ]
-        
+
         var hasChanges = false
-        for systemGroup in systemGroups {
-            if !groups.contains(where: { $0.name == systemGroup.name }) {
+        for systemGroup in systemGroups where !groups.contains(where: { $0.name == systemGroup.name }) {
                 groups.append(systemGroup)
                 hasChanges = true
             }
         }
-        
+
         if hasChanges {
             saveGroups()
         }
     }
-    
+
     /// Add a new app group
     func addGroup(_ group: AppGroup) {
         let newGroup = AppGroup(
@@ -133,7 +132,7 @@ class AppGroupManager: ObservableObject {
         groups.append(newGroup)
         saveGroups()
     }
-    
+
     /// Update an existing group
     func updateGroup(_ group: AppGroup) {
         if let index = groups.firstIndex(where: { $0.id == group.id }) {
@@ -141,14 +140,14 @@ class AppGroupManager: ObservableObject {
             saveGroups()
         }
     }
-    
+
     /// Delete a group (only user-created groups)
     func deleteGroup(_ group: AppGroup) {
         guard !group.isSystem else { return }
         groups.removeAll { $0.id == group.id }
         saveGroups()
     }
-    
+
     /// Add app to group
     func addAppToGroup(_ bundleId: String, groupId: UUID) {
         if let index = groups.firstIndex(where: { $0.id == groupId }) {
@@ -156,7 +155,7 @@ class AppGroupManager: ObservableObject {
             saveGroups()
         }
     }
-    
+
     /// Remove app from group
     func removeAppFromGroup(_ bundleId: String, groupId: UUID) {
         if let index = groups.firstIndex(where: { $0.id == groupId }) {
@@ -164,27 +163,26 @@ class AppGroupManager: ObservableObject {
             saveGroups()
         }
     }
-    
+
     /// Get groups that contain a specific app
     func getGroupsForApp(_ bundleId: String) -> [AppGroup] {
         return groups.filter { $0.appBundleIds.contains(bundleId) }
     }
-    
+
     /// Move group to new position
     func moveGroup(_ group: AppGroup, to newIndex: Int) {
         guard let currentIndex = groups.firstIndex(where: { $0.id == group.id }) else { return }
         guard currentIndex != newIndex && newIndex >= 0 && newIndex < groups.count else { return }
-        
+
         let movedGroup = groups.remove(at: currentIndex)
         groups.insert(movedGroup, at: newIndex)
-        
+
         // Update sort orders
-        for (index, group) in groups.enumerated() {
-            if !group.isSystem {
+        for (index, group) in groups.enumerated() where !group.isSystem {
                 groups[index].sortOrder = index
             }
         }
-        
+
         saveGroups()
     }
 }
@@ -193,36 +191,36 @@ class AppGroupManager: ObservableObject {
 struct AppGroupEditorView: View {
     @ObservedObject var groupManager: AppGroupManager
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var groupName = ""
     @State private var selectedIcon = "folder"
     @State private var selectedColor = "#007AFF"
     @State private var editingGroup: AppGroup?
-    
+
     init(groupManager: AppGroupManager, editingGroup: AppGroup? = nil) {
         self.groupManager = groupManager
         self.editingGroup = editingGroup
     }
-    
+
     private let availableIcons = [
         "folder", "briefcase", "paintbrush", "hammer", "gamecontroller",
         "wrench.and.screwdriver", "star", "heart", "book", "music.note",
         "photo", "video", "doc.text", "calendar", "clock", "globe",
         "cloud", "house", "car", "airplane", "bicycle", "bag"
     ]
-    
+
     private let availableColors = [
         "#007AFF", "#FF9500", "#34C759", "#AF52DE", "#FF3B30",
         "#6C757D", "#8E8E93", "#000000", "#FFFFFF", "#FF6B6B"
     ]
-    
+
     var body: some View {
         NavigationView {
             Form {
                 Section("Group Info") {
                     TextField("Group Name", text: $groupName)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                    
+
                     // Icon picker
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
                         ForEach(availableIcons, id: \.self) { icon in
@@ -241,7 +239,7 @@ struct AppGroupEditorView: View {
                             .buttonStyle(PlainButtonStyle())
                         }
                     }
-                    
+
                     // Color picker
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 8) {
                         ForEach(availableColors, id: \.self) { color in
@@ -260,13 +258,13 @@ struct AppGroupEditorView: View {
                         }
                     }
                 }
-                
+
                 Section("Preview") {
                     HStack {
                         Image(systemName: selectedIcon)
                             .font(.system(size: 32))
                             .foregroundColor(Color(hex: selectedColor))
-                        
+
                         VStack(alignment: .leading, spacing: 4) {
                             Text(groupName.isEmpty ? "New Group" : groupName)
                                 .font(.headline)
@@ -274,7 +272,7 @@ struct AppGroupEditorView: View {
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
-                        
+
                         Spacer()
                     }
                     .padding(.vertical, 8)
@@ -292,7 +290,7 @@ struct AppGroupEditorView: View {
                     }
                     .disabled(groupName.isEmpty)
                 }
-                
+
                 if editingGroup != nil {
                     ToolbarItem(placement: .destructiveAction) {
                         Button("Delete") {
@@ -310,7 +308,7 @@ struct AppGroupEditorView: View {
             }
         }
     }
-    
+
     private func saveGroup() {
         let group = AppGroup(
             name: groupName,
@@ -319,7 +317,7 @@ struct AppGroupEditorView: View {
             appBundleIds: editingGroup?.appBundleIds ?? [],
             isSystem: false
         )
-        
+
         if let editingGroup = editingGroup {
             // Update existing group
             var updatedGroup = editingGroup
@@ -331,10 +329,10 @@ struct AppGroupEditorView: View {
             // Create new group
             groupManager.addGroup(group)
         }
-        
+
         dismiss()
     }
-    
+
     private func deleteGroup() {
         if let editingGroup = editingGroup {
             groupManager.deleteGroup(editingGroup)
@@ -350,7 +348,7 @@ struct AppGroupsView: View {
     @State private var editingGroup: AppGroup?
     @State private var showingAppPicker = false
     @State private var targetGroupId: UUID?
-    
+
     var body: some View {
         NavigationView {
             List {
@@ -405,7 +403,7 @@ struct AppGroupRow: View {
     let onEdit: () -> Void
     let onDelete: () -> Void
     let onAddApps: () -> Void
-    
+
     var body: some View {
         HStack(spacing: 12) {
             // Group icon
@@ -417,20 +415,20 @@ struct AppGroupRow: View {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(Color(hex: group.color).opacity(0.2))
                 )
-            
+
             // Group info
             VStack(alignment: .leading, spacing: 4) {
                 Text(group.name)
                     .font(.headline)
                     .fontWeight(.medium)
-                
+
                 Text("\(group.appBundleIds.count) apps")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            
+
             Spacer()
-            
+
             // Actions
             HStack(spacing: 8) {
                 if !group.isSystem {
@@ -440,14 +438,14 @@ struct AppGroupRow: View {
                             .foregroundColor(.accentColor)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    
+
                     Button(action: onEdit) {
                         Image(systemName: "pencil")
                             .font(.system(size: 14))
                             .foregroundColor(.blue)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    
+
                     Button(action: onDelete) {
                         Image(systemName: "trash")
                             .font(.system(size: 14))
@@ -477,7 +475,7 @@ struct AppPickerView: View {
     @ObservedObject var groupManager: AppGroupManager
     let groupId: UUID
     @Environment(\.dismiss) private var dismiss
-    
+
     // This would be populated with actual running apps
     @State private var availableApps: [(bundleId: String, name: String, icon: NSImage)] = [
         ("com.apple.Safari", "Safari", NSImage()),
@@ -491,7 +489,7 @@ struct AppPickerView: View {
         ("com.apple.Finder", "Finder", NSImage()),
         ("com.apple.Terminal", "Terminal", NSImage())
     ]
-    
+
     var body: some View {
         NavigationView {
             List(availableApps, id: \.bundleId) { app in
@@ -518,11 +516,11 @@ struct AppPickerRow: View {
     let app: (bundleId: String, name: String, icon: NSImage)
     let groupId: UUID
     @ObservedObject var groupManager: AppGroupManager
-    
+
     private var isInGroup: Bool {
         groupManager.groups.first(where: { $0.id == groupId })?.appBundleIds.contains(app.bundleId) ?? false
     }
-    
+
     var body: some View {
         HStack(spacing: 12) {
             Image(nsImage: app.icon)
@@ -530,19 +528,19 @@ struct AppPickerRow: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 32, height: 32)
                 .cornerRadius(6)
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(app.name)
                     .font(.body)
                     .fontWeight(.medium)
-                
+
                 Text(app.bundleId)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            
+
             Spacer()
-            
+
             Button(action: {
                 if isInGroup {
                     groupManager.removeAppFromGroup(app.bundleId, groupId: groupId)
@@ -569,11 +567,11 @@ struct AppPickerRow: View {
 struct DropDelegateDelegate: DropDelegate {
     let groupManager: AppGroupManager
     let targetGroup: AppGroup
-    
+
     func validateDrop(info: DropInfo) -> Bool {
         return true
     }
-    
+
     func performDrop(info: DropInfo) -> Bool {
         return true
     }

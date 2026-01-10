@@ -8,7 +8,7 @@
 
  OVERVIEW:
  ShortcutRecorder is an NSViewRepresentable that wraps ShortcutRecorderField (a custom NSTextField subclass).
- 
+
  When the field gains focus, it enters "recording mode" and listens for keyboard input.
  Key events are parsed to extract key code and modifier flags, assembled into ShortcutDefinition.
  The Delete key clears the shortcut; Escape or focus loss exits recording without saving.
@@ -17,7 +17,7 @@
  - ShortcutRecorder: SwiftUI wrapper using NSViewRepresentable
  - Coordinator: Holds Bindings to shortcut and isEditing state
  - ShortcutRecorderField: Custom NSTextField managing keyboard capture and display
- 
+
  INTERACTION FLOW:
  1. User clicks field -> becomeFirstResponder -> enter recording mode
  2. Field shows "Recording..." while waiting for keyboard input
@@ -35,16 +35,16 @@ import AppKit
 import SwiftUI
 
 /// NSViewRepresentable wrapper for keyboard shortcut recording field.
-/// 
+///
 /// Bridges AppKit NSTextField-based shortcut input with SwiftUI state management.
 /// Allows users to record global keyboard shortcuts via click-to-focus interaction.
 struct ShortcutRecorder: NSViewRepresentable {
     /// Binding to optional ShortcutDefinition being recorded
     @Binding var shortcut: ShortcutDefinition?
-    
+
     /// Optional accessibility identifier for testing
     var accessibilityIdentifier: String?
-    
+
     /// Binding tracking whether field is actively recording keyboard input
     @Binding var isEditing: Bool
 
@@ -73,13 +73,13 @@ struct ShortcutRecorder: NSViewRepresentable {
     }
 
     /// Coordinator holding NSView bindings for SwiftUI integration.
-    /// 
+    ///
     /// Maintains references to shortcut and isEditing bindings,
     /// allowing the NSTextField to update SwiftUI state.
     final class Coordinator {
         /// Binding to shortcut being recorded (updated by NSView)
         var shortcut: Binding<ShortcutDefinition?>
-        
+
         /// Binding to editing state (updated by NSView)
         var isEditing: Binding<Bool>
 
@@ -91,16 +91,16 @@ struct ShortcutRecorder: NSViewRepresentable {
 }
 
 /// Custom NSTextField for capturing and displaying keyboard shortcuts.
-/// 
+///
 /// Handles keyboard event capture during recording mode, parses key codes and modifiers,
 /// and updates UI display. Supports Delete key to clear shortcuts and Escape to cancel.
 final class ShortcutRecorderField: NSTextField {
     /// Callback when user successfully records a shortcut (includes nil for cleared)
     var onShortcutChange: ((ShortcutDefinition?) -> Void)?
-    
+
     /// Callback when recording state changes (entered/exited)
     var onEditingStateChange: ((Bool) -> Void)?
-    
+
     /// Local flag tracking whether field is in recording mode (focused and listening)
     private var isEditing = false
 
@@ -183,11 +183,11 @@ final class ShortcutRecorderField: NSTextField {
         // Show live preview before finalizing
         stringValue = ShortcutFormatter.string(for: shortcut)
         setAccessibilityValue(stringValue)
-        
+
         onShortcutChange?(shortcut)
         window?.makeFirstResponder(nil)
     }
-    
+
     func formatModifiers(_ modifiers: NSEvent.ModifierFlags) -> String {
         var result = ""
         if modifiers.contains(.control) { result += "⌃" }
@@ -201,7 +201,7 @@ final class ShortcutRecorderField: NSTextField {
         // Only update display if not currently in editing mode
         // becomeFirstResponder will handle the "Recording..." text
         guard !self.isEditing else { return }
-        
+
         if isEditing {
             stringValue = "Recording..."
             setAccessibilityValue(stringValue)

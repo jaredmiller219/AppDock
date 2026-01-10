@@ -11,13 +11,13 @@
 
  1. Menu Layout
  - Segmented picker to choose between Simple (single-page) and Advanced (paged) menu modes
- 
+
  2. Dock Layout
  - Stepper to adjust grid columns (min/max defined in constants)
  - Stepper to adjust grid rows
  - Slider for app icon size with numeric display
  - Slider for app label size with numeric display
- 
+
  All changes update the SettingsDraft binding and are applied when Apply is pressed.
 
  STYLING:
@@ -29,7 +29,7 @@
 import SwiftUI
 
 /// Settings tab for menu layout and dock grid customization.
-/// 
+///
 /// Provides controls for choosing menu layout mode (Simple/Advanced) and adjusting
 /// grid dimensions and icon/label sizing.
 struct LayoutSettingsTab: View {

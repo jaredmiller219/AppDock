@@ -30,34 +30,34 @@
 import SwiftUI
 
 /// Simple menu layout without paging—displays dock, filter button, and action menu in single view.
-/// 
+///
 /// Minimal layout for users who prefer a single-page menu without swipe navigation.
 /// Focuses on dock content with filter controls and system actions.
 struct PopoverSimpleMenuContent: View {
     /// Reference to shared app state for dock content and filtering
     let appState: AppState
-    
+
     /// Callback triggered when Settings is selected
     let settingsAction: () -> Void
-    
+
     /// Callback triggered when About is selected
     let aboutAction: () -> Void
-    
+
     /// Callback triggered when Keyboard Shortcuts is selected
     let shortcutsAction: () -> Void
-    
+
     /// Callback triggered when Help is selected
     let helpAction: () -> Void
-    
+
     /// Callback triggered when Release Notes is selected
     let releaseNotesAction: () -> Void
-    
+
     /// Callback triggered when App Groups is selected
     let appGroupsAction: () -> Void
-    
+
     /// Callback triggered when Quit is selected
     let quitAction: () -> Void
-    
+
     /// Local state tracking whether mouse is hovering over "More Options" menu
     @State private var isHoveringMoreOptions = false
 

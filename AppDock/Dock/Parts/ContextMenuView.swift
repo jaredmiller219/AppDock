@@ -38,7 +38,7 @@ struct ContextMenuView: View {
 
     /// When `true`, present a confirmation alert before quitting.
     let confirmBeforeQuit: Bool
-    
+
     @State private var isXButtonHovered = false
 
     private func shouldQuitApp() -> Bool {
@@ -97,7 +97,7 @@ struct ContextMenuView: View {
                             // Do nothing - absorbs taps that aren't on buttons
                         }
                 )
-            
+
             VStack(spacing: AppDockConstants.ContextMenu.spacing) {
                 Button(action: {
 //                    log("🔍 ContextMenuView: 'Hide App' button tapped")
@@ -193,7 +193,7 @@ struct ContextMenuView: View {
             )
             .cornerRadius(8)
             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-            
+
             Button(action: {
                 onDismiss()
             }) {

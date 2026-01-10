@@ -15,7 +15,7 @@
  - Shortcuts: Global keyboard shortcut definitions
  - Accessibility: Visual and interaction accessibility options
  - Advanced: Power-user and debugging features
- 
+
  Each case provides:
  - Human-readable title for UI display
  - SF Symbol name for icon display
@@ -30,7 +30,7 @@
 import Foundation
 
 /// Settings window tabs representing different preference categories.
-/// 
+///
 /// Enum cases for General, Layout, Filtering, Behavior, Shortcuts, Accessibility, and Advanced tabs.
 /// Each provides title and icon for sidebar navigation and tab display.
 enum SettingsTab: String, CaseIterable, Identifiable {

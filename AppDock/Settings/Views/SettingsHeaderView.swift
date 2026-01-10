@@ -11,7 +11,7 @@
  - A circular gray background with gear icon
  - Bold "Settings" title
  - Secondary text describing settings purpose
- 
+
  Used at the top of the Settings window to establish context and visual hierarchy.
 
  STYLING:
@@ -24,7 +24,7 @@
 import SwiftUI
 
 /// Header view for Settings window displaying title and icon.
-/// 
+///
 /// Shows visual branding with gear icon and "Settings" title to establish
 /// settings window context and visual hierarchy.
 struct SettingsHeaderView: View {

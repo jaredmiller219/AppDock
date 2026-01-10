@@ -25,25 +25,25 @@
 import SwiftUI
 
 /// Displays a titled list of applications with empty state handling and app rows.
-/// 
+///
 /// Reusable container that shows a section title, renders app entries as clickable rows,
 /// and displays a custom empty state when the app list is empty.
 struct MenuAppListView: View {
     /// Section title displayed above the app list (e.g., "Recent Apps")
     let title: String
-    
+
     /// Array of app entries to display (name, bundleId, icon tuples)
     let apps: [AppState.AppEntry]
-    
+
     /// Title shown when app list is empty
     let emptyTitle: String
-    
+
     /// Message shown when app list is empty
     let emptyMessage: String
-    
+
     /// SF Symbol name for empty state icon
     let emptySystemImage: String
-    
+
     /// Reference to shared app state for UI test hooks
     let appState: AppState
 

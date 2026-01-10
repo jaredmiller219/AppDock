@@ -31,7 +31,7 @@ struct DockView: View {
 
     /// Local alias to keep tuple types readable.
     typealias AppEntry = AppState.AppEntry
-    
+
 //    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "AppDock", category: "DockView")
 //
 //    private func log(_ message: String) {
@@ -186,13 +186,13 @@ struct DockView: View {
                             .onTapGesture {
                                 dismissContextMenus()
                             }
-                        
+
                         // Context menu area that blocks the background overlay
                         Rectangle()
                             .fill(Color.clear)
                             .frame(width: menuWidth, height: menuHeight)
                             .allowsHitTesting(false)
-                        
+
                         VisualEffectBlur(material: .hudWindow, blendingMode: .withinWindow)
                             .frame(width: menuWidth, height: menuHeight)
                             .clipShape(RoundedRectangle(cornerRadius: AppDockConstants.DockContextMenu.cornerRadius))

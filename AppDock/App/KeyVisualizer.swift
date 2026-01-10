@@ -53,9 +53,9 @@ final class KeyVisualizer {
             window = win
             label = lbl
 
-            NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .flagsChanged]) { ev in
-                handle(event: ev)
-                return ev
+            NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .flagsChanged]) { event in
+                handle(event: event)
+                return event
             }
         }
     }
@@ -72,10 +72,10 @@ final class KeyVisualizer {
         show(parts.joined())
     }
 
-    private static func show(_ s: String) {
+    private static func show(_ displayText: String) {
         DispatchQueue.main.async {
             guard let lbl = label else { return }
-            lbl.stringValue = s
+            lbl.stringValue = displayText
             lbl.alphaValue = 1
             fadeTimer?.invalidate()
             fadeTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in

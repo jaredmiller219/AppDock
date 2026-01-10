@@ -10,7 +10,7 @@
  FilteringSettingsTab contains two menu pickers:
  - Default filter: Choose which apps to show (all running, or hidden only)
  - Default sort order: Choose how to order displayed apps (by name, recency, etc.)
- 
+
  These settings establish the initial filter/sort state when the app launches.
  Users can still change the filter/sort in the dock menu during use.
 
@@ -23,7 +23,7 @@
 import SwiftUI
 
 /// Settings tab for default filter and sort order preferences.
-/// 
+///
 /// Displays menu pickers for choosing default app filter (all/running/hidden)
 /// and default sort order (name/recency/etc.).
 struct FilteringSettingsTab: View {

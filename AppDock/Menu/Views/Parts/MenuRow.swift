@@ -33,10 +33,10 @@ import SwiftUI
 struct MenuRow: View {
     /// Title text displayed in the menu row
     let title: String
-    
+
     /// Callback triggered when row is clicked
     let action: () -> Void
-    
+
     /// Local state tracking whether mouse is hovering over row
     @State private var isHovering = false
     private var accessibilityHintText: String {

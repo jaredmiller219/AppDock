@@ -10,7 +10,7 @@ import SwiftUI
 /// Keyboard shortcuts panel showing all available shortcuts
 struct KeyboardShortcutsPanel: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     private let shortcuts: [ShortcutSection] = [
         ShortcutSection(
             title: "Menu Navigation",
@@ -84,17 +84,17 @@ struct KeyboardShortcutsPanel: View {
             ]
         )
     ]
-    
+
     var body: some View {
         NavigationView {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     headerView
-                    
+
                     ForEach(shortcuts) { section in
                         ShortcutSectionView(section: section)
                     }
-                    
+
                     footerView
                 }
                 .padding()
@@ -110,32 +110,32 @@ struct KeyboardShortcutsPanel: View {
         }
         .frame(minWidth: 500, minHeight: 600)
     }
-    
+
     private var headerView: some View {
         VStack(spacing: 12) {
             Image(systemName: "keyboard")
                 .font(.system(size: 48))
                 .foregroundColor(.accentColor)
-            
+
             Text("Keyboard Shortcuts")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-            
+
             Text("Master AppDock with these keyboard shortcuts")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
         .padding(.bottom, 24)
     }
-    
+
     private var footerView: some View {
         VStack(spacing: 12) {
             Divider()
-            
+
             Text("Tips")
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            
+
             VStack(alignment: .leading, spacing: 8) {
                 Text("• Hold ⌘ for quick page navigation")
                 Text("• Use ⌘+Click for context menus")
@@ -144,7 +144,7 @@ struct KeyboardShortcutsPanel: View {
             }
             .font(.caption)
             .foregroundColor(.secondary)
-            
+
             Text("Shortcuts can be customized in Settings → Shortcuts")
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -171,7 +171,7 @@ struct ShortcutItem: Identifiable {
 /// View for displaying a shortcut section
 struct ShortcutSectionView: View {
     let section: ShortcutSection
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(section.title)
@@ -179,7 +179,7 @@ struct ShortcutSectionView: View {
                 .fontWeight(.semibold)
                 .foregroundColor(.primary)
                 .padding(.top, 16)
-            
+
             VStack(spacing: 8) {
                 ForEach(section.shortcuts) { shortcut in
                     ShortcutRowView(shortcut: shortcut)
@@ -192,7 +192,7 @@ struct ShortcutSectionView: View {
 /// View for displaying a single shortcut row
 struct ShortcutRowView: View {
     let shortcut: ShortcutItem
-    
+
     var body: some View {
         HStack {
             Text(shortcut.key)
@@ -209,11 +209,11 @@ struct ShortcutRowView: View {
                                 .stroke(Color(.separatorColor), lineWidth: 1)
                         )
                 )
-            
+
             Text(shortcut.description)
                 .font(.body)
                 .foregroundColor(.primary)
-            
+
             Spacer()
         }
         .padding(.horizontal, 4)

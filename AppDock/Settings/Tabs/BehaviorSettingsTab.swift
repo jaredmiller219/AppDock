@@ -13,7 +13,7 @@
  - Enable hover remove button: Show delete button when hovering over an app
  - Confirm before quitting apps: Ask for confirmation before terminating applications
  - Keep apps after quit: Keep quit/terminated apps in the dock list or remove them
- 
+
  All options affect the dock's real-time behavior during use.
 
  STYLING:
@@ -24,7 +24,7 @@
 import SwiftUI
 
 /// Settings tab for dock behavior and user interaction preferences.
-/// 
+///
 /// Displays toggles for app labels, running indicators, hover remove,
 /// quit confirmation, and app retention after quit.
 struct BehaviorSettingsTab: View {
