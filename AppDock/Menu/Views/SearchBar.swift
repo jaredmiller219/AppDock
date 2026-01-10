@@ -86,7 +86,8 @@ struct EnhancedSearchBar: View {
                 .onSubmit {
                     onSearchSubmitted(searchText)
                 }
-                .onChange(of: searchText) { newValue in
+                
+				.onChange(of: searchText) { oldValue, newValue in
                     onSearchChanged(newValue)
                 }
             
@@ -247,7 +248,7 @@ struct HighlightedText: View {
     let highlightColor: Color
     
     var body: some View {
-        let parts = text.components(separatedBy: highlight)
+        let _ = text.components(separatedBy: highlight)
         
         Text(AttributedStringBuilder.build(
             text: text,
