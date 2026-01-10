@@ -87,6 +87,10 @@ struct PopoverSimpleMenuContent: View {
             VStack(spacing: 0) {
                 MenuRow(title: "Settings", action: settingsAction)
                 Divider()
+                MenuRow(title: "About", action: aboutAction)
+                Divider()
+                MenuRow(title: "Quit AppDock", action: quitAction)
+                Divider()
                 Menu {
                     Button("Keyboard Shortcuts", action: shortcutsAction)
                     Button("Help", action: helpAction)
@@ -94,12 +98,12 @@ struct PopoverSimpleMenuContent: View {
                     Button("App Groups", action: appGroupsAction)
                 } label: {
                     HStack {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.secondary)
+                            .font(.caption)
                         Text("More Options")
                             .foregroundColor(.primary)
                         Spacer()
-                        Image(systemName: "chevron.down")
-                            .foregroundColor(.secondary)
-                            .font(.caption)
                     }
                     .padding(.horizontal, AppDockConstants.MenuRow.paddingHorizontal)
                     .padding(.vertical, AppDockConstants.MenuRow.paddingVertical)
@@ -117,10 +121,6 @@ struct PopoverSimpleMenuContent: View {
                 .onHover { hovering in
                     isHoveringMoreOptions = hovering
                 }
-                Divider()
-                MenuRow(title: "About", action: aboutAction)
-                Divider()
-                MenuRow(title: "Quit AppDock", action: quitAction)
             }
             .padding(.top, AppDockConstants.MenuLayout.actionsPaddingTop)
             .padding(.bottom, AppDockConstants.MenuLayout.actionsPaddingBottom)
