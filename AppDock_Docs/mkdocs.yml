@@ -1,4 +1,6 @@
 site_name: AppDock Docs
+site_url: https://jaredmiller219.github.io/AppDock/
+repo_url: https://github.com/jaredmiller219/AppDock
 nav:
   - Home: index.md
   - Overview: overview.md
