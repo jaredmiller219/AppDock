@@ -257,6 +257,41 @@ struct AppGroupEditorView: View {
             
             ScrollView {
                 VStack(spacing: 20) {
+                    // Preview Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Preview")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                        
+                        HStack {
+                            Image(systemName: selectedIcon)
+                                .font(.system(size: 32))
+                                .foregroundColor(selectedColor)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(groupName.isEmpty ? "New Group" : groupName)
+                                    .font(.headline)
+                                Text("\(groupManager.groups.first(where: { $0.id == editingGroup?.id })?.appBundleIds.count ?? 0) apps")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+                        }
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.controlBackgroundColor))
+                        )
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(.controlBackgroundColor))
+                    )
+					
+					
+					
                     // Group Info Section
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Group Info")
@@ -337,39 +372,6 @@ struct AppGroupEditorView: View {
                                 }
                             }
                         }
-                    }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color(.controlBackgroundColor))
-                    )
-
-                    // Preview Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Preview")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                        
-                        HStack {
-                            Image(systemName: selectedIcon)
-                                .font(.system(size: 32))
-                                .foregroundColor(selectedColor)
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(groupName.isEmpty ? "New Group" : groupName)
-                                    .font(.headline)
-                                Text("\(groupManager.groups.first(where: { $0.id == editingGroup?.id })?.appBundleIds.count ?? 0) apps")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-
-                            Spacer()
-                        }
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(.controlBackgroundColor))
-                        )
                     }
                     .padding()
                     .background(
