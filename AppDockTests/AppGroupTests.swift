@@ -19,6 +19,12 @@ final class AppGroupTests: XCTestCase {
     }
     
     override func tearDown() {
+        // Clean up test groups
+        let userGroups = groupManager.groups.filter { !$0.isSystem }
+        for group in userGroups {
+            groupManager.deleteGroup(group)
+        }
+        
         groupManager = nil
         super.tearDown()
     }
@@ -182,76 +188,108 @@ final class AppGroupTests: XCTestCase {
     }
     
     func testAddAppToGroup() {
-        guard let testGroup = groupManager.groups.first else {
-            XCTFail("No groups found")
+        let testGroup = AppGroup(name: "Add App Test Group", icon: "folder", color: "#FF0000")
+        groupManager.addGroup(testGroup)
+        
+        guard let addedGroup = groupManager.groups.first(where: { $0.name == "Add App Test Group" }) else {
+            XCTFail("Test group not found")
             return
         }
         
         let bundleId = "com.test.application"
-        let initialCount = testGroup.appBundleIds.count
+        let initialCount = addedGroup.appBundleIds.count
         
-        groupManager.addAppToGroup(bundleId, groupId: testGroup.id)
+        groupManager.addAppToGroup(bundleId, groupId: addedGroup.id)
         
-        let updatedGroup = groupManager.groups.first { $0.id == testGroup.id }
+        let updatedGroup = groupManager.groups.first { $0.id == addedGroup.id }
         XCTAssertEqual(updatedGroup?.appBundleIds.count, initialCount + 1)
         XCTAssertTrue(updatedGroup?.appBundleIds.contains(bundleId) ?? false)
     }
     
     func testRemoveAppFromGroup() {
-        guard let testGroup = groupManager.groups.first else {
-            XCTFail("No groups found")
+        let testGroup = AppGroup(name: "Remove Test Group", icon: "folder", color: "#FF0000")
+        groupManager.addGroup(testGroup)
+        
+        guard let addedGroup = groupManager.groups.first(where: { $0.name == "Remove Test Group" }) else {
+            XCTFail("Test group not found")
             return
         }
         
         let bundleId = "com.test.application"
         
         // First add an app
-        groupManager.addAppToGroup(bundleId, groupId: testGroup.id)
+        groupManager.addAppToGroup(bundleId, groupId: addedGroup.id)
         
         // Then remove it
-        groupManager.removeAppFromGroup(bundleId, groupId: testGroup.id)
+        groupManager.removeAppFromGroup(bundleId, groupId: addedGroup.id)
         
-        let updatedGroup = groupManager.groups.first { $0.id == testGroup.id }
+        let updatedGroup = groupManager.groups.first { $0.id == addedGroup.id }
         XCTAssertFalse(updatedGroup?.appBundleIds.contains(bundleId) ?? true)
     }
     
     func testGetGroupsForApp() {
-        guard let testGroup1 = groupManager.groups.first,
-              let testGroup2 = groupManager.groups.dropFirst().first else {
-            XCTFail("Not enough groups found")
+        let testGroup1 = AppGroup(name: "Test Group 1", icon: "folder", color: "#FF0000")
+        let testGroup2 = AppGroup(name: "Test Group 2", icon: "star", color: "#00FF00")
+        let testGroup3 = AppGroup(name: "Test Group 3", icon: "heart", color: "#0000FF")
+        
+        groupManager.addGroup(testGroup1)
+        groupManager.addGroup(testGroup2)
+        groupManager.addGroup(testGroup3)
+        
+        guard let addedGroup1 = groupManager.groups.first(where: { $0.name == "Test Group 1" }),
+              let addedGroup2 = groupManager.groups.first(where: { $0.name == "Test Group 2" }),
+              let addedGroup3 = groupManager.groups.first(where: { $0.name == "Test Group 3" }) else {
+            XCTFail("Test groups not found")
             return
         }
         
-        let bundleId = "com.test.sharedapp"
+        let bundleId = "com.test.sharedapp.\(UUID().uuidString)" // Unique bundle ID
         
-        // Add app to two groups
-        groupManager.addAppToGroup(bundleId, groupId: testGroup1.id)
-        groupManager.addAppToGroup(bundleId, groupId: testGroup2.id)
+        // Add app to two groups (not all three)
+        groupManager.addAppToGroup(bundleId, groupId: addedGroup1.id)
+        groupManager.addAppToGroup(bundleId, groupId: addedGroup2.id)
+        // Note: NOT adding to addedGroup3
         
         let groupsForApp = groupManager.getGroupsForApp(bundleId)
         
+        // Debug: Print all groups and their app bundle IDs
+        print("Total groups in manager: \(groupManager.groups.count)")
+        for (index, group) in groupManager.groups.enumerated() {
+            print("Group \(index): \(group.name) (ID: \(group.id)) - Apps: \(group.appBundleIds)")
+        }
+        print("Groups for app '\(bundleId)': \(groupsForApp.count)")
+        for group in groupsForApp {
+            print("  - \(group.name) (ID: \(group.id))")
+        }
+        
         XCTAssertEqual(groupsForApp.count, 2)
-        XCTAssertTrue(groupsForApp.contains { $0.id == testGroup1.id })
-        XCTAssertTrue(groupsForApp.contains { $0.id == testGroup2.id })
+        XCTAssertTrue(groupsForApp.contains { $0.id == addedGroup1.id })
+        XCTAssertTrue(groupsForApp.contains { $0.id == addedGroup2.id })
+        XCTAssertFalse(groupsForApp.contains { $0.id == addedGroup3.id })
     }
     
     func testMoveGroup() {
-        let userGroups = groupManager.groups.filter { !$0.isSystem }
-        guard userGroups.count >= 2 else {
-            XCTFail("Not enough user groups for move test")
+        // Create test groups for move operation
+        let testGroup1 = AppGroup(name: "Move Group 1", icon: "folder", color: "#FF0000")
+        let testGroup2 = AppGroup(name: "Move Group 2", icon: "star", color: "#00FF00")
+        
+        groupManager.addGroup(testGroup1)
+        groupManager.addGroup(testGroup2)
+        
+        guard let addedGroup1 = groupManager.groups.first(where: { $0.name == "Move Group 1" }),
+              let addedGroup2 = groupManager.groups.first(where: { $0.name == "Move Group 2" }) else {
+            XCTFail("Test groups not found")
             return
         }
         
-        let firstGroup = userGroups[0]
-        let secondGroup = userGroups[1]
-        let initialFirstIndex = groupManager.groups.firstIndex(of: firstGroup)
-        let initialSecondIndex = groupManager.groups.firstIndex(of: secondGroup)
+        let initialFirstIndex = groupManager.groups.firstIndex(of: addedGroup1)
+        let initialSecondIndex = groupManager.groups.firstIndex(of: addedGroup2)
         
         // Move first group to second group's position
-        groupManager.moveGroup(firstGroup, to: initialSecondIndex ?? 0)
+        groupManager.moveGroup(addedGroup1, to: initialSecondIndex ?? 0)
         
-        let newFirstIndex = groupManager.groups.firstIndex(of: firstGroup)
-        let newSecondIndex = groupManager.groups.firstIndex(of: secondGroup)
+        let newFirstIndex = groupManager.groups.firstIndex(of: addedGroup1)
+        let newSecondIndex = groupManager.groups.firstIndex(of: addedGroup2)
         
         XCTAssertEqual(newFirstIndex, initialSecondIndex)
         XCTAssertEqual(newSecondIndex, initialFirstIndex)
@@ -261,8 +299,8 @@ final class AppGroupTests: XCTestCase {
         let firstGroupAfterMove = groupsAfterMove[newFirstIndex ?? 0]
         let secondGroupAfterMove = groupsAfterMove[newSecondIndex ?? 0]
         
-        XCTAssertEqual(firstGroupAfterMove.name, firstGroup.name)
-        XCTAssertEqual(secondGroupAfterMove.name, secondGroup.name)
+        XCTAssertEqual(firstGroupAfterMove.name, addedGroup1.name)
+        XCTAssertEqual(secondGroupAfterMove.name, addedGroup2.name)
     }
     
     // MARK: - Color Conversion Tests
