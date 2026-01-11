@@ -9,7 +9,7 @@ import SwiftUI
 
 /// App group for organizing applications
 struct AppGroup: Identifiable, Codable, Hashable {
-    let id = UUID()
+	var id = UUID()
     var name: String
     var icon: String // SF Symbol name
     var color: String // Hex color
@@ -18,6 +18,17 @@ struct AppGroup: Identifiable, Codable, Hashable {
     var sortOrder: Int // Display order
 
     init(name: String, icon: String = "folder", color: String = "#007AFF", appBundleIds: Set<String> = [], isSystem: Bool = false, sortOrder: Int = 0) {
+        self.name = name
+        self.icon = icon
+        self.color = color
+        self.appBundleIds = appBundleIds
+        self.isSystem = isSystem
+        self.sortOrder = sortOrder
+    }
+    
+    // Custom initializer for testing - allows setting a specific ID
+    init(id: UUID, name: String, icon: String = "folder", color: String = "#007AFF", appBundleIds: Set<String> = [], isSystem: Bool = false, sortOrder: Int = 0) {
+        self.id = id
         self.name = name
         self.icon = icon
         self.color = color
@@ -109,9 +120,8 @@ class AppGroupManager: ObservableObject {
 
         var hasChanges = false
         for systemGroup in systemGroups where !groups.contains(where: { $0.name == systemGroup.name }) {
-                groups.append(systemGroup)
-                hasChanges = true
-            }
+            groups.append(systemGroup)
+            hasChanges = true
         }
 
         if hasChanges {
@@ -179,7 +189,8 @@ class AppGroupManager: ObservableObject {
 
         // Update sort orders
         for (index, group) in groups.enumerated() where !group.isSystem {
-                groups[index].sortOrder = index
+            if let originalIndex = self.groups.firstIndex(where: { $0.id == group.id }) {
+                groups[index].sortOrder = originalIndex
             }
         }
 
@@ -194,7 +205,7 @@ struct AppGroupEditorView: View {
 
     @State private var groupName = ""
     @State private var selectedIcon = "folder"
-    @State private var selectedColor = "#007AFF"
+    @State private var selectedColor = Color.blue
     @State private var editingGroup: AppGroup?
 
     init(groupManager: AppGroupManager, editingGroup: AppGroup? = nil) {
@@ -209,111 +220,187 @@ struct AppGroupEditorView: View {
         "cloud", "house", "car", "airplane", "bicycle", "bag"
     ]
 
-    private let availableColors = [
-        "#007AFF", "#FF9500", "#34C759", "#AF52DE", "#FF3B30",
-        "#6C757D", "#8E8E93", "#000000", "#FFFFFF", "#FF6B6B"
+    private let availableColors: [Color] = [
+        .blue, .orange, .green, .purple, .red,
+        .gray, .secondary, .black, .white, .pink
     ]
 
     var body: some View {
-        NavigationView {
-            Form {
-                Section("Group Info") {
-                    TextField("Group Name", text: $groupName)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-
-                    // Icon picker
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
-                        ForEach(availableIcons, id: \.self) { icon in
-                            Button(action: {
-                                selectedIcon = icon
-                            }) {
-                                Image(systemName: icon)
-                                    .font(.system(size: 24))
-                                    .foregroundColor(selectedIcon == icon ? Color(hex: selectedColor) : .primary)
-                                    .frame(width: 40, height: 40)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(selectedIcon == icon ? Color(hex: selectedColor).opacity(0.2) : Color.clear)
-                                    )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                    }
-
-                    // Color picker
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 8) {
-                        ForEach(availableColors, id: \.self) { color in
-                            Button(action: {
-                                selectedColor = color
-                            }) {
-                                Circle()
-                                    .fill(Color(hex: color))
-                                    .frame(width: 30, height: 30)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(selectedColor == color ? Color.primary : Color.clear, lineWidth: 2)
-                                    )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                    }
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Button("Cancel") {
+                    dismiss()
                 }
+                .buttonStyle(.bordered)
+                
+                Spacer()
+                
+                Text(editingGroup == nil ? "New Group" : "Edit Group")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Spacer()
+                
+                Button(editingGroup == nil ? "Create" : "Save") {
+                    saveGroup()
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(groupName.isEmpty)
+            }
+            .padding()
+            .background(Color(.controlBackgroundColor))
+            
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Group Info Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Group Info")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                        
+                        TextField("Group Name", text: $groupName)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
 
-                Section("Preview") {
-                    HStack {
-                        Image(systemName: selectedIcon)
-                            .font(.system(size: 32))
-                            .foregroundColor(Color(hex: selectedColor))
-
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(groupName.isEmpty ? "New Group" : groupName)
-                                .font(.headline)
-                                Text("\(groupManager.groups.first(where: { $0.id == editingGroup?.id })?.appBundleIds.count ?? 0) apps")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                        Text("Icon")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .padding(.top, 8)
+                        
+                        // Simple icon grid using HStack rows
+                        VStack(spacing: 8) {
+                            ForEach(0..<(availableIcons.count / 6 + 1), id: \.self) { rowIndex in
+                                HStack(spacing: 12) {
+                                    ForEach(0..<6, id: \.self) { colIndex in
+                                        let index = rowIndex * 6 + colIndex
+                                        if index < availableIcons.count {
+                                            let icon = availableIcons[index]
+                                            Button(action: {
+                                                selectedIcon = icon
+                                            }) {
+                                                Image(systemName: icon)
+                                                    .font(.system(size: 24))
+                                                    .foregroundColor(selectedColor)
+                                                    .frame(width: 40, height: 40)
+                                                    .background(
+                                                        RoundedRectangle(cornerRadius: 8)
+                                                            .fill(selectedIcon == icon ? selectedColor.opacity(0.2) : Color.clear)
+                                                    )
+                                            }
+                                            .buttonStyle(PlainButtonStyle())
+                                        } else {
+                                            Spacer()
+                                                .frame(width: 40)
+                                        }
+                                    }
+                                }
+                            }
                         }
-
-                        Spacer()
+                        
+                        Text("Color")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .padding(.top, 8)
+                        
+                        // Simple color grid using HStack rows
+                        VStack(spacing: 8) {
+                            ForEach(0..<(availableColors.count / 5 + 1), id: \.self) { rowIndex in
+                                HStack(spacing: 8) {
+                                    ForEach(0..<5, id: \.self) { colIndex in
+                                        let index = rowIndex * 5 + colIndex
+                                        if index < availableColors.count {
+                                            let color = availableColors[index]
+                                            Button(action: {
+                                                selectedColor = color
+                                            }) {
+                                                Circle()
+                                                    .fill(color)
+                                                    .frame(width: 30, height: 30)
+                                                    .overlay(
+                                                        Circle()
+                                                            .stroke(selectedColor == color ? Color.primary : Color.clear, lineWidth: 2)
+                                                    )
+                                            }
+                                            .buttonStyle(PlainButtonStyle())
+                                        } else {
+                                            Spacer()
+                                                .frame(width: 30)
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                    .padding(.vertical, 8)
+                    .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color(.controlBackgroundColor))
                     )
-                }
-            }
-            .navigationTitle(editingGroup == nil ? "New Group" : "Edit Group")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(editingGroup == nil ? "Create" : "Save") {
-                        saveGroup()
-                    }
-                    .disabled(groupName.isEmpty)
-                }
 
-                if editingGroup != nil {
-                    ToolbarItem(placement: .destructiveAction) {
-                        Button("Delete") {
+                    // Preview Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Preview")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                        
+                        HStack {
+                            Image(systemName: selectedIcon)
+                                .font(.system(size: 32))
+                                .foregroundColor(selectedColor)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(groupName.isEmpty ? "New Group" : groupName)
+                                    .font(.headline)
+                                Text("\(groupManager.groups.first(where: { $0.id == editingGroup?.id })?.appBundleIds.count ?? 0) apps")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+                        }
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.controlBackgroundColor))
+                        )
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(.controlBackgroundColor))
+                    )
+                    
+                    if editingGroup != nil {
+                        Button("Delete Group") {
                             deleteGroup()
                         }
+                        .foregroundColor(.red)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.red.opacity(0.1))
+                        )
                     }
                 }
+                .padding()
             }
         }
         .onAppear {
             if let group = editingGroup {
                 groupName = group.name
                 selectedIcon = group.icon
-                selectedColor = group.color
+                selectedColor = Color(hex: group.color)
             }
         }
     }
 
     private func saveGroup() {
+        let colorHex = colorToHex(selectedColor)
         let group = AppGroup(
             name: groupName,
             icon: selectedIcon,
-            color: selectedColor,
+            color: colorHex,
             appBundleIds: editingGroup?.appBundleIds ?? [],
             isSystem: false
         )
@@ -323,7 +410,7 @@ struct AppGroupEditorView: View {
             var updatedGroup = editingGroup
             updatedGroup.name = groupName
             updatedGroup.icon = selectedIcon
-            updatedGroup.color = selectedColor
+            updatedGroup.color = colorHex
             groupManager.updateGroup(updatedGroup)
         } else {
             // Create new group
@@ -331,6 +418,19 @@ struct AppGroupEditorView: View {
         }
 
         dismiss()
+    }
+    
+    private func colorToHex(_ color: Color) -> String {
+        // Convert SwiftUI Color to hex string
+        let uiColor = NSColor(color)
+        let red = uiColor.redComponent
+        let green = uiColor.greenComponent
+        let blue = uiColor.blueComponent
+        
+        return String(format: "#%02X%02X%02X", 
+                    Int(red * 255), 
+                    Int(green * 255), 
+                    Int(blue * 255))
     }
 
     private func deleteGroup() {
@@ -350,7 +450,26 @@ struct AppGroupsView: View {
     @State private var targetGroupId: UUID?
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Text("App Groups")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                
+                Spacer()
+                
+                Button(action: {
+                    editingGroup = nil
+                    showingEditor = true
+                }) {
+                    Image(systemName: "plus")
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding()
+            .background(Color(.controlBackgroundColor))
+            
             List {
                 ForEach(groupManager.groups) { group in
                     AppGroupRow(
@@ -372,17 +491,6 @@ struct AppGroupsView: View {
                     guard let fromIndex = indexSet.first else { return }
                     let movedGroup = groupManager.groups[fromIndex]
                     groupManager.moveGroup(movedGroup, to: index)
-                }
-            }
-            .navigationTitle("App Groups")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: {
-                        editingGroup = nil
-                        showingEditor = true
-                    }) {
-                        Image(systemName: "plus")
-                    }
                 }
             }
         }
@@ -478,34 +586,42 @@ struct AppPickerView: View {
 
     // This would be populated with actual running apps
     @State private var availableApps: [(bundleId: String, name: String, icon: NSImage)] = [
-        ("com.apple.Safari", "Safari", NSImage()),
-        ("com.apple.Music", "Music", NSImage()),
-        ("com.apple.Notes", "Notes", NSImage()),
-        ("com.apple.Photos", "Photos", NSImage()),
-        ("com.apple.Mail", "Mail", NSImage()),
-        ("com.apple.Calendar", "Calendar", NSImage()),
-        ("com.apple.Reminders", "Reminders", NSImage()),
-        ("com.apple.VoiceMemos", "Voice Memos", NSImage()),
-        ("com.apple.Finder", "Finder", NSImage()),
-        ("com.apple.Terminal", "Terminal", NSImage())
+        ("com.apple.Safari", "Safari", NSImage(systemSymbolName: "safari", accessibilityDescription: nil)!),
+        ("com.apple.Music", "Music", NSImage(systemSymbolName: "music.note", accessibilityDescription: nil)!),
+        ("com.apple.Notes", "Notes", NSImage(systemSymbolName: "note.text", accessibilityDescription: nil)!),
+        ("com.apple.Photos", "Photos", NSImage(systemSymbolName: "photo", accessibilityDescription: nil)!),
+        ("com.apple.Mail", "Mail", NSImage(systemSymbolName: "envelope", accessibilityDescription: nil)!),
+        ("com.apple.Calendar", "Calendar", NSImage(systemSymbolName: "calendar", accessibilityDescription: nil)!),
+        ("com.apple.Reminders", "Reminders", NSImage(systemSymbolName: "checklist", accessibilityDescription: nil)!),
+        ("com.apple.VoiceMemos", "Voice Memos", NSImage(systemSymbolName: "mic", accessibilityDescription: nil)!),
+        ("com.apple.Finder", "Finder", NSImage(systemSymbolName: "folder", accessibilityDescription: nil)!),
+        ("com.apple.Terminal", "Terminal", NSImage(systemSymbolName: "terminal", accessibilityDescription: nil)!)
     ]
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Text("Add Apps")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                
+                Spacer()
+                
+                Button("Done") {
+                    dismiss()
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding()
+            .background(Color(.controlBackgroundColor))
+            
             List(availableApps, id: \.bundleId) { app in
                 AppPickerRow(
                     app: app,
                     groupId: groupId,
                     groupManager: groupManager
                 )
-            }
-            .navigationTitle("Add Apps")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
             }
         }
     }

@@ -86,7 +86,23 @@ struct KeyboardShortcutsPanel: View {
     ]
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Text("Keyboard Shortcuts")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                
+                Spacer()
+                
+                Button("Done") {
+                    dismiss()
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding()
+            .background(Color(.controlBackgroundColor))
+            
             ScrollView {
                 LazyVStack(spacing: 0) {
                     headerView
@@ -98,14 +114,6 @@ struct KeyboardShortcutsPanel: View {
                     footerView
                 }
                 .padding()
-            }
-            .navigationTitle("Keyboard Shortcuts")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
             }
         }
         .frame(minWidth: 500, minHeight: 600)

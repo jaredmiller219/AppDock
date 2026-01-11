@@ -361,12 +361,9 @@ struct BatchOperationsDockView: View {
                             if let nsApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == selectedApp.bundleid }) {
                                 nsApp.activate()
                             } else {
-                                NSWorkspace.shared.launchApplication(
-                                    withBundleIdentifier: selectedApp.bundleid,
-                                    options: [],
-                                    additionalEventParamDescriptor: nil,
-                                    launchIdentifier: nil
-                                )
+                                if let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: selectedApp.bundleid) {
+                                    NSWorkspace.shared.openApplication(at: appURL, configuration: NSWorkspace.OpenConfiguration())
+                                }
                             }
                         } onCommandClick: { _ in
                             // Handle context menu
@@ -376,7 +373,7 @@ struct BatchOperationsDockView: View {
                 .padding(.horizontal, 12)
             }
         }
-        .onChange(of: batchManager.selectionState.isSelectionMode) { newValue in
+        .onChange(of: batchManager.selectionState.isSelectionMode) { _, newValue in
             if !newValue {
                 isSelectionMode = false
             }

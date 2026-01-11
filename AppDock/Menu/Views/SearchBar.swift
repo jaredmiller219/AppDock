@@ -248,8 +248,6 @@ struct HighlightedText: View {
     let highlightColor: Color
 
     var body: some View {
-        _ = text.components(separatedBy: highlight)
-
         Text(AttributedStringBuilder.build(
             text: text,
             highlight: highlight,
