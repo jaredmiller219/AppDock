@@ -233,12 +233,14 @@ struct AppGroupEditorView: View {
                     dismiss()
                 }
                 .buttonStyle(.bordered)
+                .accessibilityIdentifier("cancel-button")
                 
                 Spacer()
                 
                 Text(editingGroup == nil ? "New Group" : "Edit Group")
                     .font(.headline)
                     .fontWeight(.semibold)
+                    .accessibilityIdentifier("editor-title")
                 
                 Spacer()
                 
@@ -247,9 +249,11 @@ struct AppGroupEditorView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(groupName.isEmpty)
+                .accessibilityIdentifier(editingGroup == nil ? "create-button" : "save-button")
             }
             .padding()
             .background(Color(.controlBackgroundColor))
+            .accessibilityIdentifier("editor-header")
             
             ScrollView {
                 VStack(spacing: 20) {
@@ -261,6 +265,7 @@ struct AppGroupEditorView: View {
                         
                         TextField("Group Name", text: $groupName)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .accessibilityIdentifier("group-name-field")
 
                         Text("Icon")
                             .font(.subheadline)
@@ -288,6 +293,7 @@ struct AppGroupEditorView: View {
                                                     )
                                             }
                                             .buttonStyle(PlainButtonStyle())
+                                            .accessibilityIdentifier("icon-\(icon)")
                                         } else {
                                             Spacer()
                                                 .frame(width: 40)
@@ -322,6 +328,7 @@ struct AppGroupEditorView: View {
                                                     )
                                             }
                                             .buttonStyle(PlainButtonStyle())
+                                            .accessibilityIdentifier("color-\(color.hashValue)")
                                         } else {
                                             Spacer()
                                                 .frame(width: 30)
@@ -466,9 +473,11 @@ struct AppGroupsView: View {
                     Image(systemName: "plus")
                 }
                 .buttonStyle(.bordered)
+                .accessibilityIdentifier("add-group-button")
             }
             .padding()
             .background(Color(.controlBackgroundColor))
+            .accessibilityIdentifier("app-groups-header")
             
             List {
                 ForEach(groupManager.groups) { group in
@@ -486,6 +495,7 @@ struct AppGroupsView: View {
                             showingAppPicker = true
                         }
                     )
+                    .accessibilityIdentifier("group-\(group.id)")
                 }
                 .onMove { indexSet, index in
                     guard let fromIndex = indexSet.first else { return }
@@ -523,16 +533,19 @@ struct AppGroupRow: View {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(Color(hex: group.color).opacity(0.2))
                 )
+                .accessibilityIdentifier("group-icon-\(group.id)")
 
             // Group info
             VStack(alignment: .leading, spacing: 4) {
                 Text(group.name)
                     .font(.headline)
                     .fontWeight(.medium)
+                    .accessibilityIdentifier("group-name-\(group.id)")
 
                 Text("\(group.appBundleIds.count) apps")
                     .font(.caption)
                     .foregroundColor(.secondary)
+                    .accessibilityIdentifier("group-app-count-\(group.id)")
             }
 
             Spacer()
@@ -546,6 +559,7 @@ struct AppGroupRow: View {
                             .foregroundColor(.accentColor)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .accessibilityIdentifier("add-apps-\(group.id)")
 
                     Button(action: onEdit) {
                         Image(systemName: "pencil")
@@ -553,6 +567,7 @@ struct AppGroupRow: View {
                             .foregroundColor(.blue)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .accessibilityIdentifier("edit-group-\(group.id)")
 
                     Button(action: onDelete) {
                         Image(systemName: "trash")
@@ -560,6 +575,7 @@ struct AppGroupRow: View {
                             .foregroundColor(.red)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .accessibilityIdentifier("delete-group-\(group.id)")
                 } else {
                     Button(action: onAddApps) {
                         Image(systemName: "plus")
@@ -567,6 +583,7 @@ struct AppGroupRow: View {
                             .foregroundColor(.accentColor)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .accessibilityIdentifier("add-apps-\(group.id)")
                 }
             }
         }
@@ -575,6 +592,7 @@ struct AppGroupRow: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color(.controlBackgroundColor))
         )
+        .accessibilityIdentifier("group-row-\(group.id)")
     }
 }
 
@@ -605,6 +623,7 @@ struct AppPickerView: View {
                 Text("Add Apps")
                     .font(.largeTitle)
                     .fontWeight(.bold)
+                    .accessibilityIdentifier("add-apps-title")
                 
                 Spacer()
                 
@@ -612,9 +631,11 @@ struct AppPickerView: View {
                     dismiss()
                 }
                 .buttonStyle(.bordered)
+                .accessibilityIdentifier("done-button")
             }
             .padding()
             .background(Color(.controlBackgroundColor))
+            .accessibilityIdentifier("add-apps-header")
             
             List(availableApps, id: \.bundleId) { app in
                 AppPickerRow(
@@ -622,6 +643,7 @@ struct AppPickerView: View {
                     groupId: groupId,
                     groupManager: groupManager
                 )
+                .accessibilityIdentifier("app-row-\(app.bundleId)")
             }
         }
     }
@@ -644,15 +666,18 @@ struct AppPickerRow: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 32, height: 32)
                 .cornerRadius(6)
+                .accessibilityIdentifier("app-icon-\(app.bundleId)")
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(app.name)
                     .font(.body)
                     .fontWeight(.medium)
+                    .accessibilityIdentifier("app-name-\(app.bundleId)")
 
                 Text(app.bundleId)
                     .font(.caption)
                     .foregroundColor(.secondary)
+                    .accessibilityIdentifier("app-bundle-id-\(app.bundleId)")
             }
 
             Spacer()
@@ -669,6 +694,7 @@ struct AppPickerRow: View {
                     .foregroundColor(isInGroup ? .red : .green)
             }
             .buttonStyle(PlainButtonStyle())
+            .accessibilityIdentifier("app-toggle-\(app.bundleId)")
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())
@@ -676,6 +702,7 @@ struct AppPickerRow: View {
             RoundedRectangle(cornerRadius: 8)
                 .fill(isInGroup ? Color.red.opacity(0.1) : Color.green.opacity(0.1))
         )
+        .accessibilityIdentifier("app-row-\(app.bundleId)")
     }
 }
 

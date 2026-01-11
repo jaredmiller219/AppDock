@@ -597,5 +597,7 @@ public enum AppDockConstants {
         public static let uiTestStatusItemProxy = "--ui-test-status-item-proxy"
         /// Launch argument to show the shortcuts panel during UI tests.
         public static let uiTestShortcutsPanel = "--ui-test-shortcuts-panel"
+        /// Launch argument to open the App Groups window for UI tests.
+        public static let uiTestOpenAppGroups = "--ui-test-open-app-groups"
     }
 }

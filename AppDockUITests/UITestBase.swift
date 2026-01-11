@@ -30,6 +30,7 @@ class UITestBase: XCTestCase {
             static let favoritesEmptyState = "FavoritesEmptyState"
             static let shortcutRecorderValuePrefix = "ShortcutRecorderValue-"
             static let shortcutRecorderCancelPrefix = "ShortcutRecorderCancel-"
+            static let uiTestOpenAppGroups = "--ui-test-open-app-groups"
         }
 
         enum ShortcutActions {
@@ -52,6 +53,7 @@ class UITestBase: XCTestCase {
             static let uiTestMenuSimple = "--ui-test-menu-simple"
             static let uiTestStatusItemProxy = "--ui-test-status-item-proxy"
             static let uiTestShortcutsPanel = "--ui-test-shortcuts-panel"
+            static let uiTestOpenAppGroups = "--ui-test-open-app-groups"
         }
     }
 
@@ -137,6 +139,18 @@ class UITestBase: XCTestCase {
             UITestConstants.TestingArgs.uiTestSeedDock,
             UITestConstants.TestingArgs.uiTestDisableActivation,
             UITestConstants.TestingArgs.uiTestShortcutsPanel,
+        ]
+        app.launch()
+        app.activate()
+        return app
+    }
+
+    @MainActor
+    func launchAppForAppGroupsTests() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            UITestConstants.TestingArgs.uiTestMode,
+            UITestConstants.TestingArgs.uiTestOpenAppGroups,
         ]
         app.launch()
         app.activate()

@@ -62,6 +62,12 @@ extension AppDelegate {
             }
         }
 
+        if arguments.contains(AppDockConstants.Testing.uiTestOpenAppGroups) {
+            DispatchQueue.main.async { [weak self] in
+                self?.openAppGroups()
+            }
+        }
+
         if arguments.contains(AppDockConstants.Testing.uiTestMenuSimple) {
             UserDefaults.standard.set(
                 MenuLayoutMode.simple.rawValue,
