@@ -114,6 +114,7 @@ struct EnhancedSearchBar: View {
                         .stroke(isSearchFocused ? Color.accentColor : Color(.separatorColor), lineWidth: isSearchFocused ? 2 : 1)
                 )
         )
+        .frame(maxWidth: 280)
         .animation(.easeInOut(duration: 0.2), value: isSearchFocused)
         .onAppear {
             // Set up keyboard shortcuts

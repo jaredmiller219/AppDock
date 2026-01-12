@@ -253,6 +253,8 @@ public enum AppDockConstants {
         public static let dividerPaddingHorizontal: CGFloat = 8
         /// Horizontal padding applied to the dock grid container.
         public static let dockPaddingHorizontal: CGFloat = 8
+        /// Horizontal padding applied specifically to the search bar.
+        public static let searchBarPaddingHorizontal: CGFloat = 24
         /// Top padding above the dock grid in the popover.
         public static let dockPaddingTop: CGFloat = 6
         /// Bottom padding below the dock grid in the popover.

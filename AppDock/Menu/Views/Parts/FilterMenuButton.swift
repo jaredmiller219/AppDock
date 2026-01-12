@@ -55,7 +55,7 @@ struct FilterMenuButton: View {
             }
             .padding(.horizontal, AppDockConstants.MenuHeader.paddingHorizontal)
             .padding(.vertical, AppDockConstants.MenuHeader.paddingVertical)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(width: 280, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: AppDockConstants.MenuHeader.cornerRadius)
                     .fill(Color.primary.opacity(0.08))

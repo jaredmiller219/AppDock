@@ -72,7 +72,7 @@ struct PopoverPageContent: View {
                         onSearchSubmitted: { _ in }
                     )
                     .focused($isSearchFocused)
-                    .padding(.horizontal, AppDockConstants.MenuLayout.dockPaddingHorizontal)
+                    .padding(.horizontal, AppDockConstants.MenuLayout.searchBarPaddingHorizontal)
                     .padding(.top, AppDockConstants.MenuLayout.dockPaddingTop)
                     .padding(.bottom, 8)
 
