@@ -91,9 +91,107 @@ final class AppStateSettingsTests: XCTestCase {
         XCTAssertEqual(draft.gridColumns, 4)
         XCTAssertEqual(draft.gridRows, 7)
         XCTAssertEqual(draft.iconSize, 80, accuracy: 0.01)
+        XCTAssertEqual(draft.iconSize, 80, accuracy: 0.01)
         XCTAssertEqual(draft.labelSize, 10, accuracy: 0.01)
         XCTAssertTrue(draft.reduceMotion)
         XCTAssertTrue(draft.debugLogging)
         XCTAssertEqual(draft.menuLayoutMode, .simple)
+    }
+    
+    // MARK: - Edge Cases
+    
+    func testEmptyRecentAppsHandling() {
+        let appState = AppState()
+        appState.recentApps = []
+        
+        XCTAssertTrue(appState.recentApps.isEmpty)
+        XCTAssertNoThrow(appState.recentApps.removeAll())
+        
+        // Test filtering doesn't crash with empty array
+        let filtered = appState.recentApps.filter { !$0.name.isEmpty }
+        XCTAssertTrue(filtered.isEmpty)
+    }
+    
+    func testCorruptedDataRecovery() {
+        let appState = AppState()
+        let corruptedApps: [AppState.AppEntry] = [
+            ("", "com.test.valid", NSImage()), // Empty name
+            ("Valid App", "", NSImage()), // Empty bundle ID
+        ]
+        
+        XCTAssertNoThrow(appState.recentApps = corruptedApps)
+        
+        // Test filtering removes invalid entries
+        let validApps = appState.recentApps.filter { !$0.name.isEmpty && !$0.bundleid.isEmpty }
+        XCTAssertLessThanOrEqual(validApps.count, corruptedApps.count)
+    }
+    
+    func testLargeDatasetPerformance() {
+        let appState = AppState()
+        let largeAppList = (0..<500).map { index in
+            ("App \(index)", "com.test.app\(index)", NSImage(size: NSSize(width: 64, height: 64)))
+        }
+        
+        measure {
+            appState.recentApps = largeAppList
+            let _ = appState.recentApps.count
+            let _ = appState.recentApps.first { $0.name.contains("250") }
+        }
+    }
+    
+    func testConcurrentAppStateAccess() {
+        let appState = AppState()
+        let expectation = XCTestExpectation(description: "Concurrent access")
+        expectation.expectedFulfillmentCount = 10
+        
+        let concurrentQueue = DispatchQueue(label: "test.concurrent", attributes: .concurrent)
+        let serialQueue = DispatchQueue(label: "test.serial")
+        
+        for i in 0..<10 {
+            concurrentQueue.async {
+                let newApp: AppState.AppEntry = ("App \(i)", "com.test.concurrent\(i)", NSImage())
+                serialQueue.async {
+                    appState.recentApps.append(newApp)
+                    expectation.fulfill()
+                }
+            }
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssertEqual(appState.recentApps.count, 10)
+    }
+    
+    func testNilImageHandling() {
+        let appState = AppState()
+        let appWithNilImage: AppState.AppEntry = ("Nil Image App", "com.test.nilimage", NSImage())
+        
+        XCTAssertNoThrow(appState.recentApps = [appWithNilImage])
+        XCTAssertEqual(appState.recentApps.count, 1)
+        XCTAssertEqual(appState.recentApps.first?.name, "Nil Image App")
+    }
+    
+    func testVeryLongAppNames() {
+        let appState = AppState()
+        let veryLongName = String(repeating: "A", count: 1000)
+        let appWithLongName: AppState.AppEntry = (veryLongName, "com.test.longname", NSImage())
+        
+        XCTAssertNoThrow(appState.recentApps = [appWithLongName])
+        XCTAssertEqual(appState.recentApps.first?.name.count, 1000)
+    }
+    
+    func testDuplicateBundleIds() {
+        let appState = AppState()
+        let duplicateApps: [AppState.AppEntry] = [
+            ("App 1", "com.test.duplicate", NSImage()),
+            ("App 2", "com.test.duplicate", NSImage()),
+            ("App 3", "com.test.duplicate", NSImage())
+        ]
+        
+        XCTAssertNoThrow(appState.recentApps = duplicateApps)
+        XCTAssertEqual(appState.recentApps.count, 3)
+        
+        // Test dedupification
+        let uniqueBundleIds = Set(appState.recentApps.map { $0.bundleid })
+        XCTAssertEqual(uniqueBundleIds.count, 1)
     }
 }

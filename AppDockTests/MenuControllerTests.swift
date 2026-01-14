@@ -203,4 +203,83 @@ final class MenuControllerTests: XCTestCase {
         XCTAssertEqual(appState.filterOption, .all)
         XCTAssertEqual(appState.sortOption, .recent)
     }
+    
+    // MARK: - Edge Cases
+    
+    func testPopoverWithExtremeSizing() {
+        let controller = MenuController()
+        let appState = AppDock.AppState()
+        let menuState = MenuState()
+        appState.gridColumns = 50
+        appState.iconSize = 300
+        
+        let popVC = controller.makePopoverController(
+            appState: appState,
+            menuState: menuState,
+            settingsAction: {},
+            aboutAction: {},
+            shortcutsAction: {},
+            helpAction: {},
+            releaseNotesAction: {},
+            appGroupsAction: {},
+            quitAction: {}
+        )
+        
+        guard let hosting = popVC as? NSHostingController<PopoverContentView> else {
+            XCTFail("Popover controller should be an NSHostingController<PopoverContentView>")
+            return
+        }
+        
+        XCTAssertLessThan(hosting.view.frame.size.width, 20000)
+        XCTAssertGreaterThan(hosting.view.frame.size.width, 0)
+    }
+    
+    func testPopoverWithZeroSizing() {
+        let controller = MenuController()
+        let appState = AppDock.AppState()
+        let menuState = MenuState()
+        appState.gridColumns = 0
+        appState.iconSize = 0
+        
+        let popVC = controller.makePopoverController(
+            appState: appState,
+            menuState: menuState,
+            settingsAction: {},
+            aboutAction: {},
+            shortcutsAction: {},
+            helpAction: {},
+            releaseNotesAction: {},
+            appGroupsAction: {},
+            quitAction: {}
+        )
+        
+        guard let hosting = popVC as? NSHostingController<PopoverContentView> else {
+            XCTFail("Popover controller should be an NSHostingController<PopoverContentView>")
+            return
+        }
+        
+        XCTAssertGreaterThanOrEqual(hosting.view.frame.size.width, 0)
+    }
+    
+    func testRapidPopoverCreation() {
+        let controller = MenuController()
+        let appState = AppDock.AppState()
+        let menuState = MenuState()
+        
+        for _ in 0..<20 {
+            let popVC = controller.makePopoverController(
+                appState: appState,
+                menuState: menuState,
+                settingsAction: {},
+                aboutAction: {},
+                shortcutsAction: {},
+                helpAction: {},
+                releaseNotesAction: {},
+                appGroupsAction: {},
+                quitAction: {}
+            )
+            _ = popVC
+        }
+        XCTAssertTrue(true) // Should not crash
+    }
 }

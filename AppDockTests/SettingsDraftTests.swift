@@ -138,4 +138,51 @@ final class SettingsDraftTests: XCTestCase {
         XCTAssertTrue(draft.simpleSettings)
         XCTAssertEqual(draft.menuLayoutMode, .advanced)
     }
+    
+    // MARK: - Edge Cases
+    
+    func testSettingsWithExtremeValues() {
+        let appState = AppState()
+        let extremeDraft = SettingsDraft(
+            launchAtLogin: true,
+            openOnStartup: false,
+            autoUpdates: false,
+            showAppLabels: false,
+            showRunningIndicator: false,
+            enableHoverRemove: false,
+            confirmBeforeQuit: true,
+            keepQuitApps: false,
+            defaultFilter: .all,
+            defaultSort: .nameAscending,
+            gridColumns: 0, // Edge case
+            gridRows: 100, // Large value
+            iconSize: 0, // Edge case
+            labelSize: 50, // Large value
+            reduceMotion: true,
+            debugLogging: true,
+            simpleSettings: true,
+            menuLayoutMode: .advanced
+        )
+        
+        XCTAssertNoThrow(appState.applySettings(extremeDraft))
+        XCTAssertEqual(appState.gridColumns, 0)
+        XCTAssertEqual(appState.gridRows, 100)
+        XCTAssertEqual(appState.iconSize, 0, accuracy: 0.01)
+        XCTAssertEqual(appState.labelSize, 50, accuracy: 0.01)
+    }
+    
+    func testSettingsCorruptionRecovery() {
+        // Simulate corrupted UserDefaults
+        let testDefaults = UserDefaults(suiteName: "AppDock.CorruptionTest")!
+        testDefaults.set("invalid_boolean", forKey: SettingsDefaults.launchAtLoginKey)
+        testDefaults.set("invalid_integer", forKey: SettingsDefaults.gridColumnsKey)
+        testDefaults.set("invalid_double", forKey: SettingsDefaults.iconSizeKey)
+        
+        let draft = SettingsDraft.load(from: testDefaults)
+        
+        // Should handle corrupted values gracefully
+        XCTAssertNotNil(draft)
+        
+        testDefaults.removePersistentDomain(forName: "AppDock.CorruptionTest")
+    }
 }

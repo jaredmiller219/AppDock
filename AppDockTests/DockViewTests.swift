@@ -335,4 +335,34 @@ final class DockViewTests: XCTestCase {
         XCTAssertEqual(handler.recentApps.count, 2)
         XCTAssertEqual(handler.activeContextMenuIndex, 1)
     }
+    
+    // MARK: - Edge Cases
+    
+    func testMemoryPressureWithLargeDatasets() {
+        // Simulate memory pressure by creating and destroying large datasets
+        for _ in 0..<50 {
+            autoreleasepool {
+                let appState = DockViewTestAppState(apps: (0..<200).map { index in
+                    ("Temp App \(index)", "com.temp.app\(index)", test_createDummyImage())
+                })
+                let _ = appState.recentApps.count
+            }
+        }
+        
+        // Original test state should still be functional
+        let testState = DockViewTestAppState(apps: [("Test", "com.test", test_createDummyImage())])
+        XCTAssertEqual(testState.recentApps.count, 1)
+    }
+    
+    func testRapidStateChanges() {
+        let appState = DockViewTestAppState(apps: [])
+        
+        for i in 0..<100 {
+            appState.recentApps = [("App \(i)", "com.test.app\(i)", test_createDummyImage())]
+            let _ = appState.recentApps.count
+        }
+        
+        XCTAssertEqual(appState.recentApps.count, 1)
+        XCTAssertEqual(appState.recentApps.first?.name, "App 99")
+    }
 }

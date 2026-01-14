@@ -334,4 +334,98 @@ final class AppGroupTests: XCTestCase {
         XCTAssertEqual(persistedGroup?.icon, "star")
         XCTAssertEqual(persistedGroup?.color, "#123456")
     }
+    
+    // MARK: - Edge Cases
+    
+    func testGroupWithSpecialCharacters() {
+        let groupManager = AppGroupManager()
+        let specialGroup = AppGroup(
+            name: "🚀 Test Group with émojis & spëcial chârs! 🎉",
+            icon: "star",
+            color: "#FF00FF"
+        )
+        
+        groupManager.addGroup(specialGroup)
+        
+        let addedGroup = groupManager.groups.first { $0.name == specialGroup.name }
+        XCTAssertNotNil(addedGroup)
+        XCTAssertEqual(addedGroup?.name, specialGroup.name)
+        
+        // Cleanup
+        if let group = addedGroup {
+            groupManager.deleteGroup(group)
+        }
+    }
+    
+    func testGroupWithInvalidBundleIds() {
+        let groupManager = AppGroupManager()
+        let testGroup = AppGroup(name: "Invalid Bundle Test")
+        groupManager.addGroup(testGroup)
+        
+        guard let addedGroup = groupManager.groups.first(where: { $0.name == "Invalid Bundle Test" }) else {
+            XCTFail("Test group not found")
+            return
+        }
+        
+        let invalidBundleIds = ["", "invalid", "com.test.", ".com.test", "com..test"]
+        
+        for bundleId in invalidBundleIds {
+            XCTAssertNoThrow(groupManager.addAppToGroup(bundleId, groupId: addedGroup.id))
+        }
+        
+        let updatedGroup = groupManager.groups.first { $0.id == addedGroup.id }
+        XCTAssertEqual(updatedGroup?.appBundleIds.count, invalidBundleIds.count)
+        
+        // Cleanup
+        groupManager.deleteGroup(addedGroup)
+    }
+    
+    func testConcurrentGroupOperations() {
+        let groupManager = AppGroupManager()
+        let expectation = XCTestExpectation(description: "Concurrent group operations")
+        expectation.expectedFulfillmentCount = 10
+        
+        let concurrentQueue = DispatchQueue(label: "test.groups", attributes: .concurrent)
+        
+        for i in 0..<10 {
+            concurrentQueue.async {
+                let group = AppGroup(name: "Concurrent Group \(i)")
+                groupManager.addGroup(group)
+                expectation.fulfill()
+            }
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssertGreaterThanOrEqual(groupManager.groups.count, 10)
+        
+        // Cleanup
+        let userGroups = groupManager.groups.filter { !$0.isSystem }
+        for group in userGroups {
+            groupManager.deleteGroup(group)
+        }
+    }
+    
+    func testGroupDeletionWithApps() {
+        let groupManager = AppGroupManager()
+        let testGroup = AppGroup(name: "Delete Test")
+        groupManager.addGroup(testGroup)
+        
+        guard let addedGroup = groupManager.groups.first(where: { $0.name == "Delete Test" }) else {
+            XCTFail("Test group not found")
+            return
+        }
+        
+        // Add apps to group
+        groupManager.addAppToGroup("com.test.app1", groupId: addedGroup.id)
+        groupManager.addAppToGroup("com.test.app2", groupId: addedGroup.id)
+        
+        // Refresh group reference to get updated state
+        let updatedGroup = groupManager.groups.first { $0.id == addedGroup.id }
+        XCTAssertEqual(updatedGroup?.appBundleIds.count, 2)
+        
+        // Delete group
+        groupManager.deleteGroup(addedGroup)
+        
+        XCTAssertNil(groupManager.groups.first { $0.id == addedGroup.id })
+    }
 }
