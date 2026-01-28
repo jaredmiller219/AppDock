@@ -78,7 +78,7 @@ final class AppGroupsUITests: UITestBase {
         // Verify editor is open
         XCTAssertTrue(newGroupTitle.exists || editGroupTitle.exists, "Editor title should exist")
         
-        let actualTitle = newGroupTitle.exists ? "New Group" : "Edit Group"
+        let _ = newGroupTitle.exists ? "New Group" : "Edit Group"
         
         // Enter group name
         let groupNameField = appGroupsWindow.textFields["group-name-field"]
