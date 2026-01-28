@@ -31,6 +31,8 @@ class UITestBase: XCTestCase {
             static let shortcutRecorderValuePrefix = "ShortcutRecorderValue-"
             static let shortcutRecorderCancelPrefix = "ShortcutRecorderCancel-"
             static let uiTestOpenAppGroups = "--ui-test-open-app-groups"
+            static let helpMenuItem = "Help"
+            static let releaseNotesMenuItem = "Release Notes"
         }
 
         enum ShortcutActions {

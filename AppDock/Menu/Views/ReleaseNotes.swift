@@ -226,14 +226,35 @@ struct ReleaseNotesPanel: View {
     ]
 
     var body: some View {
-        NavigationView {
+        NavigationSplitView {
             // Version list
-            List(releaseNotes, selection: $selectedVersion) { release in
-                ReleaseNoteRow(release: release)
-                    .tag(release)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(releaseNotes) { release in
+                        DisclosureGroup(isExpanded: Binding(
+                            get: { selectedVersion?.id == release.id },
+                            set: { isExpanded in
+                                if isExpanded {
+                                    selectedVersion = release
+                                } else {
+                                    selectedVersion = nil
+                                }
+                            }
+                        )) {
+                            // Empty content - just for expansion
+                        } label: {
+                            ReleaseNoteDisclosureLabel(release: release)
+                        }
+                        .padding(.vertical, 2)
+                        .accessibilityIdentifier("ReleaseVersion-\(release.version)")
+                    }
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 8)
             }
-            .frame(minWidth: 250)
-
+            .frame(width: 125)
+            .navigationSplitViewColumnWidth(min: 125, ideal: 125, max: 125)
+        } detail: {
             // Content area
             Group {
                 if let selectedVersion = selectedVersion {
@@ -247,9 +268,9 @@ struct ReleaseNotesPanel: View {
                     )
                 }
             }
-            .frame(minWidth: 400, minHeight: 500)
+            .frame(minWidth: 400, maxWidth: .infinity)
+            .navigationTitle("Release Notes")
         }
-        .navigationTitle("Release Notes")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button("Done") {
@@ -260,6 +281,48 @@ struct ReleaseNotesPanel: View {
         .frame(minWidth: 650, minHeight: 500)
         .onAppear {
             selectedVersion = releaseNotes.first { $0.isCurrent }
+        }
+    }
+}
+
+/// Release note disclosure label for sidebar
+struct ReleaseNoteDisclosureLabel: View {
+    let release: ReleaseNote
+
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        return formatter
+    }
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack {
+                    Text(release.version)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+
+                    if release.isCurrent {
+                        Text("Current")
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(Color.accentColor)
+                            .cornerRadius(3)
+                    }
+                }
+
+                Text(dateFormatter.string(from: release.releaseDate))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+
+                Text("\(release.features.count) features")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
         }
     }
 }

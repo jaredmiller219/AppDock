@@ -283,14 +283,37 @@ struct InAppHelpPanel: View {
     ]
 
     var body: some View {
-        NavigationView {
+        NavigationSplitView {
             // Sidebar
-            List(helpSections, selection: $selectedSection) { section in
-                Label(section.title, systemImage: section.icon)
-                    .tag(section)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(helpSections) { section in
+                        DisclosureGroup(isExpanded: Binding(
+                            get: { selectedSection?.id == section.id },
+                            set: { isExpanded in
+                                if isExpanded {
+                                    selectedSection = section
+                                } else {
+                                    selectedSection = nil
+                                }
+                            }
+                        )) {
+                            // Empty content - just for expansion
+                        } label: {
+                            Label(section.title, systemImage: section.icon)
+                                .font(.body)
+                                .foregroundColor(selectedSection?.id == section.id ? .accentColor : .primary)
+                        }
+                        .padding(.vertical, 2)
+                        .accessibilityIdentifier("HelpSection-\(section.title)")
+                    }
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 8)
             }
-            .frame(minWidth: 200)
-
+            .frame(width: 200)
+            .navigationSplitViewColumnWidth(min: 200, ideal: 200, max: 200)
+        } detail: {
             // Content area
             Group {
                 if let selectedSection = selectedSection {
@@ -301,9 +324,9 @@ struct InAppHelpPanel: View {
                     })
                 }
             }
-            .frame(minWidth: 400, minHeight: 500)
+            .frame(minWidth: 400, maxWidth: .infinity)
+            .navigationTitle("AppDock Help")
         }
-        .navigationTitle("AppDock Help")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button("Done") {
